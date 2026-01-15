@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                     String                   @id
+  email                  String                   @unique
+  role                   UserRole                 @default(DOCTOR)
+  isActive               Boolean                  @default(true)
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  firstName              String
+  lastName               String
+  password               String
+  emailVerified          Boolean                  @default(false)
+  Appointment            Appointment[]
+  AuditLog               AuditLog[]
+  EmailVerificationToken EmailVerificationToken[]
+  Encounter              Encounter[]
+  LoginHistory           LoginHistory[]
+}
+
+model Appointment {
+  id          String            @id
+  patientId   String
+  doctorId    String
+  scheduledAt DateTime
+  status      AppointmentStatus @default(SCHEDULED)
+  reason      String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime
+  User        User              @relation(fields: [doctorId], references: [id])
+  Patient     Patient           @relation(fields: [patientId], references: [id])
+  Encounter   Encounter?
+
+  @@index([scheduledAt])
+}
+
+model AuditLog {
+  id        String      @id
+  userId    String
+  action    AuditAction
+  entity    String
+  entityId  String
+  metadata  Json?
+  createdAt DateTime    @default(now())
+  User      User        @relation(fields: [userId], references: [id])
+
+  @@index([entity, entityId])
+}
+
+model EmailVerificationToken {
+  id        String   @id
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+}
+
+model Encounter {
+  id              String          @id
+  patientId       String
+  doctorId        String
+  appointmentId   String?         @unique
+  status          EncounterStatus @default(OPEN)
+  chiefComplaint  String
+  diagnosis       String
+  clinicalNotes   String
+  version         Int             @default(1)
+  previousId      String?
+  createdAt       DateTime        @default(now())
+  Appointment     Appointment?    @relation(fields: [appointmentId], references: [id])
+  User            User            @relation(fields: [doctorId], references: [id])
+  Patient         Patient         @relation(fields: [patientId], references: [id])
+  Encounter       Encounter?      @relation("EncounterToEncounter", fields: [previousId], references: [id])
+  other_Encounter Encounter[]     @relation("EncounterToEncounter")
+}
+
+model LoginHistory {
+  id        String    @id
+  userId    String
+  loginAt   DateTime  @default(now())
+  logoutAt  DateTime?
+  ipAddress String
+  User      User      @relation(fields: [userId], references: [id])
+
+  @@index([userId, loginAt])
+}
+
+model Patient {
+  id          String        @id
+  firstName   String
+  lastName    String
+  dateOfBirth DateTime
+  gender      String
+  contactNo   String?
+  address     String?
+  isDeleted   Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  Appointment Appointment[]
+  Encounter   Encounter[]
+
+  @@index([lastName, firstName])
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CHECKED_IN
+  COMPLETED
+  CANCELLED
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+}
+
+enum EncounterStatus {
+  OPEN
+  CLOSED
+}
+
+enum UserRole {
+  ADMIN
+  DOCTOR
+  RECEPTIONIST
+  NURSE
+}
