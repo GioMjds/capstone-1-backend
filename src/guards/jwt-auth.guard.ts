@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { FastifyRequest } from 'fastify';
+import { Request } from 'express';
 import { UserRole } from '@prisma/client';
 
 interface UserPayload {
@@ -15,8 +15,8 @@ interface UserPayload {
   role: UserRole;
 }
 
-declare module 'fastify' {
-  interface FastifyRequest {
+declare module 'express' {
+  interface Request {
     user?: UserPayload;
   }
 }
@@ -29,7 +29,7 @@ export class JwtAuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<FastifyRequest>();
+    const request = context.switchToHttp().getRequest<Request>();
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
@@ -52,7 +52,7 @@ export class JwtAuthGuard implements CanActivate {
     return true;
   }
 
-  private extractTokenFromHeader(request: FastifyRequest): string | undefined {
+  private extractTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
   }

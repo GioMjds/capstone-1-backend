@@ -6,7 +6,7 @@ Thank you for your interest for contributing into this backend API. This documen
 
 1. Fork the repository to your GitHub account
 2. Clone your forked repository locally
-3. Install dependencies with `npm install`
+3. Install dependencies with `pnpm install`
 4. Set up your environment variables in `.env`
 5. Create a new branch for your feature or fix
 
@@ -43,9 +43,9 @@ git checkout -b feature/your-feature-name
 1. Make your changes in the new branch
 2. Follow NestJS conventions and patterns
 3. Keep changes focused and atomic
-4. Test your changes locally with `npm run start:dev`
-5. Ensure the build passes with `npm run build`
-6. Run linting with `npm run lint`
+4. Test your changes locally with `pnpm run start:dev`
+5. Ensure the build passes with `pnpm run build`
+6. Run linting with `pnpm run lint`
 
 ## Commit Message Guidelines
 

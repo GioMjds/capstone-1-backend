@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { UserRole } from '@prisma/client';
-import { FastifyRequest } from 'fastify';
+import { Request } from 'express';
 
 export const ROLES_KEY = 'roles';
 
@@ -16,8 +16,8 @@ interface UserPayload {
   role: UserRole;
 }
 
-declare module 'fastify' {
-  interface FastifyRequest {
+declare module 'express' {
+  interface Request {
     user?: UserPayload;
   }
 }
@@ -36,7 +36,7 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest<FastifyRequest>();
+    const request = context.switchToHttp().getRequest<Request>();
     const user = request.user as UserPayload;
 
     if (!user || !user.role) {
