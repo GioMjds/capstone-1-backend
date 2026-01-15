@@ -31,6 +31,7 @@ Fixes #123 (if applicable)
 - [ ] New feature
 - [ ] Bug fix
 - [ ] Refactoring
+- [ ] Documentation
 - [ ] API change
 - [ ] Database change
 
