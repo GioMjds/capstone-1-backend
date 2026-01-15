@@ -10,6 +10,8 @@ Thank you for your interest for contributing into this backend API. This documen
 4. Set up your environment variables in `.env`
 5. Create a new branch for your feature or fix
 
+Each time you are going to implement something, check your branch if matches to the `main` branch for update. If not, `git pull origin main` first.
+
 ## Branch Naming Convention
 
 Use descriptive branch names following this format:
