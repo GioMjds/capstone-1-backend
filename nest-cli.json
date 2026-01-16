@@ -20,6 +20,38 @@
         "spec": false,
         "flat": false
       }
+    },
+    "configs": {
+      "root": "src/configs",
+      "sourceRoot": "src/configs",
+      "generateOptions": {
+        "spec": false,
+        "flat": false
+      }
+    },
+    "decorators": {
+      "root": "src/decorators",
+      "sourceRoot": "src/decorators",
+      "generateOptions": {
+        "spec": false,
+        "flat": false
+      }
+    },
+    "guards": {
+      "root": "src/guards",
+      "sourceRoot": "src/guards",
+      "generateOptions": {
+        "spec": false,
+        "flat": false
+      }
+    },
+    "interfaces": {
+      "root": "src/interfaces",
+      "sourceRoot": "src/interfaces",
+      "generateOptions": {
+        "spec": false,
+        "flat": false
+      }
     }
   }
 }

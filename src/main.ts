@@ -4,7 +4,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
-const logger = new Logger('Bootstrap');
+const logger = new Logger('Server');
 
 async function bootstrap() {
   const port = process.env.PORT || 3000;

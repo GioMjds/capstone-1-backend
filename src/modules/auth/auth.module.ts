@@ -7,6 +7,7 @@ import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { OAuth } from '@/shared/utils/oauth';
 import { Token } from '@/shared/utils/token';
+import { EmailModule } from '../email';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { Token } from '@/shared/utils/token';
       useFactory: getJwtConfig,
     }),
     HttpModule,
+    EmailModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, PrismaService, OAuth, Token],

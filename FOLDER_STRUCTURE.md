@@ -42,6 +42,10 @@ It prompts you into:
 ? Which project would you like to generate to?
 ❯ src [ Default ]
   modules
+  configs
+  decorators
+  guards
+  interfaces
 
 ↑↓ navigate • ⏎ select
 ```
