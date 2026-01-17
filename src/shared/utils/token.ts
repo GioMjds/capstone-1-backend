@@ -10,7 +10,6 @@ export class Token {
     return this.jwtService.sign({
       sub: user.id,
       email: user.email,
-      role: user.role,
     });
   }
 }

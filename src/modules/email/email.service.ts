@@ -27,7 +27,7 @@ export class EmailService {
   ) {
     const from = this.configService.get<string>('SMTP_FROM');
     const frontendUrl = this.configService.get<string>('FRONTEND_URL');
-    const verificationUrl = `${frontendUrl}/auth/verify?token=${verificationToken}`;
+    const verificationUrl = `${frontendUrl}/verify?token=${verificationToken}`;
 
     const html = `
     <!DOCTYPE html>
@@ -44,7 +44,7 @@ export class EmailService {
             <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
               <tr>
                 <td style="background-color: #2563eb; padding: 40px 20px; text-align: center;">
-                  <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">Kita</h1>
+                  <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">Project</h1>
                 </td>
               </tr>
               <tr>
@@ -63,12 +63,6 @@ export class EmailService {
                       </td>
                     </tr>
                   </table>
-                  <p style="margin: 0 0 20px 0; color: #4b5563; font-size: 14px; line-height: 1.5;">
-                    Or copy and paste this link into your browser:
-                  </p>
-                  <p style="margin: 0 0 20px 0; color: #2563eb; font-size: 14px; word-break: break-all;">
-                    ${verificationUrl}
-                  </p>
                   <p style="margin: 0 0 20px 0; color: #6b7280; font-size: 14px; line-height: 1.5;">
                     If you did not create an account, please ignore this email.
                   </p>
@@ -77,7 +71,7 @@ export class EmailService {
               <tr>
                 <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
                   <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px;">
-                    © ${new Date().getFullYear()} Kita. All rights reserved.
+                    © ${new Date().getFullYear()} Project. All rights reserved.
                   </p>
                   <p style="margin: 0; color: #9ca3af; font-size: 12px;">
                     This is an automated message, please do not reply.
@@ -94,7 +88,7 @@ export class EmailService {
 
     try {
       await this.transporter.sendMail({
-        from: `"Kita" <${from}>`,
+        from: `"Project" <${from}>`,
         to,
         subject: 'Verify Your Email Address',
         html: html,
@@ -116,7 +110,7 @@ export class EmailService {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Welcome to Kita</title>
+      <title>Welcome to Project</title>
     </head>
     <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4; padding: 20px;">
@@ -125,7 +119,7 @@ export class EmailService {
             <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
               <tr>
                 <td style="background-color: #10b981; padding: 40px 20px; text-align: center;">
-                  <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">Welcome to Kita!</h1>
+                  <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">Welcome to Project!</h1>
                 </td>
               </tr>
               <tr>
@@ -154,14 +148,14 @@ export class EmailService {
                   </p>
                   <p style="margin: 0; color: #4b5563; font-size: 16px; line-height: 1.5;">
                     Best regards,<br>
-                    The Kita Team
+                    The Project Team
                   </p>
                 </td>
               </tr>
               <tr>
                 <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
                   <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px;">
-                    © ${new Date().getFullYear()} Kita. All rights reserved.
+                    © ${new Date().getFullYear()} Project. All rights reserved.
                   </p>
                   <p style="margin: 0; color: #9ca3af; font-size: 12px;">
                     This is an automated message, please do not reply.
@@ -178,9 +172,9 @@ export class EmailService {
 
     try {
       await this.transporter.sendMail({
-        from: `"Kita" <${from}>`,
+        from: `"Project" <${from}>`,
         to,
-        subject: 'Welcome to Kita!',
+        subject: 'Welcome to Project!',
         html: html,
       });
     } catch (error) {

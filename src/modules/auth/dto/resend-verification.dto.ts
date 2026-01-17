@@ -1,13 +1,8 @@
-import { IsPasswordValid } from '@/decorators';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail } from 'class-validator';
 
-export class LoginUserDto {
+export class ResendVerificationDto {
   @ApiProperty({ example: 'john@example.com' })
   @IsEmail()
   email: string;
-
-  @ApiProperty({ example: 'strongPassword123!' })
-  @IsPasswordValid()
-  password: string;
 }

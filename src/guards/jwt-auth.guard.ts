@@ -7,12 +7,11 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
-import { UserRole } from '@prisma/client';
 
 interface UserPayload {
   sub: string;
   email: string;
-  role: UserRole;
+  // role: UserRole;
 }
 
 declare module 'express' {
@@ -43,7 +42,7 @@ export class JwtAuthGuard implements CanActivate {
       request.user = {
         sub: payload.sub,
         email: payload.email,
-        role: payload.role,
+        // role: payload.role,
       };
     } catch {
       throw new UnauthorizedException('Invalid authentication token');

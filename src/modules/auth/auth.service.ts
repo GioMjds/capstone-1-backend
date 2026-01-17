@@ -3,25 +3,33 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ISuccessResponse } from 'src/interfaces';
-import { LoginUser, RegisterUserDto, VerifyUserDto } from './dto';
-import { PrismaService } from 'src/configs';
+import {
+  LoginUserDto,
+  RegisterUserDto,
+  VerifyUserDto,
+  ResendVerificationDto,
+} from './dto';
+import { PrismaService } from '@/configs';
 import { compare, hash } from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
-import { generateUserId, OAuth, Token } from '@/shared/utils';
+import {
+  generateUserId,
+  OAuth,
+  Token,
+  VerificationToken,
+} from '@/shared/utils';
 import { EmailService } from '../email';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
-    private jwtService: JwtService,
     private token: Token,
+    private verificationToken: VerificationToken,
     private emailService: EmailService,
     private oauth: OAuth,
   ) {}
 
-  async login(dto: LoginUser) {
+  async login(dto: LoginUserDto) {
     const { email, password } = dto;
 
     const user = await this.prisma.user.findUnique({
@@ -38,6 +46,10 @@ export class AuthService {
       throw new BadRequestException('Invalid password');
     }
 
+    if (!user.isEmailVerified) {
+      throw new BadRequestException('Email is not verified.');
+    }
+
     const accessToken = this.token.generate(user);
 
     return {
@@ -46,7 +58,6 @@ export class AuthService {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        role: user.role,
       },
       access_token: accessToken,
     };
@@ -76,15 +87,132 @@ export class AuthService {
         lastName: lastName,
         email: email,
         password: passwordHash,
+        isEmailVerified: false,
       },
     });
 
-    return newUser;
+    const verificationJwt = this.verificationToken.generate(
+      newUser.id,
+      newUser.email,
+    );
+
+    let emailSent = false;
+    try {
+      emailSent = await this.emailService.sendVerificationEmail(
+        newUser.email,
+        newUser.firstName,
+        verificationJwt,
+      );
+    } catch {
+      emailSent = false;
+    }
+
+    if (!emailSent) {
+      return {
+        message:
+          'Registration successful, but we could not send the verification email. Please use the resend verification option.',
+        user: {
+          id: newUser.id,
+          firstName: newUser.firstName,
+          lastName: newUser.lastName,
+          email: newUser.email,
+        },
+        emailError: true,
+      };
+    }
+
+    return {
+      message:
+        'Registration successful. Please check your email to verify your account.',
+      user: {
+        id: newUser.id,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        email: newUser.email,
+      },
+    };
   }
 
-  async verifyEmail(dto: VerifyUserDto) {}
+  async verifyUser(dto: VerifyUserDto) {
+    const { token } = dto;
 
-  async resendEmail() {}
+    if (!token || token.trim() === '') {
+      throw new BadRequestException('Verification token is required');
+    }
+
+    const payload = this.verificationToken.verify(token);
+
+    if (!payload) {
+      throw new BadRequestException(
+        'Invalid or expired verification token. Please request a new verification email.',
+      );
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: payload.sub },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.isEmailVerified) {
+      throw new BadRequestException('Email is already verified');
+    }
+
+    if (user.email !== payload.email) {
+      throw new BadRequestException('Token does not match user email');
+    }
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { isEmailVerified: true },
+    });
+
+    await this.emailService.welcomeUserEmail(user.email, user.firstName);
+
+    return {
+      message: 'Email verified successfully. You can now log in.',
+      user: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        isEmailVerified: user.isEmailVerified,
+      }
+    };
+  }
+
+  async resendEmail(dto: ResendVerificationDto) {
+    const { email } = dto;
+
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.isEmailVerified) {
+      throw new BadRequestException('Email is already verified');
+    }
+
+    const verificationJwt = this.verificationToken.generate(
+      user.id,
+      user.email,
+    );
+
+    await this.emailService.sendVerificationEmail(
+      user.email,
+      user.firstName,
+      verificationJwt,
+    );
+
+    return {
+      message: 'Verification email sent. Please check your inbox.',
+    };
+  }
 
   async googleAuth(idToken: string) {
     const googleUser = await this.oauth.validateGoogleToken(idToken);
@@ -101,7 +229,7 @@ export class AuthService {
           lastName: googleUser.lastName,
           email: googleUser.email,
           password: '',
-          emailVerified: true,
+          isEmailVerified: true,
         },
       });
     }
@@ -114,16 +242,8 @@ export class AuthService {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        role: user.role,
       },
       access_token: accessToken,
     };
-  }
-
-  logout(userId: string): Promise<ISuccessResponse> {
-    return Promise.resolve({
-      success: true,
-      message: `User with ID #${userId} has been logged out successfully.`,
-    });
   }
 }

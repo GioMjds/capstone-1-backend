@@ -9,28 +9,48 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
-import { CurrentUser, JwtPayload } from 'src/decorators';
 import { JwtAuthGuard } from 'src/guards';
-import { LoginUser } from './dto';
+import {
+  LoginUserDto,
+  RegisterUserDto,
+  VerifyUserDto,
+  ResendVerificationDto,
+} from './dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('/auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  login(@Body() dto: LoginUser) {
+  login(@Body() dto: LoginUserDto) {
     return this.authService.login(dto);
   }
 
   @Post('logout')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  logout(
-    @CurrentUser() user: JwtPayload,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('access_token');
-    return this.authService.logout(user.sub);
+  }
+
+  @Post('register')
+  @HttpCode(HttpStatus.OK)
+  register(@Body() dto: RegisterUserDto) {
+    return this.authService.register(dto);
+  }
+
+  @Post('verify-email')
+  @HttpCode(HttpStatus.OK)
+  verifyEmail(@Body() dto: VerifyUserDto) {
+    return this.authService.verifyUser(dto);
+  }
+
+  @Post('resend-verif')
+  @HttpCode(HttpStatus.OK)
+  resendVerificationEmail(@Body() dto: ResendVerificationDto) {
+    return this.authService.resendEmail(dto);
   }
 }
