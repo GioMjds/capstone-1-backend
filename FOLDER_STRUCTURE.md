@@ -227,6 +227,30 @@ Custom metadata and syntactic sugar.
 
 ---
 
+## `docus/`
+
+API endpoint documentation decorators (per features implemented)
+
+**Purpose**:
+
+- Centralize NestJS Swagger docs
+- Maintain consistent API documentation
+- Separate docs from business logic
+
+## **Typical Contents**
+
+- `@FeatureDocs()`
+- `@EndpointDocs()`
+
+## **Best Practices**
+
+- Keep decorators implemented in controllers thin
+- Do descriptive documentation in `docus/` files
+- Summarize what the endpoint does, inputs, outputs, errors, status codes, etc.
+- Avoid mixing docs with business logic
+
+---
+
 ## `guards/`
 
 Request-level authorization and access control.
@@ -286,6 +310,8 @@ Encapsulated application features and business domains.
 ```text
 modules/
   auth/
+    dto/
+      *.dto.ts               -> Separate DTOs per endpoints needed
     auth.module.ts
     auth.controller.ts
     auth.service.ts
@@ -327,6 +353,7 @@ Reusable utilities and constants.
 # **Mental Model**
 
 - **`modules/`** define what the application does
+- **`docus/`** define how to / they use it
 - **`guards/`** and **`decorators/`** define who can do it
 - **`configs/`** define how the application runs
 - **`interfaces/`** define how components communicate

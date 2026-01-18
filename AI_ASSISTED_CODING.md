@@ -10,6 +10,7 @@ You **MUST** use the following instruction files as official instructions for AI
 
 - [`ai-rules/code_standards.instructions.md`](ai-rules/code_standards.instructions.md) - Code style, structure, and organization standards
 - [`ai-rules/coding_rules.instructions.md`](ai-rules/coding_rules.instructions.md) - Quality, security, and NestJS patterns
+- [`ai-rules/api_documentation.instructions.md`](ai-rules/api_documentation.instructions.md) - API documentation standards using Swagger decorators
 
 **These files are MANDATORY for all AI-assisted code generation.** Review and understand all rules before using any AI-assisted coding tools in this project.
 
@@ -53,15 +54,15 @@ Before committing code generated with AI-assisted tools, verify:
 
 ## Violations & Remediation
 
-| Violation | Severity | Action |
-|-----------|----------|--------|
-| Comments in code | High | Remove immediately |
-| Security issues | Critical | Block merge, fix required |
-| Type violations | High | Request refactor |
-| File size violations | Medium | Request split |
-| Naming convention | Medium | Request rename |
-| Missing validation | Critical | Add validators |
-| Exposed secrets | Critical | Remove, rotate credentials |
+| Violation            | Severity | Action                     |
+|----------------------|----------|----------------------------|
+| Comments in code     | High     | Remove immediately         |
+| Security issues      | Critical | Block merge, fix required  |
+| Type violations      | High     | Request refactor           |
+| File size violations | Medium   | Request split              |
+| Naming convention    | Medium   | Request rename             |
+| Missing validation   | Critical | Add validators             |
+| Exposed secrets      | Critical | Remove, rotate credentials |
 
 ---
 
@@ -69,4 +70,8 @@ Before committing code generated with AI-assisted tools, verify:
 
 **Document Maintainer**: Development Team
 
-**Related Files**: [code_standards.instructions.md](ai-rules/code_standards.instructions.md), [coding_rules.instructions.md](ai-rules/coding_rules.instructions.md)
+**Related Files**:
+
+- [code_standards.instructions.md](ai-rules/code_standards.instructions.md)
+- [coding_rules.instructions.md](ai-rules/coding_rules.instructions.md)
+- [api_documentation.instructions.md](ai-rules/api_documentation.instructions.md)
