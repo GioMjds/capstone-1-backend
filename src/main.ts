@@ -30,6 +30,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle("Capstone 1 API")
     .setDescription("API documentation for Capstone 1 project. All endpoints must starts with '/api' prefix.")
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

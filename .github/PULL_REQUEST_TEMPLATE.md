@@ -1,4 +1,4 @@
-# Pull Request
+# Title of your Pull Request
 
 ## Summary
 
@@ -31,9 +31,9 @@ Fixes #123 (if applicable)
 - [ ] New feature
 - [ ] Bug fix
 - [ ] Refactoring
-- [ ] Documentation
+- [ ] API Documentation
 - [ ] API change
-- [ ] Database change
+- [ ] Database Schema change
 
 ## Testing
 

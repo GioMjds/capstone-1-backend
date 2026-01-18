@@ -10,6 +10,7 @@
 - **Utilities/Helpers**: 100-150 lines maximum
 - **Types/Interfaces**: 50-100 lines maximum
 - **Constants**: 50-100 lines maximum
+- **API Documentations**: 200+ lines per feature allowed
 
 ### When to Split Files
 Split a file when:

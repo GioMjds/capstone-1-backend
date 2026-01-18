@@ -83,6 +83,7 @@
 - Use DTOs for request validation
 - Return consistent response structures
 - Keep controllers thin - delegate to services
+- Add your API endpoint docu decorators (@LoginDocs, @RegisterDocs, etc.)
 
 ### Service Layer
 - Mark services with @Injectable() decorator

@@ -6,23 +6,49 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsString } from 'class-validator';
 
 export class RegisterUserDto {
-  @ApiProperty({ example: 'John' })
+  @ApiProperty({ 
+    description: 'User first name',
+    example: 'John',
+    required: true,
+    minLength: 1,
+    maxLength: 50
+  })
   @IsString()
   firstName: string;
 
-  @ApiProperty({ example: 'Doe' })
+  @ApiProperty({ 
+    description: 'User last name',
+    example: 'Doe',
+    required: true,
+    minLength: 1,
+    maxLength: 50
+  })
   @IsString()
   lastName: string;
 
-  @ApiProperty({ example: 'john@example.com' })
+  @ApiProperty({ 
+    description: 'Unique email address for the user account',
+    example: 'john@example.com',
+    required: true
+  })
   @IsEmail()
   email: string;
 
-  @ApiProperty({ example: 'strongPassword123!' })
+  @ApiProperty({ 
+    description: 'Strong password (min 8 characters, must contain uppercase, lowercase, number, and special character)',
+    example: 'StrongPassword123!',
+    required: true,
+    minLength: 8
+  })
   @IsPasswordValid()
   password: string;
 
-  @ApiProperty({ example: 'strongPassword123!' })
+  @ApiProperty({ 
+    description: 'Password confirmation (must match password field)',
+    example: 'StrongPassword123!',
+    required: true,
+    minLength: 8
+  })
   @IsPasswordMatch('password')
   confirmPassword: string;
 }

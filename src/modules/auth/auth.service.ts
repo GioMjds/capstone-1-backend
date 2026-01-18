@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -77,7 +78,7 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new BadRequestException('Email is already registered');
+      throw new ConflictException('Email is already registered');
     }
 
     if (password !== confirmPassword) {
