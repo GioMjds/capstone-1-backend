@@ -18,7 +18,7 @@ export const RegisterDocs = () => applyDecorators(
   ApiOperation({
     summary: 'Register a new user account',
     description: `
-      Registers a new user and initiates email verification flow.
+      Registers a new user and initiates email verification flow via OTP.
       
       **Feature:** Authentication > User Registration
       **Module:** auth
@@ -28,18 +28,18 @@ export const RegisterDocs = () => applyDecorators(
       2. Check if email already exists in the system
       3. Hash password using secure algorithm
       4. Create user record in database
-      5. Generate verification token
-      6. Send verification email to user
+      5. Generate 6-digit OTP code
+      6. Send OTP via email to user
       
       **Related Endpoints:**
-      - POST /auth/verify-email - Verify the email token
-      - POST /auth/resend-verif - Resend verification email
+      - POST /auth/verify-email - Verify the OTP code
+      - POST /auth/resend-verif - Resend OTP email
       
       **Business Rules:**
       - Email must be unique across all users
       - Password must meet complexity requirements (min 8 chars, uppercase, lowercase, number, special char)
       - Confirmation password must match password
-      - Verification token expires in 24 hours
+      - OTP expires in 10 minutes
     `
   }),
   ApiBody({ 
@@ -146,35 +146,36 @@ export const LogoutDocs = () => applyDecorators(
 
 export const VerifyEmailDocs = () => applyDecorators(
   ApiOperation({
-    summary: 'Verify user email address',
+    summary: 'Verify user email address with OTP',
     description: `
-      Verifies user email using the verification token sent during registration.
+      Verifies user email using the 6-digit OTP code sent during registration.
       
       **Feature:** Authentication > Email Verification
       **Module:** auth
       
       **Flow:**
-      1. Validate verification token format
-      2. Find user with matching token
-      3. Check if token is not expired
-      4. Mark user email as verified
-      5. Generate access token
-      6. Set token in HTTP-only cookie
-      7. Return success response
+      1. Validate email and OTP format
+      2. Find user by email address
+      3. Verify OTP code matches
+      4. Check if OTP is not expired
+      5. Mark user email as verified
+      6. Clear OTP from database
+      7. Generate access token
+      8. Set token in HTTP-only cookie
       
       **Related Endpoints:**
       - POST /auth/register - Initial registration
-      - POST /auth/resend-verif - Request new verification email
+      - POST /auth/resend-verif - Request new OTP
       
       **Business Rules:**
-      - Verification token is valid for 24 hours
-      - Token can only be used once
+      - OTP is valid for 10 minutes
+      - OTP can only be used once
       - After verification, user is automatically logged in
     `
   }),
   ApiBody({ 
     type: VerifyUserDto,
-    description: 'Email verification token received via email'
+    description: 'Email address and 6-digit OTP code received via email'
   }),
   ApiOkResponse({
     description: 'Email verified successfully. User is now logged in.'
@@ -195,9 +196,9 @@ export const VerifyEmailDocs = () => applyDecorators(
 
 export const ResendVerificationDocs = () => applyDecorators(
   ApiOperation({
-    summary: 'Resend email verification link',
+    summary: 'Resend email verification OTP',
     description: `
-      Resends the verification email to a user who has not yet verified their email.
+      Resends a new OTP code to a user who has not yet verified their email.
       
       **Feature:** Authentication > Email Verification
       **Module:** auth
@@ -206,17 +207,19 @@ export const ResendVerificationDocs = () => applyDecorators(
       1. Validate email format
       2. Find user by email
       3. Check if email is not already verified
-      4. Generate new verification token
-      5. Send verification email
+      4. Generate new 6-digit OTP code
+      5. Update user OTP and expiry in database
+      6. Send OTP email
       
       **Related Endpoints:**
-      - POST /auth/verify-email - Verify the email token
+      - POST /auth/verify-email - Verify the OTP code
       - POST /auth/register - Initial registration
       
       **Business Rules:**
       - User must exist in the system
       - Email must not already be verified
-      - Previous verification token is invalidated
+      - Previous OTP is invalidated
+      - New OTP expires in 10 minutes
       - Rate limited to prevent email spam
     `
   }),

@@ -15,8 +15,8 @@ import { compare, hash } from 'bcrypt';
 import {
   generateUserId,
   OAuth,
+  OtpService,
   Token,
-  VerificationToken,
 } from '@/shared/utils';
 import { EmailService } from '../email';
 import type { Response } from 'express';
@@ -26,7 +26,7 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private token: Token,
-    private verificationToken: VerificationToken,
+    private otpService: OtpService,
     private emailService: EmailService,
     private oauth: OAuth,
   ) {}
@@ -98,17 +98,15 @@ export class AuthService {
       },
     });
 
-    const verificationJwt = this.verificationToken.generate(
-      newUser.id,
-      newUser.email,
-    );
+    const otp = this.otpService.generate();
+    await this.otpService.store(newUser.email, otp);
 
     let emailSent = false;
     try {
-      emailSent = await this.emailService.sendVerificationEmail(
+      emailSent = await this.emailService.sendOtpEmail(
         newUser.email,
         newUser.firstName,
-        verificationJwt,
+        otp,
       );
     } catch {
       emailSent = false;
@@ -130,7 +128,7 @@ export class AuthService {
 
     return {
       message:
-        'Registration successful. Please check your email to verify your account.',
+        'Registration successful. Please check your email for the OTP code to verify your account.',
       user: {
         id: newUser.id,
         firstName: newUser.firstName,
@@ -141,22 +139,14 @@ export class AuthService {
   }
 
   async verifyUser(dto: VerifyUserDto, res: Response) {
-    const { token } = dto;
+    const { email, otp } = dto;
 
-    if (!token || token.trim() === '') {
-      throw new BadRequestException('Verification token is required');
-    }
-
-    const payload = this.verificationToken.verify(token);
-
-    if (!payload) {
-      throw new BadRequestException(
-        'Invalid or expired verification token. Please request a new verification email.',
-      );
+    if (!otp || otp.trim() === '') {
+      throw new BadRequestException('OTP is required');
     }
 
     const user = await this.prisma.user.findUnique({
-      where: { id: payload.sub },
+      where: { email },
     });
 
     if (!user) {
@@ -167,9 +157,13 @@ export class AuthService {
       throw new BadRequestException('Email is already verified');
     }
 
-    if (user.email !== payload.email) {
-      throw new BadRequestException('Token does not match user email');
+    const isValidOtp = await this.otpService.verify(email, otp);
+
+    if (!isValidOtp) {
+      throw new BadRequestException('Invalid or expired OTP. Please request a new one.');
     }
+
+    await this.otpService.invalidate(email);
 
     const accessToken = this.token.generate(user);
 
@@ -192,7 +186,7 @@ export class AuthService {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        isEmailVerified: user.isEmailVerified,
+        isEmailVerified: true,
       },
       access_token: accessToken
     };
@@ -213,19 +207,17 @@ export class AuthService {
       throw new BadRequestException('Email is already verified');
     }
 
-    const verificationJwt = this.verificationToken.generate(
-      user.id,
-      user.email,
-    );
+    const otp = this.otpService.generate();
+    await this.otpService.store(email, otp);
 
-    await this.emailService.sendVerificationEmail(
+    await this.emailService.sendOtpEmail(
       user.email,
       user.firstName,
-      verificationJwt,
+      otp,
     );
 
     return {
-      message: 'Verification email sent. Please check your inbox.',
+      message: 'Verification OTP sent. Please check your inbox.',
     };
   }
 
