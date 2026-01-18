@@ -11,7 +11,7 @@ interface VerificationPayload {
 @Injectable()
 export class VerificationToken {
   private readonly verificationSecret: string;
-  private readonly verificationExpiry = '24h';
+  private readonly verificationExpiry = '5m';
 
   constructor(
     private jwtService: JwtService,

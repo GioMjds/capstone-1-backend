@@ -18,6 +18,7 @@ import {
   VerificationToken,
 } from '@/shared/utils';
 import { EmailService } from '../email';
+import type { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -29,7 +30,7 @@ export class AuthService {
     private oauth: OAuth,
   ) {}
 
-  async login(dto: LoginUserDto) {
+  async login(dto: LoginUserDto, res: Response) {
     const { email, password } = dto;
 
     const user = await this.prisma.user.findUnique({
@@ -43,7 +44,7 @@ export class AuthService {
     const passwordValid = await compare(password, user.password);
 
     if (!passwordValid) {
-      throw new BadRequestException('Invalid password');
+      throw new BadRequestException('Your password is incorrect.');
     }
 
     if (!user.isEmailVerified) {
@@ -51,6 +52,11 @@ export class AuthService {
     }
 
     const accessToken = this.token.generate(user);
+
+    res.cookie('access_token', accessToken, {
+      sameSite: 'none',
+      secure: true,
+    });
 
     return {
       user: {
@@ -133,7 +139,7 @@ export class AuthService {
     };
   }
 
-  async verifyUser(dto: VerifyUserDto) {
+  async verifyUser(dto: VerifyUserDto, res: Response) {
     const { token } = dto;
 
     if (!token || token.trim() === '') {
@@ -164,12 +170,19 @@ export class AuthService {
       throw new BadRequestException('Token does not match user email');
     }
 
+    const accessToken = this.token.generate(user);
+
     await this.prisma.user.update({
       where: { id: user.id },
       data: { isEmailVerified: true },
     });
 
     await this.emailService.welcomeUserEmail(user.email, user.firstName);
+
+    res.cookie('access_token', accessToken, {
+      sameSite: 'none',
+      secure: true
+    });
 
     return {
       message: 'Email verified successfully. You can now log in.',
@@ -179,7 +192,8 @@ export class AuthService {
         lastName: user.lastName,
         email: user.email,
         isEmailVerified: user.isEmailVerified,
-      }
+      },
+      access_token: accessToken
     };
   }
 

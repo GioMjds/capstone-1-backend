@@ -25,8 +25,8 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  login(@Body() dto: LoginUserDto) {
-    return this.authService.login(dto);
+  login(@Body() dto: LoginUserDto, @Res({ passthrough: true }) res: Response) {
+    return this.authService.login(dto, res);
   }
 
   @Post('logout')
@@ -44,8 +44,11 @@ export class AuthController {
 
   @Post('verify-email')
   @HttpCode(HttpStatus.OK)
-  verifyEmail(@Body() dto: VerifyUserDto) {
-    return this.authService.verifyUser(dto);
+  verifyEmail(
+    @Body() dto: VerifyUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.authService.verifyUser(dto, res);
   }
 
   @Post('resend-verif')

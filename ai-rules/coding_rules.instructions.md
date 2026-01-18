@@ -11,6 +11,8 @@
 
 ### Clean Code Requirements
 - Write code without placeholder data or mock content
+- Minimal comments only for complex logic that cannot be simplified
+- Keep functions and methods short and focused
 - Remove all console.log statements before committing
 - Remove all debugging code before committing
 - Do not leave TODO comments in production code
