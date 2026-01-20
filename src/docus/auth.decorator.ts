@@ -1,5 +1,11 @@
-import { LoginUserDto, RegisterUserDto, ResendVerificationDto, VerifyUserDto } from '@/modules/auth/dto';
-import { GoogleLoginOAuthDto } from '@/modules/auth/dto/oauth.dto';
+import {
+  ChangePasswordDto,
+  LoginUserDto,
+  RegisterUserDto,
+  ResendVerificationDto,
+  VerifyUserDto,
+  GoogleLoginOAuthDto,
+} from '@/modules/auth/dto';
 import { applyDecorators } from '@nestjs/common';
 import {
   ApiOperation,
@@ -11,13 +17,14 @@ import {
   ApiTooManyRequestsResponse,
   ApiInternalServerErrorResponse,
   ApiBearerAuth,
-  ApiNotFoundResponse
+  ApiNotFoundResponse,
 } from '@nestjs/swagger';
 
-export const RegisterDocs = () => applyDecorators(
-  ApiOperation({
-    summary: 'Register a new user account',
-    description: `
+export const RegisterDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Register a new user account',
+      description: `
       Registers a new user and initiates email verification flow via OTP.
       
       **Feature:** Authentication > User Registration
@@ -40,33 +47,37 @@ export const RegisterDocs = () => applyDecorators(
       - Password must meet complexity requirements (min 8 chars, uppercase, lowercase, number, special char)
       - Confirmation password must match password
       - OTP expires in 10 minutes
-    `
-  }),
-  ApiBody({ 
-    type: RegisterUserDto,
-    description: 'User registration credentials including first name, last name, email, password, and password confirmation'
-  }),
-  ApiOkResponse({
-    description: 'User registered successfully. A verification email has been sent to the provided email address.'
-  }),
-  ApiBadRequestResponse({ 
-    description: 'Invalid input data. Email format invalid, password does not meet requirements, or passwords do not match.' 
-  }),
-  ApiConflictResponse({ 
-    description: 'Email address is already registered in the system.' 
-  }),
-  ApiTooManyRequestsResponse({ 
-    description: 'Too many registration attempts. Please try again later.' 
-  }),
-  ApiInternalServerErrorResponse({
-    description: 'Unexpected server error occurred during registration.'
-  })
-);
+    `,
+    }),
+    ApiBody({
+      type: RegisterUserDto,
+      description:
+        'User registration credentials including first name, last name, email, password, and password confirmation',
+    }),
+    ApiOkResponse({
+      description:
+        'User registered successfully. A verification email has been sent to the provided email address.',
+    }),
+    ApiBadRequestResponse({
+      description:
+        'Invalid input data. Email format invalid, password does not meet requirements, or passwords do not match.',
+    }),
+    ApiConflictResponse({
+      description: 'Email address is already registered in the system.',
+    }),
+    ApiTooManyRequestsResponse({
+      description: 'Too many registration attempts. Please try again later.',
+    }),
+    ApiInternalServerErrorResponse({
+      description: 'Unexpected server error occurred during registration.',
+    }),
+  );
 
-export const LoginDocs = () => applyDecorators(
-  ApiOperation({
-    summary: 'Authenticate user and get access token',
-    description: `
+export const LoginDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Authenticate user and get access token',
+      description: `
       Authenticates user credentials and returns JWT access token via HTTP-only cookie.
       
       **Feature:** Authentication > User Login
@@ -90,33 +101,34 @@ export const LoginDocs = () => applyDecorators(
       - Token expires based on JWT configuration
       - Failed login attempts may trigger rate limiting
       - Access token stored in HTTP-only cookie for security
-    `
-  }),
-  ApiBody({ 
-    type: LoginUserDto,
-    description: 'User login credentials (email and password)'
-  }),
-  ApiOkResponse({
-    description: 'Login successful. Access token set in HTTP-only cookie.'
-  }),
-  ApiBadRequestResponse({ 
-    description: 'Invalid email format or password format.' 
-  }),
-  ApiUnauthorizedResponse({ 
-    description: 'Invalid credentials or email not verified.' 
-  }),
-  ApiTooManyRequestsResponse({ 
-    description: 'Too many login attempts. Please try again later.' 
-  }),
-  ApiInternalServerErrorResponse({
-    description: 'Unexpected server error occurred during login.'
-  })
-);
+    `,
+    }),
+    ApiBody({
+      type: LoginUserDto,
+      description: 'User login credentials (email and password)',
+    }),
+    ApiOkResponse({
+      description: 'Login successful. Access token set in HTTP-only cookie.',
+    }),
+    ApiBadRequestResponse({
+      description: 'Invalid email format or password format.',
+    }),
+    ApiUnauthorizedResponse({
+      description: 'Invalid credentials or email not verified.',
+    }),
+    ApiTooManyRequestsResponse({
+      description: 'Too many login attempts. Please try again later.',
+    }),
+    ApiInternalServerErrorResponse({
+      description: 'Unexpected server error occurred during login.',
+    }),
+  );
 
-export const LogoutDocs = () => applyDecorators(
-  ApiOperation({
-    summary: 'Logout user and clear session',
-    description: `
+export const LogoutDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Logout user and clear session',
+      description: `
       Logs out the current user by clearing the access token cookie.
       
       Feature: Authentication > User Logout
@@ -130,24 +142,25 @@ export const LogoutDocs = () => applyDecorators(
       **Business Rules:**
       - User must be authenticated to logout
       - Cookie is cleared regardless of token validity
-    `
-  }),
-  ApiBearerAuth(),
-  ApiOkResponse({
-    description: 'Logout successful. Access token cookie cleared.'
-  }),
-  ApiUnauthorizedResponse({ 
-    description: 'Access token is missing, invalid, or expired.' 
-  }),
-  ApiInternalServerErrorResponse({
-    description: 'Unexpected server error occurred during logout.'
-  })
-);
+    `,
+    }),
+    ApiBearerAuth(),
+    ApiOkResponse({
+      description: 'Logout successful. Access token cookie cleared.',
+    }),
+    ApiUnauthorizedResponse({
+      description: 'Access token is missing, invalid, or expired.',
+    }),
+    ApiInternalServerErrorResponse({
+      description: 'Unexpected server error occurred during logout.',
+    }),
+  );
 
-export const VerifyEmailDocs = () => applyDecorators(
-  ApiOperation({
-    summary: 'Verify user email address with OTP',
-    description: `
+export const VerifyEmailDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Verify user email address with OTP',
+      description: `
       Verifies user email using the 6-digit OTP code sent during registration.
       
       **Feature:** Authentication > Email Verification
@@ -171,33 +184,34 @@ export const VerifyEmailDocs = () => applyDecorators(
       - OTP is valid for 10 minutes
       - OTP can only be used once
       - After verification, user is automatically logged in
-    `
-  }),
-  ApiBody({ 
-    type: VerifyUserDto,
-    description: 'Email address and 6-digit OTP code received via email'
-  }),
-  ApiOkResponse({
-    description: 'Email verified successfully. User is now logged in.'
-  }),
-  ApiBadRequestResponse({ 
-    description: 'Invalid or expired verification token.' 
-  }),
-  ApiNotFoundResponse({
-    description: 'Verification token not found or already used.'
-  }),
-  ApiTooManyRequestsResponse({ 
-    description: 'Too many verification attempts. Please try again later.' 
-  }),
-  ApiInternalServerErrorResponse({
-    description: 'Unexpected server error occurred during verification.'
-  })
-);
+    `,
+    }),
+    ApiBody({
+      type: VerifyUserDto,
+      description: 'Email address and 6-digit OTP code received via email',
+    }),
+    ApiOkResponse({
+      description: 'Email verified successfully. User is now logged in.',
+    }),
+    ApiBadRequestResponse({
+      description: 'Invalid or expired verification token.',
+    }),
+    ApiNotFoundResponse({
+      description: 'Verification token not found or already used.',
+    }),
+    ApiTooManyRequestsResponse({
+      description: 'Too many verification attempts. Please try again later.',
+    }),
+    ApiInternalServerErrorResponse({
+      description: 'Unexpected server error occurred during verification.',
+    }),
+  );
 
-export const ResendVerificationDocs = () => applyDecorators(
-  ApiOperation({
-    summary: 'Resend email verification OTP',
-    description: `
+export const ResendVerificationDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Resend email verification OTP',
+      description: `
       Resends a new OTP code to a user who has not yet verified their email.
       
       **Feature:** Authentication > Email Verification
@@ -221,33 +235,34 @@ export const ResendVerificationDocs = () => applyDecorators(
       - Previous OTP is invalidated
       - New OTP expires in 10 minutes
       - Rate limited to prevent email spam
-    `
-  }),
-  ApiBody({ 
-    type: ResendVerificationDto,
-    description: 'Email address to resend verification to'
-  }),
-  ApiOkResponse({
-    description: 'Verification email sent successfully.'
-  }),
-  ApiBadRequestResponse({ 
-    description: 'Invalid email format or email already verified.' 
-  }),
-  ApiNotFoundResponse({
-    description: 'No user found with this email address.'
-  }),
-  ApiTooManyRequestsResponse({ 
-    description: 'Too many resend attempts. Please try again later.' 
-  }),
-  ApiInternalServerErrorResponse({
-    description: 'Unexpected server error occurred.'
-  })
-);
+    `,
+    }),
+    ApiBody({
+      type: ResendVerificationDto,
+      description: 'Email address to resend verification to',
+    }),
+    ApiOkResponse({
+      description: 'Verification email sent successfully.',
+    }),
+    ApiBadRequestResponse({
+      description: 'Invalid email format or email already verified.',
+    }),
+    ApiNotFoundResponse({
+      description: 'No user found with this email address.',
+    }),
+    ApiTooManyRequestsResponse({
+      description: 'Too many resend attempts. Please try again later.',
+    }),
+    ApiInternalServerErrorResponse({
+      description: 'Unexpected server error occurred.',
+    }),
+  );
 
-export const GoogleOAuthLoginDocs = () => applyDecorators(
-  ApiOperation({
-    summary: 'Authenticate user via Google OAuth',
-    description: `
+export const GoogleOAuthLoginDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Authenticate user via Google OAuth',
+      description: `
       Authenticates a user using their Google account ID token.
       
       **Feature:** Authentication > OAuth Login
@@ -270,25 +285,96 @@ export const GoogleOAuthLoginDocs = () => applyDecorators(
       - If user doesn't exist, account is created automatically
       - Email from Google is automatically marked as verified
       - Existing users with same email are linked to Google account
-    `
-  }),
-  ApiBody({ 
-    type: GoogleLoginOAuthDto,
-    description: 'Google OAuth ID token from client-side authentication'
-  }),
-  ApiOkResponse({
-    description: 'Google OAuth login successful. Access token returned.'
-  }),
-  ApiBadRequestResponse({ 
-    description: 'Invalid or malformed Google ID token.' 
-  }),
-  ApiUnauthorizedResponse({ 
-    description: 'Google ID token is invalid, expired, or verification failed.' 
-  }),
-  ApiTooManyRequestsResponse({ 
-    description: 'Too many login attempts. Please try again later.' 
-  }),
-  ApiInternalServerErrorResponse({
-    description: 'Unexpected server error occurred during OAuth login.'
-  })
-);
+    `,
+    }),
+    ApiBody({
+      type: GoogleLoginOAuthDto,
+      description: 'Google OAuth ID token from client-side authentication',
+    }),
+    ApiOkResponse({
+      description: 'Google OAuth login successful. Access token returned.',
+    }),
+    ApiBadRequestResponse({
+      description: 'Invalid or malformed Google ID token.',
+    }),
+    ApiUnauthorizedResponse({
+      description:
+        'Google ID token is invalid, expired, or verification failed.',
+    }),
+    ApiTooManyRequestsResponse({
+      description: 'Too many login attempts. Please try again later.',
+    }),
+    ApiInternalServerErrorResponse({
+      description: 'Unexpected server error occurred during OAuth login.',
+    }),
+  );
+
+export const ChangePasswordDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Change user password',
+      description: `
+      Allows authenticated users to change their password.
+      
+      **Feature:** Authentication > Password Management
+      **Module:** auth
+      
+      **Flow:**
+      1. Validate user is authenticated via JWT
+      2. Verify email exists in database
+      3. Validate current password matches stored hash
+      4. Validate new password meets security requirements
+      5. Ensure new passwords match
+      6. Check new password is different from current
+      7. Hash new password securely
+      8. Update password in database
+      9. Return success response
+      
+      **Related Endpoints:**
+      - POST /auth/login - Login with new password
+      - POST /auth/logout - Recommended after password change
+      
+      **Business Rules:**
+      - User must be authenticated (valid JWT token required)
+      - Current password must be correct
+      - New password must meet complexity requirements (min 8 chars, uppercase, lowercase, number, special char)
+      - Confirmation password must match new password
+      - New password cannot be the same as current password
+      - Rate limited to 3 attempts per minute to prevent brute force
+      - Recommended to logout and re-login after password change
+      
+      **Security Notes:**
+      - All passwords are hashed using bcrypt with cost factor 12
+      - Current password verification prevents unauthorized changes
+      - Rate limiting protects against password enumeration attacks
+    `,
+    }),
+    ApiBearerAuth(),
+    ApiBody({
+      type: ChangePasswordDto,
+      description:
+        'Current password, new password, and password confirmation. Email is extracted from JWT token.',
+    }),
+    ApiOkResponse({
+      description:
+        'Password changed successfully. User should re-login with new password.',
+    }),
+    ApiBadRequestResponse({
+      description:
+        'Invalid input: current password incorrect, passwords do not match, or new password same as current password.',
+    }),
+    ApiUnauthorizedResponse({
+      description:
+        'Access token is missing, invalid, or expired. User must be authenticated.',
+    }),
+    ApiNotFoundResponse({
+      description: 'User not found in the system.',
+    }),
+    ApiTooManyRequestsResponse({
+      description:
+        'Too many password change attempts (max 3 per minute). Please try again later.',
+    }),
+    ApiInternalServerErrorResponse({
+      description: 'Unexpected server error occurred during password change.',
+    }),
+  );

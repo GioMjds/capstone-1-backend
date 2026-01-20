@@ -1,7 +1,7 @@
 import {
+  Injectable,
   BadRequestException,
   ConflictException,
-  Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import {
@@ -9,17 +9,12 @@ import {
   RegisterUserDto,
   VerifyUserDto,
   ResendVerificationDto,
+  ChangePasswordDto,
 } from './dto';
 import { PrismaService } from '@/configs';
 import { compare, hash } from 'bcrypt';
-import {
-  generateUserId,
-  OAuth,
-  OtpService,
-  Token,
-} from '@/shared/utils';
+import { generateUserId, OAuth, OtpService, Token } from '@/shared/utils';
 import { EmailService } from '../email';
-import type { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -31,7 +26,7 @@ export class AuthService {
     private oauth: OAuth,
   ) {}
 
-  async login(dto: LoginUserDto, res: Response) {
+  async login(dto: LoginUserDto) {
     const { email, password } = dto;
 
     const user = await this.prisma.user.findUnique({
@@ -54,11 +49,6 @@ export class AuthService {
 
     const accessToken = this.token.generate(user);
 
-    res.cookie('access_token', accessToken, {
-      sameSite: 'none',
-      secure: true,
-    });
-
     return {
       user: {
         id: user.id,
@@ -68,6 +58,10 @@ export class AuthService {
       },
       access_token: accessToken,
     };
+  }
+
+  async logout() {
+    return { message: 'Logout successful' };
   }
 
   async register(dto: RegisterUserDto) {
@@ -138,7 +132,7 @@ export class AuthService {
     };
   }
 
-  async verifyUser(dto: VerifyUserDto, res: Response) {
+  async verifyUser(dto: VerifyUserDto) {
     const { email, otp } = dto;
 
     if (!otp || otp.trim() === '') {
@@ -160,7 +154,9 @@ export class AuthService {
     const isValidOtp = await this.otpService.verify(email, otp);
 
     if (!isValidOtp) {
-      throw new BadRequestException('Invalid or expired OTP. Please request a new one.');
+      throw new BadRequestException(
+        'Invalid or expired OTP. Please request a new one.',
+      );
     }
 
     await this.otpService.invalidate(email);
@@ -174,11 +170,6 @@ export class AuthService {
 
     await this.emailService.welcomeUserEmail(user.email, user.firstName);
 
-    res.cookie('access_token', accessToken, {
-      sameSite: 'none',
-      secure: true
-    });
-
     return {
       message: 'Email verified successfully. You can now log in.',
       user: {
@@ -188,7 +179,7 @@ export class AuthService {
         email: user.email,
         isEmailVerified: true,
       },
-      access_token: accessToken
+      access_token: accessToken,
     };
   }
 
@@ -210,14 +201,51 @@ export class AuthService {
     const otp = this.otpService.generate();
     await this.otpService.store(email, otp);
 
-    await this.emailService.sendOtpEmail(
-      user.email,
-      user.firstName,
-      otp,
-    );
+    await this.emailService.sendOtpEmail(user.email, user.firstName, otp);
 
     return {
       message: 'Verification OTP sent. Please check your inbox.',
+    };
+  }
+
+  async changePassword(dto: ChangePasswordDto) {
+    const { email, confirmNewPassword, currentPassword, newPassword } = dto;
+
+    const user = await this.prisma.user.findUnique({
+      where: { email: email },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const isPasswordValid = await compare(currentPassword, user.password);
+
+    if (!isPasswordValid) {
+      throw new BadRequestException('Your current password is incorrect');
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      throw new BadRequestException('New passwords do not match');
+    }
+
+    const isSamePassword = await compare(newPassword, user.password);
+
+    if (isSamePassword) {
+      throw new BadRequestException(
+        'New password must be different from the current password',
+      );
+    }
+
+    const hashedNewPassword = await hash(newPassword, 12);
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { password: hashedNewPassword },
+    });
+
+    return {
+      message: 'Password changed successfully',
     };
   }
 

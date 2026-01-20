@@ -13,7 +13,7 @@ export class RegisterUserDto {
     minLength: 1,
     maxLength: 50
   })
-  @IsString()
+  @IsString({ message: 'First name must be a string' })
   firstName: string;
 
   @ApiProperty({ 
@@ -23,7 +23,7 @@ export class RegisterUserDto {
     minLength: 1,
     maxLength: 50
   })
-  @IsString()
+  @IsString({ message: 'Last name must be a string' })
   lastName: string;
 
   @ApiProperty({ 
@@ -31,7 +31,7 @@ export class RegisterUserDto {
     example: 'john@example.com',
     required: true
   })
-  @IsEmail()
+  @IsEmail({}, { message: 'Invalid email address' })
   email: string;
 
   @ApiProperty({ 

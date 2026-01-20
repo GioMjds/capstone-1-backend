@@ -29,7 +29,7 @@ export class JwtAuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
-    const token = this.extractTokenFromHeader(request);
+    const token = this.extractToken(request);
 
     if (!token) {
       throw new UnauthorizedException('Missing authentication token');
@@ -51,8 +51,22 @@ export class JwtAuthGuard implements CanActivate {
     return true;
   }
 
-  private extractTokenFromHeader(request: Request): string | undefined {
+  private extractToken(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
+    if (type === 'Bearer' && token) return token;
+
+    const anyReq = request as any;
+    if (anyReq.cookies?.access_token) return anyReq.cookies.access_token;
+
+    const cookieHeader = request.headers.cookie;
+    if (cookieHeader) {
+      const match = cookieHeader
+        .split(';')
+        .map((c) => c.trim())
+        .find((c) => c.startsWith('access_token='));
+      if (match) return decodeURIComponent(match.split('=')[1] ?? '');
+    }
+
+    return undefined;
   }
 }

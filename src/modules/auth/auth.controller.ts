@@ -15,28 +15,47 @@ import {
   RegisterUserDto,
   VerifyUserDto,
   ResendVerificationDto,
+  ChangePasswordDto,
 } from './dto';
 import { ApiTags } from '@nestjs/swagger';
 import { GoogleLoginOAuthDto } from './dto/oauth.dto';
-import { 
-  RegisterDocs, 
-  LoginDocs, 
-  LogoutDocs, 
-  VerifyEmailDocs, 
-  ResendVerificationDocs, 
-  GoogleOAuthLoginDocs 
+import {
+  RegisterDocs,
+  LoginDocs,
+  LogoutDocs,
+  VerifyEmailDocs,
+  ResendVerificationDocs,
+  GoogleOAuthLoginDocs,
+  ChangePasswordDocs,
 } from '@/docus';
+import { ConfigService } from '@nestjs/config';
+import { Throttle } from '@nestjs/throttler';
 
 @ApiTags('/auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Post('login')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
   @LoginDocs()
-  login(@Body() dto: LoginUserDto, @Res({ passthrough: true }) res: Response) {
-    return this.authService.login(dto, res);
+  async login(
+    @Body() dto: LoginUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.authService.login(dto);
+    res.cookie('access_token', result.access_token, {
+      sameSite: 'none',
+      secure: this.configService.get('NODE_ENV') === 'production',
+      httpOnly: true,
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    return result;
   }
 
   @Post('logout')
@@ -45,6 +64,7 @@ export class AuthController {
   @LogoutDocs()
   logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('access_token');
+    return this.authService.logout();
   }
 
   @Post('register')
@@ -57,11 +77,19 @@ export class AuthController {
   @Post('verify-email')
   @HttpCode(HttpStatus.CREATED)
   @VerifyEmailDocs()
-  verifyEmail(
+  async verifyEmail(
     @Body() dto: VerifyUserDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    return this.authService.verifyUser(dto, res);
+    const result = await this.authService.verifyUser(dto);
+    res.cookie('access_token', result.access_token, {
+      sameSite: 'none',
+      secure: this.configService.get('NODE_ENV') === 'production',
+      httpOnly: true,
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    return result;
   }
 
   @Post('resend-verif')
@@ -69,6 +97,15 @@ export class AuthController {
   @ResendVerificationDocs()
   resendVerificationEmail(@Body() dto: ResendVerificationDto) {
     return this.authService.resendEmail(dto);
+  }
+
+  @Post('change-password')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @ChangePasswordDocs()
+  changePassword(@Body() dto: ChangePasswordDto) {
+    return this.authService.changePassword(dto);
   }
 
   @Post('google-login')

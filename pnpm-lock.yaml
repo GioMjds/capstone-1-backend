@@ -14,12 +14,6 @@ importers:
       '@as-integrations/express5':
         specifier: ^1.1.2
         version: 1.1.2(@apollo/server@5.2.0(graphql@16.12.0))(express@5.2.1)
-      '@fastify/cookie':
-        specifier: ^11.0.2
-        version: 11.0.2
-      '@fastify/cors':
-        specifier: ^11.2.0
-        version: 11.2.0
       '@nestjs/apollo':
         specifier: ^13.2.3
         version: 13.2.3(@apollo/server@5.2.0(graphql@16.12.0))(@as-integrations/express5@1.1.2(@apollo/server@5.2.0(graphql@16.12.0))(express@5.2.1))(@nestjs/common@11.1.11(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.11)(@nestjs/graphql@13.2.3(@nestjs/common@11.1.11(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.11)(class-transformer@0.5.1)(class-validator@0.14.3)(graphql@16.12.0)(reflect-metadata@0.2.2))(graphql@16.12.0)
@@ -38,9 +32,6 @@ importers:
       '@nestjs/cqrs':
         specifier: ^11.0.3
         version: 11.0.3(@nestjs/common@11.1.11(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.11)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@nestjs/graphql':
-        specifier: ^13.2.3
-        version: 13.2.3(@nestjs/common@11.1.11(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.11)(class-transformer@0.5.1)(class-validator@0.14.3)(graphql@16.12.0)(reflect-metadata@0.2.2)
       '@nestjs/jwt':
         specifier: ^11.0.2
         version: 11.0.2(@nestjs/common@11.1.11(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))
@@ -86,12 +77,6 @@ importers:
       dotenv:
         specifier: ^17.2.3
         version: 17.2.3
-      fastify:
-        specifier: ^5.6.2
-        version: 5.6.2
-      graphql:
-        specifier: ^16.12.0
-        version: 16.12.0
       ioredis:
         specifier: ^5.9.2
         version: 5.9.2
@@ -706,9 +691,6 @@ packages:
 
   '@fastify/ajv-compiler@4.0.5':
     resolution: {integrity: sha512-KoWKW+MhvfTRWL4qrhUwAAZoaChluo0m0vbiJlGMt2GXvL4LVPQEjt8kSpHI3IBq5Rez8fg+XeH3cneztq+C7A==}
-
-  '@fastify/cookie@11.0.2':
-    resolution: {integrity: sha512-GWdwdGlgJxyvNv+QcKiGNevSspMQXncjMZ1J8IvuDQk0jvkzgWWZFNC2En3s+nHndZBGV8IbLwOI/sxCZw/mzA==}
 
   '@fastify/cors@11.2.0':
     resolution: {integrity: sha512-LbLHBuSAdGdSFZYTLVA3+Ch2t+sA6nq3Ejc6XLAKiQ6ViS2qFnvicpj0htsx03FyYeLs04HfRNBsz/a8SvbcUw==}
@@ -5411,11 +5393,6 @@ snapshots:
       ajv: 8.17.1
       ajv-formats: 3.0.1(ajv@8.17.1)
       fast-uri: 3.1.0
-
-  '@fastify/cookie@11.0.2':
-    dependencies:
-      cookie: 1.1.1
-      fastify-plugin: 5.1.0
 
   '@fastify/cors@11.2.0':
     dependencies:

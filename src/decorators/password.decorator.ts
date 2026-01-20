@@ -22,8 +22,7 @@ export function IsPasswordMatch(
           return value === relatedValue;
         },
         defaultMessage(args: ValidationArguments) {
-          // Format: "fieldName: Clean message" for filter extraction
-          return `${args.property}: Passwords do not match`;
+          return `Passwords do not match`;
         },
       },
     });
@@ -48,7 +47,6 @@ export function IsPasswordValid(validationOptions?: ValidationOptions) {
             value,
           );
 
-          // Store failed conditions for the error message
           const errors: string[] = [];
 
           if (!minLength) errors.push('At least 8 characters');
@@ -64,12 +62,11 @@ export function IsPasswordValid(validationOptions?: ValidationOptions) {
           const errors = (args.object as any).__passwordErrors || [];
           delete (args.object as any).__passwordErrors;
 
-          // Format: "fieldName: Clean message" for filter extraction
           if (errors.length === 1) {
-            return `${args.property}: Must contain ${errors[0].toLowerCase()}`;
+            return `Must contain ${errors[0].toLowerCase()}`;
           }
 
-          return `${args.property}: Must contain ${errors.join(', ').toLowerCase()}`;
+          return `Must contain ${errors.join(', ').toLowerCase()}`;
         },
       },
     });
