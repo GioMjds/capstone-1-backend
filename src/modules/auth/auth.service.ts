@@ -3,6 +3,7 @@ import {
   BadRequestException,
   ConflictException,
   NotFoundException,
+  Logger,
 } from '@nestjs/common';
 import {
   LoginUserDto,
@@ -10,6 +11,10 @@ import {
   VerifyUserDto,
   ResendVerificationDto,
   ChangePasswordDto,
+  ForgotPasswordRequestDto,
+  ForgotPasswordVerifyDto,
+  ForgotPasswordResetDto,
+  GoogleLoginOAuthDto
 } from './dto';
 import { PrismaService } from '@/configs';
 import { compare, hash } from 'bcrypt';
@@ -18,6 +23,8 @@ import { EmailService } from '../email';
 
 @Injectable()
 export class AuthService {
+  private readonly log = new Logger(AuthService.name);
+
   constructor(
     private prisma: PrismaService,
     private token: Token,
@@ -205,6 +212,120 @@ export class AuthService {
 
     return {
       message: 'Verification OTP sent. Please check your inbox.',
+    };
+  }
+
+  async forgotPasswordRequest(dto: ForgotPasswordRequestDto) {
+    const { email } = dto;
+    
+    const user = await this.prisma.user.findUnique({
+      where: { email: email },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!user.isEmailVerified) {
+      throw new BadRequestException(
+        'Email is not verified. Please verify your email first.',
+      );
+    }
+
+    if (email.length === 0) {
+      throw new BadRequestException('Email is required');
+    }
+
+    // Generate OTP for password reset
+    const otp = this.otpService.generate();
+    await this.otpService.store(email, otp);
+
+    // Send OTP email
+    await this.emailService.sendOtpEmail(email, user.firstName, otp);
+
+    return {
+      message:
+        'Password reset OTP sent to your email. Please check your inbox.',
+    };
+  }
+
+  async forgotPasswordVerify(dto: ForgotPasswordVerifyDto) {
+    const { email, otp } = dto;
+
+    if (!otp || otp.trim() === '') {
+      throw new BadRequestException('OTP is required');
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const isValidOtp = await this.otpService.verify(email, otp);
+
+    if (!isValidOtp) {
+      throw new BadRequestException(
+        'Invalid or expired OTP. Please request a new one.',
+      );
+    }
+
+    return {
+      message: 'OTP verified successfully. You can now reset your password.',
+      verified: true,
+    };
+  }
+
+  async forgotPasswordReset(dto: ForgotPasswordResetDto) {
+    const { email, otp, newPassword, confirmNewPassword } = dto;
+
+    if (!otp || otp.trim() === '') {
+      throw new BadRequestException('OTP is required');
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const isValidOtp = await this.otpService.verify(email, otp);
+
+    if (!isValidOtp) {
+      throw new BadRequestException(
+        'Invalid or expired OTP. Please request a new one.',
+      );
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      throw new BadRequestException('Passwords do not match');
+    }
+
+    if (user.password) {
+      const isSamePassword = await compare(newPassword, user.password);
+      if (isSamePassword) {
+        throw new BadRequestException(
+          'New password must be different from your current password',
+        );
+      }
+    }
+
+    const hashedNewPassword = await hash(newPassword, 12);
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { password: hashedNewPassword },
+    });
+
+    await this.otpService.invalidate(email);
+
+    return {
+      message:
+        'Password reset successfully. You can now log in with your new password.',
     };
   }
 

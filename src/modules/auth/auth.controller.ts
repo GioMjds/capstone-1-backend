@@ -9,16 +9,19 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
-import { JwtAuthGuard } from 'src/guards';
+import { JwtAuthGuard } from '@/guards';
 import {
   LoginUserDto,
   RegisterUserDto,
   VerifyUserDto,
   ResendVerificationDto,
   ChangePasswordDto,
+  GoogleLoginOAuthDto,
+  ForgotPasswordRequestDto,
+  ForgotPasswordVerifyDto,
+  ForgotPasswordResetDto,
 } from './dto';
 import { ApiTags } from '@nestjs/swagger';
-import { GoogleLoginOAuthDto } from './dto/oauth.dto';
 import {
   RegisterDocs,
   LoginDocs,
@@ -97,6 +100,30 @@ export class AuthController {
   @ResendVerificationDocs()
   resendVerificationEmail(@Body() dto: ResendVerificationDto) {
     return this.authService.resendEmail(dto);
+  }
+
+  @Post('forgot-password-request')
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  @HttpCode(HttpStatus.OK)
+  // @ForgotPasswordRequestDocs() // Add this decorator in your docus
+  async forgotPasswordRequest(@Body() dto: ForgotPasswordRequestDto) {
+    return this.authService.forgotPasswordRequest(dto);
+  }
+
+  @Post('forgot-password-verify')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @HttpCode(HttpStatus.OK)
+  // @ForgotPasswordVerifyDocs() // Add this decorator in your docus
+  async forgotPasswordVerify(@Body() dto: ForgotPasswordVerifyDto) {
+    return this.authService.forgotPasswordVerify(dto);
+  }
+
+  @Post('forgot-password-reset')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @HttpCode(HttpStatus.OK)
+  // @ForgotPasswordResetDocs() // Add this decorator in your docus
+  async forgotPasswordReset(@Body() dto: ForgotPasswordResetDto) {
+    return this.authService.forgotPasswordReset(dto);
   }
 
   @Post('change-password')
