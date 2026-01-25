@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
+import { AuthService, AuthController } from './index';
 import { getJwtConfig, PrismaService, RedisService } from '@/configs';
 import { JwtModule } from '@nestjs/jwt';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { OAuth, OtpService, Token } from '@/shared/utils';
 import { EmailModule } from '../email';
+import { EmailListener } from '../email/listeners';
 
 @Module({
   imports: [
@@ -27,6 +27,7 @@ import { EmailModule } from '../email';
     OAuth,
     OtpService,
     Token,
+    EmailListener,
   ],
   exports: [AuthService, JwtModule, OAuth],
 })

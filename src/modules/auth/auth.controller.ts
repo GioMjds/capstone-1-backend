@@ -139,6 +139,6 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @GoogleOAuthLoginDocs()
   googleOAuthLogin(@Body() dto: GoogleLoginOAuthDto) {
-    return this.authService.googleAuth(dto.idToken);
+    return this.authService.googleAuth(dto);
   }
 }

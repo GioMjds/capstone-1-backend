@@ -14,12 +14,14 @@ import {
   ForgotPasswordRequestDto,
   ForgotPasswordVerifyDto,
   ForgotPasswordResetDto,
-  GoogleLoginOAuthDto
+  GoogleLoginOAuthDto,
 } from './dto';
 import { PrismaService } from '@/configs';
 import { compare, hash } from 'bcrypt';
 import { generateUserId, OAuth, OtpService, Token } from '@/shared/utils';
 import { EmailService } from '../email';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { VerifyUserEvent } from '@/events';
 
 @Injectable()
 export class AuthService {
@@ -31,6 +33,7 @@ export class AuthService {
     private otpService: OtpService,
     private emailService: EmailService,
     private oauth: OAuth,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async login(dto: LoginUserDto) {
@@ -102,30 +105,11 @@ export class AuthService {
     const otp = this.otpService.generate();
     await this.otpService.store(newUser.email, otp);
 
-    let emailSent = false;
-    try {
-      emailSent = await this.emailService.sendOtpEmail(
-        newUser.email,
-        newUser.firstName,
-        otp,
-      );
-    } catch {
-      emailSent = false;
-    }
-
-    if (!emailSent) {
-      return {
-        message:
-          'Registration successful, but we could not send the verification email. Please use the resend verification option.',
-        user: {
-          id: newUser.id,
-          firstName: newUser.firstName,
-          lastName: newUser.lastName,
-          email: newUser.email,
-        },
-        emailError: true,
-      };
-    }
+    this.eventEmitter.emit('email.sendOtp', {
+      to: newUser.email,
+      name: newUser.firstName,
+      otp: otp,
+    });
 
     return {
       message:
@@ -175,7 +159,10 @@ export class AuthService {
       data: { isEmailVerified: true },
     });
 
-    await this.emailService.welcomeUserEmail(user.email, user.firstName);
+    const verifyUserEvent = new VerifyUserEvent();
+    verifyUserEvent.email = user.email;
+    verifyUserEvent.name = user.firstName;
+    this.eventEmitter.emit('user.verified', verifyUserEvent);
 
     return {
       message: 'Email verified successfully. You can now log in.',
@@ -208,7 +195,11 @@ export class AuthService {
     const otp = this.otpService.generate();
     await this.otpService.store(email, otp);
 
-    await this.emailService.sendOtpEmail(user.email, user.firstName, otp);
+    this.eventEmitter.emit('email.sendOtp', {
+      to: user.email,
+      name: user.firstName,
+      otp: otp,
+    });
 
     return {
       message: 'Verification OTP sent. Please check your inbox.',
@@ -217,7 +208,7 @@ export class AuthService {
 
   async forgotPasswordRequest(dto: ForgotPasswordRequestDto) {
     const { email } = dto;
-    
+
     const user = await this.prisma.user.findUnique({
       where: { email: email },
     });
@@ -241,7 +232,11 @@ export class AuthService {
     await this.otpService.store(email, otp);
 
     // Send OTP email
-    await this.emailService.sendOtpEmail(email, user.firstName, otp);
+    this.eventEmitter.emit('email.sendOtp', {
+      to: user.email,
+      name: user.firstName,
+      otp: otp,
+    });
 
     return {
       message:
@@ -370,8 +365,8 @@ export class AuthService {
     };
   }
 
-  async googleAuth(idToken: string) {
-    const googleUser = await this.oauth.validateGoogleToken(idToken);
+  async googleAuth(dto: GoogleLoginOAuthDto) {
+    const googleUser = await this.oauth.validateGoogleToken(dto.idToken);
 
     let user = await this.prisma.user.findUnique({
       where: { email: googleUser.email },

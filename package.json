@@ -7,9 +7,9 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
+    "dev": "nest start --watch",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
-    "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "test": "jest",
@@ -27,6 +27,7 @@
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
     "@nestjs/cqrs": "^11.0.3",
+    "@nestjs/event-emitter": "^3.0.1",
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^11.0.1",
