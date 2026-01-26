@@ -1,17 +1,19 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CqrsModule } from '@nestjs/cqrs';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { useThrottlerConfig } from '@/configs';
-import { AuthModule } from '@/modules';
+import { AuthModule, AdminModule } from '@/modules';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    CqrsModule.forRoot(),
     ScheduleModule.forRoot(),
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
@@ -28,6 +30,7 @@ import { AuthModule } from '@/modules';
       ignoreErrors: false,
     }),
     AuthModule,
+    AdminModule,
   ],
   providers: [
     {
