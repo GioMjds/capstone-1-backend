@@ -8,9 +8,12 @@
   },
   "monorepoMode": false,
   "compilerOptions": {
-    "deleteOutDir": true,
-    "webpack": false,
-    "tsConfigPath": "tsconfig.json"
+    "builder": {
+      "type": "swc",
+      "options": {
+        "extensions": [".ts", ".js", ".tsx", ".jsx"]
+      }
+    }
   },
   "projects": {
     "modules": {

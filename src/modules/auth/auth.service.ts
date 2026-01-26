@@ -19,7 +19,6 @@ import {
 import { PrismaService } from '@/configs';
 import { compare, hash } from 'bcrypt';
 import { generateUserId, OAuth, OtpService, Token } from '@/shared/utils';
-import { EmailService } from '../email';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { VerifyUserEvent } from '@/events';
 
@@ -31,7 +30,6 @@ export class AuthService {
     private prisma: PrismaService,
     private token: Token,
     private otpService: OtpService,
-    private emailService: EmailService,
     private oauth: OAuth,
     private readonly eventEmitter: EventEmitter2,
   ) {}
