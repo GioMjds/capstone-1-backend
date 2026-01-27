@@ -10,6 +10,7 @@ import { EmailModule } from '@/modules/email/email.module';
 import { EmailListener } from '@/modules/email/listeners/email.listener';
 import { PrismaService, RedisService } from '@/infrastructure/persistence';
 import { PrismaUserRepository } from '../users';
+import { LoginUseCase } from '@/application/use-cases/identity/auth';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { PrismaUserRepository } from '../users';
     OtpService,
     Token,
     EmailListener,
+    LoginUseCase,
     {
       provide: 'IUserRepository',
       useClass: PrismaUserRepository,
