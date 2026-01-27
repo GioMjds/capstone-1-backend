@@ -5,7 +5,10 @@ import { EmailListener } from './listeners';
 
 @Module({
   imports: [ConfigModule],
-  providers: [EmailService, EmailListener],
+  providers: [
+    EmailService,
+    EmailListener
+  ],
   exports: [EmailService],
 })
 export class EmailModule {}

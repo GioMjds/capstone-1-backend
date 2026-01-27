@@ -4,6 +4,7 @@ import {
   ConflictException,
   NotFoundException,
   Logger,
+  Inject,
 } from '@nestjs/common';
 import {
   LoginUserDto,
@@ -16,18 +17,20 @@ import {
   ForgotPasswordResetDto,
   GoogleLoginOAuthDto,
 } from './dto';
-import { PrismaService } from '@/configs';
 import { compare, hash } from 'bcrypt';
 import { generateUserId, OAuth, OtpService, Token } from '@/shared/utils';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { VerifyUserEvent } from '@/events';
+import { VerifyUserEvent } from '@/modules/email/events/verify-user.event';
+import type { IUserRepository } from '@/domain/repositories/user.repository';
+import { UserAggregate } from '@/domain/entities/user.aggregate';
 
 @Injectable()
 export class AuthService {
   private readonly log = new Logger(AuthService.name);
 
   constructor(
-    private prisma: PrismaService,
+    @Inject('IUserRepository')
+    private readonly usersRepo: IUserRepository,
     private token: Token,
     private otpService: OtpService,
     private oauth: OAuth,
@@ -37,15 +40,13 @@ export class AuthService {
   async login(dto: LoginUserDto) {
     const { email, password } = dto;
 
-    const user = await this.prisma.user.findUnique({
-      where: { email: email },
-    });
+    const userRecord = await this.usersRepo.findByEmail(email);
+    if (!userRecord) throw new NotFoundException('User not found');
 
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+    const user = UserAggregate.fromPrisma(userRecord);
+    if (!user) throw new NotFoundException('User not found');
 
-    const passwordValid = await compare(password, user.password);
+    const passwordValid = await compare(password, userRecord.password);
 
     if (!passwordValid) {
       throw new BadRequestException('Your password is incorrect.');
@@ -55,14 +56,14 @@ export class AuthService {
       throw new BadRequestException('Email is not verified.');
     }
 
-    const accessToken = this.token.generate(user);
+    const accessToken = this.token.generate(userRecord);
 
     return {
       user: {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
+        id: userRecord.id,
+        firstName: userRecord.firstName,
+        lastName: userRecord.lastName,
+        email: userRecord.email,
       },
       access_token: accessToken,
     };
@@ -75,9 +76,7 @@ export class AuthService {
   async register(dto: RegisterUserDto) {
     const { firstName, lastName, email, password, confirmPassword } = dto;
 
-    const existingUser = await this.prisma.user.findUnique({
-      where: { email: email },
-    });
+    const existingUser = await this.usersRepo.findByEmail(email);
 
     if (existingUser) {
       throw new ConflictException('Email is already registered');
@@ -89,16 +88,16 @@ export class AuthService {
 
     const passwordHash = await hash(password, 12);
 
-    const newUser = await this.prisma.user.create({
-      data: {
-        id: generateUserId(),
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        password: passwordHash,
-        isEmailVerified: false,
-      },
-    });
+    const createPayload = {
+      id: generateUserId(),
+      firstName,
+      lastName,
+      email,
+      password: passwordHash,
+      isEmailVerified: false,
+    };
+
+    const newUser = await this.usersRepo.create(createPayload as any);
 
     const otp = this.otpService.generate();
     await this.otpService.store(newUser.email, otp);
@@ -128,9 +127,7 @@ export class AuthService {
       throw new BadRequestException('OTP is required');
     }
 
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-    });
+    const user = await this.usersRepo.findByEmail(email);
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -152,10 +149,16 @@ export class AuthService {
 
     const accessToken = this.token.generate(user);
 
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: { isEmailVerified: true },
-    });
+    await this.usersRepo.update(user.id, {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      password: user.password,
+      phone: user.phone ?? null,
+      isActive: user.isActive,
+      isEmailVerified: true,
+    } as any);
 
     const verifyUserEvent = new VerifyUserEvent();
     verifyUserEvent.email = user.email;
@@ -178,9 +181,7 @@ export class AuthService {
   async resendEmail(dto: ResendVerificationDto) {
     const { email } = dto;
 
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-    });
+    const user = await this.usersRepo.findByEmail(email);
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -207,9 +208,7 @@ export class AuthService {
   async forgotPasswordRequest(dto: ForgotPasswordRequestDto) {
     const { email } = dto;
 
-    const user = await this.prisma.user.findUnique({
-      where: { email: email },
-    });
+    const user = await this.usersRepo.findByEmail(email);
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -249,9 +248,7 @@ export class AuthService {
       throw new BadRequestException('OTP is required');
     }
 
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-    });
+    const user = await this.usersRepo.findByEmail(email);
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -278,9 +275,7 @@ export class AuthService {
       throw new BadRequestException('OTP is required');
     }
 
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-    });
+    const user = await this.usersRepo.findByEmail(email);
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -309,10 +304,16 @@ export class AuthService {
 
     const hashedNewPassword = await hash(newPassword, 12);
 
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: { password: hashedNewPassword },
-    });
+    await this.usersRepo.update(user.id, {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      password: hashedNewPassword,
+      phone: user.phone ?? null,
+      isActive: user.isActive,
+      isEmailVerified: user.isEmailVerified,
+    } as any);
 
     await this.otpService.invalidate(email);
 
@@ -325,9 +326,7 @@ export class AuthService {
   async changePassword(dto: ChangePasswordDto) {
     const { email, confirmNewPassword, currentPassword, newPassword } = dto;
 
-    const user = await this.prisma.user.findUnique({
-      where: { email: email },
-    });
+    const user = await this.usersRepo.findByEmail(email);
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -353,10 +352,16 @@ export class AuthService {
 
     const hashedNewPassword = await hash(newPassword, 12);
 
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: { password: hashedNewPassword },
-    });
+    await this.usersRepo.update(user.id, {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      password: hashedNewPassword,
+      phone: user.phone ?? null,
+      isActive: user.isActive,
+      isEmailVerified: user.isEmailVerified,
+    } as any);
 
     return {
       message: 'Password changed successfully',
@@ -366,21 +371,17 @@ export class AuthService {
   async googleAuth(dto: GoogleLoginOAuthDto) {
     const googleUser = await this.oauth.validateGoogleToken(dto.idToken);
 
-    let user = await this.prisma.user.findUnique({
-      where: { email: googleUser.email },
-    });
+    let user = await this.usersRepo.findByEmail(googleUser.email);
 
     if (!user) {
-      user = await this.prisma.user.create({
-        data: {
-          id: generateUserId(),
-          firstName: googleUser.firstName,
-          lastName: googleUser.lastName,
-          email: googleUser.email,
-          password: '',
-          isEmailVerified: true,
-        },
-      });
+      user = await this.usersRepo.create({
+        id: generateUserId(),
+        firstName: googleUser.firstName,
+        lastName: googleUser.lastName,
+        email: googleUser.email,
+        password: '',
+        isEmailVerified: true,
+      } as any);
     }
 
     const accessToken = this.token.generate(user);

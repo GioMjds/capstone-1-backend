@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
-import { JwtAuthGuard } from '@/guards';
+import { JwtAuthGuard } from '@/shared/guards';
 import {
   LoginUserDto,
   RegisterUserDto,
@@ -30,7 +30,7 @@ import {
   ResendVerificationDocs,
   GoogleOAuthLoginDocs,
   ChangePasswordDocs,
-} from '@/docus';
+} from '@/shared/docs';
 import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
 

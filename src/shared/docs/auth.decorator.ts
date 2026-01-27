@@ -5,7 +5,7 @@ import {
   ResendVerificationDto,
   VerifyUserDto,
   GoogleLoginOAuthDto,
-} from '@/modules/auth/dto';
+} from '@/modules/identity/auth/dto';
 import { applyDecorators } from '@nestjs/common';
 import {
   ApiOperation,

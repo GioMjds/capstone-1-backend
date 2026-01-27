@@ -1,5 +1,5 @@
+import { RedisService } from '@/infrastructure/persistence';
 import { Injectable } from '@nestjs/common';
-import { RedisService } from '@/configs';
 
 const OTP_LENGTH = 6;
 const OTP_TTL_SECONDS = 600;

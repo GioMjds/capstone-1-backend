@@ -1,4 +1,4 @@
-import { IsPasswordValid } from '@/decorators';
+import { IsPasswordValid } from '@/shared/decorators';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail } from 'class-validator';
 

@@ -5,8 +5,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
-import { useThrottlerConfig } from '@/configs';
-import { AuthModule, AdminModule } from '@/modules';
+import { useThrottlerConfig } from '@/infrastructure/config';
+import { AdminModule, IdentityModule } from '@/modules';
 
 @Module({
   imports: [
@@ -29,8 +29,8 @@ import { AuthModule, AdminModule } from '@/modules';
       verboseMemoryLeak: false,
       ignoreErrors: false,
     }),
-    AuthModule,
     AdminModule,
+    IdentityModule,
   ],
   providers: [
     {

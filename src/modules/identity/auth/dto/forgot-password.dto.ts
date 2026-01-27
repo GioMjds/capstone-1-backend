@@ -1,4 +1,4 @@
-import { IsPasswordMatch, IsPasswordValid } from "@/decorators";
+import { IsPasswordMatch, IsPasswordValid } from "@/shared/decorators";
 import { IsEmail, IsString } from "class-validator";
 
 export class ForgotPasswordRequestDto {
