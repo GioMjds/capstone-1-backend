@@ -1,14 +1,27 @@
-# **Nest.js Backend Folder Structure Guide**
+# **NestJS Backend Folder Structure Guide**
 
-This documentation serves as contributors guide in maintaining the design architecture in NestJS backend with the tools, packages and libraries being used (see **`package.json`**). After you read the **`CONTRIBUTING.md`** and before working in this project.
+## Clean Architecture + Domain-Driven Design
 
-## **Why This Folder Structure and it's Purpose?**
+This documentation serves as a contributor's guide for maintaining the design architecture in this NestJS backend following **Clean Architecture** and **Domain-Driven Design (DDD)** principles. Please read this document along with **`CONTRIBUTING.md`** and **`AI_ASSISTED_CODING.md`** before working on this project.
 
-*This focuses in maintainable, scalable, readable, and production-ready backend mainly for separation of concerns and layered architecture.*
+---
 
-## **NestJS CLI**
+## **Why This Folder Structure?**
 
-The NestJS CLI is configured to generate files directly into the `src/modules/` directory following feature-based architecture. The `nest-cli.json` is already optimized for this structure.
+This architecture focuses on:
+
+- **Separation of Concerns**: Clear boundaries between layers
+- **Maintainability**: Easy to locate and modify code
+- **Scalability**: Structure supports growth from monolith to microservices
+- **Testability**: Each layer can be tested independently
+- **Domain-Centric**: Business logic takes center stage
+- **Production-Ready**: Battle-tested patterns for enterprise applications
+
+---
+
+## **NestJS CLI Usage**
+
+The NestJS CLI is configured to work with our Clean Architecture structure. The `nest-cli.json` file is optimized for this layout.
 
 ### **Installation**
 
@@ -24,339 +37,775 @@ Verify installation:
 nest --version
 ```
 
-### **Generating Feature Modules**
+### **Generating Modules**
 
-Use the following commands to generate feature-based modules:
-
-#### **Generate a Complete Resource (Recommended) for your feature**
-
-Generates module, controller, service, and DTOs in one command:
+For feature modules in our architecture:
 
 ```bash
-nest generate resource feature-name --no-spec
-```
+# Generate a complete feature module
+nest g module feature-name
 
-It prompts you into:
-
-```bash
-? Which project would you like to generate to?
-❯ src [ Default ]
-  modules
-  configs
-  decorators
-  guards
-  interfaces
-
-↑↓ navigate • ⏎ select
+# You'll be prompted to select the project location
+# Choose 'modules' for feature modules
 ```
 
 **Example:**
 
 ```bash
-nest generate resource user --no-spec
+nest generate module user
 ```
-
-This creates:
-
-```folder
-src/modules/user/
-├── dto/
-│   ├── create-user.dto.ts
-│   └── update-user.dto.ts
-├── entities/
-│   └── user.entity.ts
-├── user.controller.ts
-├── user.module.ts
-└── user.service.ts
-```
-
-#### **Generate Individual Components**
-
-If you need to generate specific files:
-
-```bash
-# Generate just a module
-nest generate module feature-name
-
-# Generate just a service
-nest generate service feature-name
-
-# Generate just a controller
-nest generate controller feature-name
-```
-
-### **Configuration & Best Practices**
-
-The `nest-cli.json` is pre-configured with:
-
-- **`generateOptions.spec: false`** - Disables `.spec` file generation by default
-- **`generateOptions.flat: false`** - Creates nested folder structures (recommended)
-- **`projects.modules`** - Directs generation to `src/modules/` directory
 
 ### **Post-Generation Steps**
 
-After generating a resource:
+After generating resources:
 
-1. ✅ Update the DTO with validation decorators (`class-validator`)
-2. ✅ Add barrel exports in `index.ts`:
+1. Move generated files to appropriate layers if needed
+2. Update DTOs with validation decorators (`class-validator`)
+3. Create domain entities in `domain/entities/`
+4. Add barrel exports in `index.ts` files
+5. Import the module in `app.module.ts`
+6. Follow naming conventions from `AI_ASSISTED_CODING.md`
+7. Ensure code adheres to `code_standards.instructions.md`
 
-   ```ts
-   export * from './feature-name.service';
-   export * from './feature-name.controller';
-   export * from './feature-name.module';
-   export * from './dto';
-   ```
+---
 
-3. ✅ Import the module in `app.module.ts`
-4. ✅ Add exception handling and error handling in controller
-5. ✅ Follow naming conventions from `AI_ASSISTED_CODING.md`
-6. ✅ Ensure code adheres to `code_standards.instructions.md`
+## **Architecture Overview**
 
-## **Folder Structure**
+```folder
+src/
+├── application/        -> Application Layer (Use Cases & Application Logic)
+├── domain/             -> Domain Layer (Business Logic & Entities)
+├── infrastructure/     -> Infrastructure Layer (External Concerns)
+├── modules/            -> Feature Modules (Entry Points)
+├── shared/             -> Shared Utilities & Constants
+├── app.module.ts       -> Root Module
+└── main.ts             -> Application Bootstrap
+```
+
+---
+
+## **Complete Folder Structure**
 
 ```folder
 project-root/
-├──__tests__/                           -> Jest test files for Jest testing of components
+├── __tests__/                        -> Jest test files
 ├── prisma/
-|   ├── schema.prisma                   -> Database schemas
-|   ├── scripts/                        -> Custom scripts to run
+│   ├── schema.prisma                -> Database schema definitions
+│   └── scripts/                     -> Database-related scripts
 ├── src/
-|   ├── configs/                        -> Configuration files
-|   |   ├── example.config.ts
-|   ├── decorators/                     -> Custom decorators to follow
-|   |   ├── example.decorator.ts
-|   ├── guards/                         -> Library files
-|   |   ├── example.guard.ts
-|   ├── interfaces/                     -> Global interfaces
-|   |   ├── example.interface.ts
-|   ├── modules/                        -> Feature-based modules to work with.
-|   |   ├── example/                    -> Your feature
-|   |   |   dto/                        -> Your features DTO
-|   |   |   ├── example.dto.ts
-|   |   |   ├── example.module.ts       -> Module entry, to mainly imports array in `app.module.ts`
-|   |   |   ├── example.controller.ts   -> HTTP endpoints
-|   |   |   ├── example.service.ts      -> Business logic
-|   |   |   ├── example.gateway.ts      -> WebSocket gateway
-|   |   |   ├── example.resolver.ts     -> GraphQL resolver instead of controller (this may be optional)
-|   ├── shared/                         -> Shared constants and utility functions
-|   |   ├── constants/
-|   |   ├── utils/
-|   ├── .env                            -> Create your own one
-|   ├── .env.example                    -> environment variables example file template
+│   ├── application/                 -> Application Layer
+│   │   ├── dto/                     -> Data Transfer Objects
+│   │   │   ├── *.dto.ts
+│   │   │   └── index.ts
+│   │   ├── events/                  -> Application Events
+│   │   │   ├── *.event.ts
+│   │   │   └── index.ts
+│   │   ├── ports/                   -> Port Interfaces (Dependency Inversion)
+│   │   │   ├── *.port.ts
+│   │   │   └── index.ts
+│   │   ├── use-cases/               -> Use Case Implementations
+│   │   │   ├── *.use-case.ts
+│   │   │   └── index.ts
+│   │   └── index.ts
+│   ├── domain/                      -> Domain Layer
+│   │   ├── entities/                -> Domain Entities (Business Objects)
+│   │   │   ├── *.entity.ts
+│   │   │   └── index.ts
+│   │   ├── interfaces/              -> Domain Interfaces
+│   │   │   ├── *.interface.ts
+│   │   │   └── index.ts
+│   │   ├── repositories/            -> Repository Interfaces (Abstractions)
+│   │   │   ├── *.repository.ts
+│   │   │   └── index.ts
+│   │   ├── value-objects/           -> Value Objects (Immutable Domain Concepts)
+│   │   │   ├── *.value-object.ts
+│   │   │   └── index.ts
+│   │   └── index.ts
+│   ├── infrastructure/              -> Infrastructure Layer
+│   │   ├── config/                  -> Configuration Files
+│   │   │   ├── *.config.ts
+│   │   │   └── index.ts
+│   │   ├── persistence/             -> Database Implementation
+│   │   │   ├── prisma/
+│   │   │   │   ├── repositories/   -> Concrete Repository Implementations
+│   │   │   │   ├── mappers/        -> Entity-Model Mappers
+│   │   │   │   └── prisma.service.ts
+│   │   │   └── index.ts
+│   │   └── index.ts
+│   ├── modules/                     -> Feature Modules (Presentation Layer)
+│   │   ├── admin/
+│   │   │   ├── admin.module.ts
+│   │   │   ├── admin.controller.ts
+│   │   │   ├── admin.service.ts
+│   │   │   └── index.ts
+│   │   ├── email/
+│   │   │   ├── email.module.ts
+│   │   │   ├── email.service.ts
+│   │   │   └── index.ts
+│   │   ├── identity/
+│   │   │   ├── identity.module.ts
+│   │   │   ├── identity.controller.ts
+│   │   │   ├── identity.service.ts
+│   │   │   └── index.ts
+│   │   └── index.ts
+│   ├── shared/                      -> Shared Resources
+│   │   ├── decorators/              -> Custom Decorators
+│   │   │   ├── *.decorator.ts
+│   │   │   └── index.ts
+│   │   ├── docs/                    -> API Documentation Decorators
+│   │   │   ├── *.docs.ts
+│   │   │   └── index.ts
+│   │   ├── guards/                  -> Authorization Guards
+│   │   │   ├── *.guard.ts
+│   │   │   └── index.ts
+│   │   ├── interfaces/              -> Shared Interfaces
+│   │   │   ├── *.interface.ts
+│   │   │   └── index.ts
+│   │   ├── utils/                   -> Utility Functions
+│   │   │   ├── *.util.ts
+│   │   │   └── index.ts
+│   │   └── index.ts
+│   ├── app.module.ts
+│   └── main.ts
+├── .env
+├── .env.example
+├── nest-cli.json
+├── package.json
+└── tsconfig.json
 ```
 
-**Each subfolders has an `index.ts` for barrel exporting and `types.ts` for it's type usage if applicable.**
+**Important Note**: Each folder should contain an `index.ts` file for barrel exports and a `types.ts` file for TypeScript type definitions where applicable.
 
-## **How Barrel Exporting Works?**
+---
 
-`index.ts`
+## **Layer Responsibilities**
 
-```ts
-export * from './feature';
-```
+### **1. Application Layer** (`src/application/`)
 
-`component/feature.ts`
+The application layer orchestrates the flow of data and coordinates business logic execution.
 
-```ts
-export function Feature() {
-    return
+#### **`dto/`** - Data Transfer Objects
+
+**Purpose**: Define the shape of data coming in and going out of the application.
+
+**Contents**:
+
+- Request DTOs with validation decorators
+- Response DTOs for API responses
+- Internal DTOs for inter-layer communication
+
+**Best Practices**:
+
+- Use `class-validator` decorators for validation
+- Keep DTOs flat and simple
+- Separate request and response DTOs
+- Use transformation decorators when needed
+
+**Example**:
+
+```typescript
+// create-user.dto.ts
+import { IsEmail, IsString, MinLength } from 'class-validator';
+
+export class CreateUserDto {
+  @IsString()
+  @MinLength(3)
+  name: string;
+
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @MinLength(8)
+  password: string;
 }
 ```
 
-```ts
-export function Module() {
-    return
+#### **`events/`** - Application Events
+
+**Purpose**: Define events that occur in the application for event-driven architecture.
+
+**Contents**:
+
+- Event class definitions
+- Event handlers
+- Event publishers
+
+**Best Practices**:
+
+- Events should be immutable
+- Name events in past tense (e.g., `UserCreatedEvent`)
+- Keep events focused on a single occurrence
+
+#### **`ports/`** - Port Interfaces
+
+**Purpose**: Define interfaces (contracts) for external dependencies following the Dependency Inversion Principle.
+
+**Contents**:
+
+- Repository port interfaces
+- External service interfaces
+- Infrastructure abstractions
+
+**Best Practices**:
+
+- Define what the application needs, not how it's implemented
+- Keep ports technology-agnostic
+- Use ports for all external dependencies
+
+**Example**:
+
+```typescript
+// user-repository.port.ts
+export interface IUserRepository {
+  findById(id: string): Promise<User | null>;
+  findByEmail(email: string): Promise<User | null>;
+  save(user: User): Promise<User>;
+  delete(id: string): Promise<void>;
 }
 ```
 
-So when importing, it must goes:
+#### **`use-cases/`** - Use Case Implementations
 
-`page.tsx`
+**Purpose**: Implement specific business use cases and application workflows.
 
-```tsx
-import { Feature, Module } from "@/component";
+**Contents**:
+
+- Business logic orchestration
+- Use case classes
+- Application service implementations
+
+**Best Practices**:
+
+- One use case per class
+- Use dependency injection for ports
+- Keep use cases focused and cohesive
+- Return domain entities or DTOs
+
+**Example**:
+
+```typescript
+// create-user.use-case.ts
+@Injectable()
+export class CreateUserUseCase {
+  constructor(
+    @Inject('IUserRepository')
+    private readonly userRepository: IUserRepository,
+  ) {}
+
+  async execute(dto: CreateUserDto): Promise<User> {
+    const user = User.create(dto);
+    return await this.userRepository.save(user);
+  }
+}
 ```
 
 ---
 
-# **Layered Architecture Guide (`src` folder)**
+### **2. Domain Layer** (`src/domain/`)
 
-## `configs/`
+The domain layer contains the core business logic and rules. This is the heart of your application.
 
-Centralized application configuration.
+#### **`entities/`** - Domain Entities
 
-## **Purpose**
+**Purpose**: Represent business objects with identity and lifecycle.
 
-- Environment-based configuration loading
-- Strongly typed config objects for dependency injection
+**Contents**:
 
-## **Typical Contents**
+- Domain entities with business rules
+- Entity methods that enforce business logic
+- Factory methods for entity creation
 
-- Database configuration
-- JWT / authentication configuration
-- Application-level constants sourced from environment variables
+**Best Practices**:
 
-## **Best Practices**
+- Entities should be rich with behavior
+- Encapsulate business rules within entities
+- Use private constructors with factory methods
+- Validate state changes within the entity
 
-- Use `@nestjs/config` with schema validation (Joi or Zod)
-- Expose configs via injectable providers
-- Avoid direct `process.env` access outside config layer
+**Example**:
+
+```typescript
+// user.entity.ts
+export class User {
+  private constructor(
+    public readonly id: string,
+    public name: string,
+    public email: string,
+    private password: string,
+  ) {}
+
+  static create(props: CreateUserProps): User {
+    // Business validation
+    if (props.name.length < 3) {
+      throw new Error('Name must be at least 3 characters');
+    }
+    return new User(uuid(), props.name, props.email, props.password);
+  }
+
+  changeName(newName: string): void {
+    if (newName.length < 3) {
+      throw new Error('Name must be at least 3 characters');
+    }
+    this.name = newName;
+  }
+}
+```
+
+#### **`interfaces/`** - Domain Interfaces
+
+**Purpose**: Define contracts and abstractions within the domain.
+
+**Contents**:
+
+- Domain service interfaces
+- Business rule interfaces
+- Domain-specific contracts
+
+**Best Practices**:
+
+- Keep interfaces focused on domain concepts
+- Avoid infrastructure concerns
+- Use for polymorphic behavior in the domain
+
+#### **`repositories/`** - Repository Interfaces
+
+**Purpose**: Define how domain entities are persisted and retrieved (abstractions only).
+
+**Contents**:
+
+- Repository interface definitions
+- Specification patterns
+- Query interfaces
+
+**Best Practices**:
+
+- Define repository methods in terms of domain operations
+- Keep repositories focused on a single aggregate
+- Return domain entities, not database models
+
+**Example**:
+
+```typescript
+// user.repository.ts
+export interface IUserRepository {
+  findById(id: string): Promise<User | null>;
+  findByEmail(email: string): Promise<User | null>;
+  save(user: User): Promise<User>;
+  delete(id: string): Promise<void>;
+  findAll(): Promise<User[]>;
+}
+```
+
+#### **`value-objects/`** - Value Objects
+
+**Purpose**: Represent domain concepts that are defined by their attributes, not identity.
+
+**Contents**:
+
+- Immutable value objects
+- Value object validation
+- Value object operations
+
+**Best Practices**:
+
+- Value objects should be immutable
+- Implement equality based on values
+- Encapsulate complex validations
+- Use for concepts like Email, Money, Address
+
+**Example**:
+
+```typescript
+// email.value-object.ts
+export class Email {
+  private constructor(private readonly value: string) {}
+
+  static create(email: string): Email {
+    if (!this.isValid(email)) {
+      throw new Error('Invalid email format');
+    }
+    return new Email(email.toLowerCase());
+  }
+
+  private static isValid(email: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  getValue(): string {
+    return this.value;
+  }
+
+  equals(other: Email): boolean {
+    return this.value === other.value;
+  }
+}
+```
 
 ---
 
-## `decorators/`
+### **3. Infrastructure Layer** (`src/infrastructure/`)
 
-Custom metadata and syntactic sugar.
+The infrastructure layer provides implementations for external concerns and technical capabilities.
 
-**Purpose**:
+#### **`config/`** - Configuration
 
-- Extend NestJS behavior cleanly
-- Improve controller and service readability
-- Enforce conventions declaratively
+**Purpose**: Centralized application configuration and environment management.
 
-## **Typical Contents**
+**Contents**:
 
-- `@CurrentUser()`
-- `@Roles()`
-- `@Public()`
+- Environment-based configuration
+- Configuration modules
+- Validation schemas
 
-## **Best Practices**
+**Best Practices**:
+
+- Use `@nestjs/config` for configuration management
+- Validate configuration at startup
+- Use typed configuration objects
+- Avoid direct `process.env` access outside this layer
+
+**Example**:
+
+```typescript
+// database.config.ts
+import { registerAs } from '@nestjs/config';
+
+export default registerAs('database', () => ({
+  url: process.env.DATABASE_URL,
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT, 10) || 5432,
+}));
+```
+
+#### **`persistence/`** - Data Persistence
+
+**Purpose**: Implement data storage and retrieval mechanisms.
+
+**Contents**:
+
+- **`prisma/`**: Prisma-specific implementations
+  - **`repositories/`**: Concrete repository implementations
+  - **`mappers/`**: Convert between domain entities and Prisma models
+  - **`prisma.service.ts`**: Prisma client service
+
+**Best Practices**:
+
+- Implement repository interfaces from the domain layer
+- Use mappers to convert between domain and persistence models
+- Keep database concerns isolated
+- Never expose database models outside infrastructure
+
+**Example**:
+
+```typescript
+// prisma-user.repository.ts
+@Injectable()
+export class PrismaUserRepository implements IUserRepository {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mapper: UserMapper,
+  ) {}
+
+  async findById(id: string): Promise<User | null> {
+    const model = await this.prisma.user.findUnique({ where: { id } });
+    return model ? this.mapper.toDomain(model) : null;
+  }
+
+  async save(user: User): Promise<User> {
+    const model = this.mapper.toPersistence(user);
+    const saved = await this.prisma.user.upsert({
+      where: { id: model.id },
+      update: model,
+      create: model,
+    });
+    return this.mapper.toDomain(saved);
+  }
+}
+```
+
+---
+
+### **4. Modules Layer** (`src/modules/`)
+
+The modules layer contains feature-based modules that serve as entry points for specific functionalities.
+
+#### **Purpose**
+
+- Group related controllers, services, and dependencies
+- Define module boundaries
+- Export functionality for use by other modules
+- Wire up dependencies (controllers, providers)
+
+#### **Structure**
+
+Each module typically contains:
+
+- `*.module.ts` - Module definition with imports, controllers, providers, exports
+- `*.controller.ts` - HTTP endpoints and request handling
+- `*.service.ts` - Coordination between use cases and application logic
+- `*.gateway.ts` - WebSocket gateway (optional)
+- `index.ts` - Barrel exports
+
+#### **Best Practices**
+
+- Keep modules focused on a single feature or bounded context
+- Controllers should delegate to use cases or services
+- Services in this layer should be thin coordinators
+- Import domain and application layers as needed
+- Export only what other modules need
+
+**Example**:
+
+```typescript
+// identity.module.ts
+@Module({
+  imports: [
+    // Import other modules
+  ],
+  controllers: [IdentityController],
+  providers: [
+    IdentityService,
+    CreateUserUseCase,
+    {
+      provide: 'IUserRepository',
+      useClass: PrismaUserRepository,
+    },
+  ],
+  exports: [IdentityService],
+})
+export class IdentityModule {}
+```
+
+---
+
+### **5. Shared Layer** (`src/shared/`)
+
+The shared layer contains reusable utilities, constants, and cross-cutting concerns.
+
+#### **`decorators/`** - Custom Decorators
+
+**Purpose**: Provide syntactic sugar and metadata for cleaner code.
+
+**Contents**:
+
+- `@CurrentUser()` - Extract user from request
+- `@Roles()` - Define required roles
+- `@Public()` - Mark endpoints as public
+
+**Best Practices**:
 
 - Decorators should only define metadata
+- Keep decorators simple and focused
 - Business logic belongs in guards or interceptors
 
----
+#### **`docs/`** - API Documentation
 
-## `docus/`
+**Purpose**: Centralize Swagger/OpenAPI documentation.
 
-API endpoint documentation decorators (per features implemented)
+**Contents**:
 
-**Purpose**:
+- Documentation decorators for endpoints
+- API schemas and examples
+- Documentation utilities
 
-- Centralize NestJS Swagger docs
-- Maintain consistent API documentation
-- Separate docs from business logic
+**Best Practices**:
 
-## **Typical Contents**
+- Separate documentation from business logic
+- Be descriptive about inputs, outputs, and errors
+- Include examples for complex requests/responses
 
-- `@FeatureDocs()`
-- `@EndpointDocs()`
+#### **`guards/`** - Authorization Guards
 
-## **Best Practices**
+**Purpose**: Implement request-level authorization and access control.
 
-- Keep decorators implemented in controllers thin
-- Do descriptive documentation in `docus/` files
-- Summarize what the endpoint does, inputs, outputs, errors, status codes, etc.
-- Avoid mixing docs with business logic
+**Contents**:
 
----
+- Authentication guards (JWT, API key)
+- Role-based access control guards
+- Permission guards
 
-## `guards/`
+**Best Practices**:
 
-Request-level authorization and access control.
+- Keep guards focused on a single concern
+- Read metadata from decorators
+- Return clear error messages
 
-## **Purpose**
+#### **`interfaces/`** - Shared Interfaces
 
-- Determine whether a request is allowed to proceed
-- Enforce authentication and authorization rules
+**Purpose**: Define contracts used across multiple layers.
 
-## **Typical Contents**
+**Contents**:
 
-- JWT authentication guard
-- Role-based access guard
-- Permission-based guard
+- Common interfaces
+- Type definitions
+- Shared abstractions
 
-## **Best Practices**
+**Best Practices**:
 
-- Keep guards thin and focused
-- Read metadata defined by decorators
-- Avoid embedding business logic
+- Use for cross-layer contracts
+- Avoid feature-specific interfaces
+- Keep interfaces minimal
 
----
+#### **`utils/`** - Utility Functions
 
-## `interfaces/`
+**Purpose**: Provide common helper functions.
 
-Type contracts and structural definitions.
+**Contents**:
 
-## **Purpose**
+- String manipulation
+- Date formatting
+- Validation helpers
+- Common algorithms
 
-- Define data shapes across layers
-- Decouple implementations from consumers
+**Best Practices**:
 
-## **Typical Contents**
-
-- JWT payload interfaces
-- Service contracts
-- External API response shapes
-
-## **Best Practices**
-
-- Use interfaces for cross-layer contracts
-- Use DTOs for request and response validation instead of interfaces
+- Keep utilities pure functions when possible
+- No feature-specific logic
+- Well-tested and documented
 
 ---
 
-## `modules/` (Feature-based)
+## **Barrel Exporting Pattern**
 
-Encapsulated application features and business domains.
+Each folder should have an `index.ts` file that exports all its contents. This enables clean imports throughout the application.
 
-## **Purpose**
+**Example**:
 
-- Organize business logic by domain
-- Promote modularity and maintainability
-
-## **Typical Structure**
-
-```text
-modules/
-  auth/
-    dto/
-      *.dto.ts               -> Separate DTOs per endpoints needed
-    auth.module.ts
-    auth.controller.ts
-    auth.service.ts
+```typescript
+// domain/entities/index.ts
+export * from './user.entity';
+export * from './post.entity';
+export * from './comment.entity';
 ```
 
-## **Best Practices**
+**Usage**:
 
-- Feature modules should be self-contained
-- Expose functionality via module exports
-- Avoid tight coupling between modules
-- Supports clean monolith to microservice transitions
+```typescript
+// Instead of:
+import { User } from '@/domain/entities/user.entity';
+import { Post } from '@/domain/entities/post.entity';
 
----
-
-## `shared/`
-
-Reusable utilities and constants.
-
-## **Purpose**
-
-- Provide common functionality across modules
-- Avoid code duplication
-- Provide common helpers across features
-
-## **Typical Contents**
-
-- Utility functions
-- Application-wide constants
-- Base helpers or abstractions
-
-## **Best Practices**
-
-- No feature-specific logic
-- No dependencies on feature modules
-- Treat as a low-level library layer
+// You can do:
+import { User, Post } from '@/domain/entities';
+```
 
 ---
 
-# **Mental Model**
+## **Mental Model**
 
-- **`modules/`** define what the application does
-- **`docus/`** define how to / they use it
-- **`guards/`** and **`decorators/`** define who can do it
-- **`configs/`** define how the application runs
-- **`interfaces/`** define how components communicate
-- **`shared/`** defines what can be reused globally
+Understanding the flow through layers:
 
-### **Feel free to contact the maintainers for questions or clarifications!**
+```list
+Request -> Module (Controller)
+   |
+   v
+Application Layer (Use Cases/DTOs)
+   |
+   v
+Domain Layer (Entities/Business Logic)
+   |
+   v
+Infrastructure Layer (Repositories/Persistence)
+   |
+   v
+Database
+```
+
+**Key Principles**:
+
+- **`domain/`** - WHAT the business does (pure business logic)
+- **`application/`** - HOW to execute business logic (orchestration)
+- **`infrastructure/`** - WHERE things are stored/implemented (technical details)
+- **`modules/`** - ENTRY POINTS for features (HTTP, WebSocket, etc.)
+- **`shared/`** - CROSS-CUTTING concerns (used everywhere)
+
+---
+
+## **Dependency Flow Rules**
+
+To maintain clean architecture:
+
+```list
+modules -> application -> domain
+   |           |
+   v           v
+infrastructure
+```
+
+**Rules**:
+
+1. ✅ **Domain** depends on nothing (pure business logic)
+2. ✅ **Application** depends on domain (uses domain entities and interfaces)
+3. ✅ **Infrastructure** implements domain/application interfaces
+4. ✅ **Modules** depend on application, domain, and infrastructure
+5. ✅ **Shared** is used by all layers but depends on nothing
+
+6. ❌ **Domain** should NEVER import from application or infrastructure
+7. ❌ **Application** should NEVER import from infrastructure directly (use ports)
+
+---
+
+## **Common Workflows**
+
+### **Adding a New Feature**
+
+1. **Define domain entities** in `domain/entities/`
+2. **Create repository interface** in `domain/repositories/`
+3. **Create DTOs** in `application/dto/`
+4. **Create use cases** in `application/use-cases/`
+5. **Implement repository** in `infrastructure/persistence/`
+6. **Create module** in `modules/` with controller and service
+7. **Wire up dependencies** in the module file
+8. **Add barrel exports** in each `index.ts`
+9. **Import module** in `app.module.ts`
+
+### **Adding a New Endpoint**
+
+1. **Create/update DTO** in `application/dto/`
+2. **Add controller method** in `modules/*/controller.ts`
+3. **Create/update use case** in `application/use-cases/`
+4. **Add documentation** in `shared/docs/` if complex
+5. **Add guards** if authorization is needed
+
+---
+
+## **Testing Strategy**
+
+```folder
+__tests__/
+├── unit/
+│   ├── domain/          -> Test entities and value objects
+│   ├── application/     -> Test use cases
+│   └── infrastructure/  -> Test repositories
+├── integration/
+│   └── modules/         -> Test controllers and full flows
+└── e2e/                 -> End-to-end tests
+```
+
+---
+
+## **Migration from Previous Structure**
+
+If you're migrating from a traditional NestJS structure:
+
+1. **Entities** -> Move to `domain/entities/`
+2. **Services with business logic** -> Split into use cases (`application/use-cases/`) and domain methods
+3. **DTOs** -> Move to `application/dto/`
+4. **Database repositories** -> Move to `infrastructure/persistence/`
+5. **Utilities** -> Move to `shared/utils/`
+6. **Guards/Decorators** -> Move to `shared/guards/` and `shared/decorators/`
+
+---
+
+## **Additional Resources**
+
+- Read `AI_ASSISTED_CODING.md` for AI-assisted development guidelines
+- Review `code_standards.instructions.md` for coding standards
+- Check `CONTRIBUTING.md` for contribution guidelines
+
+---
+
+### **Questions?**
+
+Feel free to contact the maintainers for clarifications or suggestions for improving this structure!

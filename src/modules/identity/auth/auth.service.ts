@@ -95,9 +95,11 @@ export class AuthService {
       email,
       password: passwordHash,
       isEmailVerified: false,
+      phone: null,
+      isActive: true,
     };
 
-    const newUser = await this.usersRepo.create(createPayload as any);
+    const newUser = await this.usersRepo.create(createPayload);
 
     const otp = this.otpService.generate();
     await this.otpService.store(newUser.email, otp);
@@ -361,7 +363,7 @@ export class AuthService {
       phone: user.phone ?? null,
       isActive: user.isActive,
       isEmailVerified: user.isEmailVerified,
-    } as any);
+    });
 
     return {
       message: 'Password changed successfully',
@@ -381,7 +383,9 @@ export class AuthService {
         email: googleUser.email,
         password: '',
         isEmailVerified: true,
-      } as any);
+        phone: null,
+        isActive: true,
+      });
     }
 
     const accessToken = this.token.generate(user);

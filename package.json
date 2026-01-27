@@ -9,6 +9,7 @@
     "build": "nest build",
     "dev": "nest start -b swc w --watch",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "generate": "node ./scripts/generate.js",
     "start": "nest start",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
