@@ -1,48 +1,49 @@
-import {
-  Injectable,
-  Inject,
-  UnauthorizedException,
-  NotFoundException,
-} from '@nestjs/common';
-import { LoginUserDto } from '@/modules/identity/auth/dto';
+import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
+import { LoginUserDto } from '@/application/dto/auth';
 import type { IUserRepository } from '@/domain/repositories';
-import { Token } from '@/shared/utils';
-import { compare } from 'bcrypt';
-import { User } from '@/domain/entities/user.entity';
+import type { ITokenService } from '@/application/ports/token-service.port';
+import { AuthResponseDto } from '@/application/dto/responses';
+import { EmailValueObject } from '@/domain/value-objects';
 
 @Injectable()
 export class LoginUseCase {
   constructor(
     @Inject('IUserRepository')
     private readonly userRepository: IUserRepository,
-    private readonly token: Token,
+    @Inject('ITokenService')
+    private readonly tokenService: ITokenService,
   ) {}
 
-  async execute(dto: LoginUserDto): Promise<{
-    user: { id: string; firstName: string; lastName: string; email: string };
-    access_token: string;
-  }> {
-    const userRecord = await this.userRepository.findByEmail(dto.email);
-    if (!userRecord) throw new NotFoundException('User not found');
+  async execute(dto: LoginUserDto): Promise<AuthResponseDto> {
+    const email = new EmailValueObject(dto.email);
+    const user = await this.userRepository.findByEmail(email);
 
-    const user = User.fromPrisma(userRecord);
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) throw new UnauthorizedException('Invalid credentials');
+    if (!user.canLogin())
+      throw new UnauthorizedException('Account is inactive');
 
-    const passwordValid = await compare(dto.password, userRecord.password);
-    if (!passwordValid) throw new UnauthorizedException('Invalid credentials');
+    const isPasswordValid = await user.verifyPassword(dto.password);
+    if (!isPasswordValid)
+      throw new UnauthorizedException('Invalid credentials');
 
-    if (!user.isEmailVerified) throw new UnauthorizedException('Email not verified');
-
-    const accessToken = this.token.generate(userRecord);
+    const accessToken = await this.tokenService.generateAccessToken({
+      userId: user.id,
+      email: user.email.getValue(),
+    });
 
     return {
+      accessToken: accessToken,
       user: {
-        id: userRecord.id,
-        firstName: userRecord.firstName,
-        lastName: userRecord.lastName,
-        email: userRecord.email,
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email.getValue(),
+        phone: user.phone?.getValue() || null,
+        isActive: user.isActive,
+        isEmailVerified: user.isEmailVerified,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
       },
-      access_token: accessToken,
     };
   }
 }

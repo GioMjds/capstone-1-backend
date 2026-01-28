@@ -1,6 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import {
   BadRequestException,
+  Global,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';

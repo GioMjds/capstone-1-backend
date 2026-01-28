@@ -7,7 +7,11 @@ import { EmailListener } from './listeners';
   imports: [ConfigModule],
   providers: [
     EmailService,
-    EmailListener
+    EmailListener,
+    {
+      provide: 'IEmailService',
+      useExisting: EmailService,
+    }
   ],
   exports: [EmailService],
 })

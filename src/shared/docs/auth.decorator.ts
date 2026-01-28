@@ -1,11 +1,15 @@
 import {
   ChangePasswordDto,
+  ForgotPasswordRequestDto,
+  ForgotPasswordResetDto,
+  ForgotPasswordVerifyDto,
+  GoogleLoginOAuthDto,
+  LoginResponseDto,
   LoginUserDto,
   RegisterUserDto,
   ResendVerificationDto,
   VerifyUserDto,
-  GoogleLoginOAuthDto,
-} from '@/modules/identity/auth/dto';
+} from '@/application/dto/auth';
 import { applyDecorators } from '@nestjs/common';
 import {
   ApiOperation,

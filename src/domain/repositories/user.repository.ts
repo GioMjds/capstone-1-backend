@@ -1,10 +1,14 @@
-import { User } from "@prisma/client";
+import { UserEntity } from "@/domain/entities";
+import { EmailValueObject } from "@/domain/value-objects";
 
 export interface IUserRepository {
-  findById(id: string): Promise<User | null>;
-  findByEmail(email: string): Promise<User | null>;
-  create(data: Omit<User, "createdAt" | "updatedAt">): Promise<User>;
-  update(id: string, data: Omit<User, "createdAt" | "updatedAt">): Promise<User>;
+  findById(id: string): Promise<UserEntity | null>;
+  findByEmail(email: EmailValueObject): Promise<UserEntity | null>;
+  findAll(page: number, limit: number): Promise<UserEntity[]>;
+  save(user: UserEntity): Promise<UserEntity>;
+  update(user: UserEntity): Promise<UserEntity>;
   delete(id: string): Promise<void>;
-  existsByEmail(email: string): Promise<boolean>;
+  existsByEmail(email: EmailValueObject): Promise<boolean>;
+  count(): Promise<number>;
+  findActiveUsers(page: number, limit: number): Promise<UserEntity[]>;
 }

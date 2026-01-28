@@ -34,6 +34,9 @@ export class RegisterUserDto {
   @IsEmail({}, { message: 'Invalid email address' })
   email: string;
 
+  @IsString({ message: 'Number must be a string' })
+  phone: string;
+
   @ApiProperty({ 
     description: 'Strong password (min 8 characters, must contain uppercase, lowercase, number, and special character)',
     example: 'StrongPassword123!',

@@ -20,7 +20,7 @@ import {
   ForgotPasswordRequestDto,
   ForgotPasswordVerifyDto,
   ForgotPasswordResetDto,
-} from './dto';
+} from '@/application/dto/auth';
 import { ApiTags } from '@nestjs/swagger';
 import {
   RegisterDocs,
@@ -33,7 +33,6 @@ import {
 } from '@/shared/docs';
 import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
-import { LoginUseCase } from '@/application/use-cases/identity/auth';
 
 @ApiTags('/auth')
 @Controller('auth')
@@ -52,7 +51,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.authService.login(dto);
-    res.cookie('access_token', result.access_token, {
+    res.cookie('access_token', result.accessToken, {
       sameSite: 'none',
       secure: this.configService.get('NODE_ENV') === 'production',
       httpOnly: true,
@@ -78,68 +77,68 @@ export class AuthController {
     return this.authService.register(dto);
   }
 
-  @Post('verify-email')
-  @HttpCode(HttpStatus.CREATED)
-  @VerifyEmailDocs()
-  async verifyEmail(
-    @Body() dto: VerifyUserDto,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const result = await this.authService.verifyUser(dto);
-    res.cookie('access_token', result.access_token, {
-      sameSite: 'none',
-      secure: this.configService.get('NODE_ENV') === 'production',
-      httpOnly: true,
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-    return result;
-  }
+  // @Post('verify-email')
+  // @HttpCode(HttpStatus.CREATED)
+  // @VerifyEmailDocs()
+  // async verifyEmail(
+  //   @Body() dto: VerifyUserDto,
+  //   @Res({ passthrough: true }) res: Response,
+  // ) {
+  //   const result = await this.authService.verifyUser(dto);
+  //   res.cookie('access_token', result.access_token, {
+  //     sameSite: 'none',
+  //     secure: this.configService.get('NODE_ENV') === 'production',
+  //     httpOnly: true,
+  //     path: '/',
+  //     maxAge: 7 * 24 * 60 * 60 * 1000,
+  //   });
+  //   return result;
+  // }
 
-  @Post('resend-verif')
-  @HttpCode(HttpStatus.OK)
-  @ResendVerificationDocs()
-  resendVerificationEmail(@Body() dto: ResendVerificationDto) {
-    return this.authService.resendEmail(dto);
-  }
+  // @Post('resend-verif')
+  // @HttpCode(HttpStatus.OK)
+  // @ResendVerificationDocs()
+  // resendVerificationEmail(@Body() dto: ResendVerificationDto) {
+  //   return this.authService.resendEmail(dto);
+  // }
 
-  @Post('forgot-password-request')
-  @Throttle({ default: { limit: 3, ttl: 60000 } })
-  @HttpCode(HttpStatus.OK)
-  // @ForgotPasswordRequestDocs() // Add this decorator in your docus
-  async forgotPasswordRequest(@Body() dto: ForgotPasswordRequestDto) {
-    return this.authService.forgotPasswordRequest(dto);
-  }
+  // @Post('forgot-password-request')
+  // @Throttle({ default: { limit: 3, ttl: 60000 } })
+  // @HttpCode(HttpStatus.OK)
+  // // @ForgotPasswordRequestDocs() // Add this decorator in your docus
+  // async forgotPasswordRequest(@Body() dto: ForgotPasswordRequestDto) {
+  //   return this.authService.forgotPasswordRequest(dto);
+  // }
 
-  @Post('forgot-password-verify')
-  @Throttle({ default: { limit: 5, ttl: 60000 } })
-  @HttpCode(HttpStatus.OK)
-  // @ForgotPasswordVerifyDocs() // Add this decorator in your docus
-  async forgotPasswordVerify(@Body() dto: ForgotPasswordVerifyDto) {
-    return this.authService.forgotPasswordVerify(dto);
-  }
+  // @Post('forgot-password-verify')
+  // @Throttle({ default: { limit: 5, ttl: 60000 } })
+  // @HttpCode(HttpStatus.OK)
+  // // @ForgotPasswordVerifyDocs() // Add this decorator in your docus
+  // async forgotPasswordVerify(@Body() dto: ForgotPasswordVerifyDto) {
+  //   return this.authService.forgotPasswordVerify(dto);
+  // }
 
-  @Post('forgot-password-reset')
-  @Throttle({ default: { limit: 5, ttl: 60000 } })
-  @HttpCode(HttpStatus.OK)
-  // @ForgotPasswordResetDocs() // Add this decorator in your docus
-  async forgotPasswordReset(@Body() dto: ForgotPasswordResetDto) {
-    return this.authService.forgotPasswordReset(dto);
-  }
+  // @Post('forgot-password-reset')
+  // @Throttle({ default: { limit: 5, ttl: 60000 } })
+  // @HttpCode(HttpStatus.OK)
+  // // @ForgotPasswordResetDocs() // Add this decorator in your docus
+  // async forgotPasswordReset(@Body() dto: ForgotPasswordResetDto) {
+  //   return this.authService.forgotPasswordReset(dto);
+  // }
 
-  @Post('change-password')
-  @Throttle({ default: { limit: 5, ttl: 60000 } })
-  @UseGuards(JwtAuthGuard)
-  @HttpCode(HttpStatus.OK)
-  @ChangePasswordDocs()
-  changePassword(@Body() dto: ChangePasswordDto) {
-    return this.authService.changePassword(dto);
-  }
+  // @Post('change-password')
+  // @Throttle({ default: { limit: 5, ttl: 60000 } })
+  // @UseGuards(JwtAuthGuard)
+  // @HttpCode(HttpStatus.OK)
+  // @ChangePasswordDocs()
+  // changePassword(@Body() dto: ChangePasswordDto) {
+  //   return this.authService.changePassword(dto);
+  // }
 
-  @Post('google-login')
-  @HttpCode(HttpStatus.OK)
-  @GoogleOAuthLoginDocs()
-  googleOAuthLogin(@Body() dto: GoogleLoginOAuthDto) {
-    return this.authService.googleAuth(dto);
-  }
+  // @Post('google-login')
+  // @HttpCode(HttpStatus.OK)
+  // @GoogleOAuthLoginDocs()
+  // googleOAuthLogin(@Body() dto: GoogleLoginOAuthDto) {
+  //   return this.authService.googleAuth(dto);
+  // }
 }
