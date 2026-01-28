@@ -22,7 +22,8 @@ import { generateUserId, OAuth, OtpService, Token } from '@/shared/utils';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { VerifyUserEvent } from '@/modules/email/events/verify-user.event';
 import type { IUserRepository } from '@/domain/repositories/user.repository';
-import { UserAggregate } from '@/domain/entities/user.aggregate';
+import { User } from '@/domain/entities/user.entity';
+import { LoginUseCase } from '@/application/use-cases/identity/auth';
 
 @Injectable()
 export class AuthService {
@@ -31,6 +32,7 @@ export class AuthService {
   constructor(
     @Inject('IUserRepository')
     private readonly usersRepo: IUserRepository,
+    private readonly loginUseCase: LoginUseCase,
     private token: Token,
     private otpService: OtpService,
     private oauth: OAuth,
@@ -38,35 +40,7 @@ export class AuthService {
   ) {}
 
   async login(dto: LoginUserDto) {
-    const { email, password } = dto;
-
-    const userRecord = await this.usersRepo.findByEmail(email);
-    if (!userRecord) throw new NotFoundException('User not found');
-
-    const user = UserAggregate.fromPrisma(userRecord);
-    if (!user) throw new NotFoundException('User not found');
-
-    const passwordValid = await compare(password, userRecord.password);
-
-    if (!passwordValid) {
-      throw new BadRequestException('Your password is incorrect.');
-    }
-
-    if (!user.isEmailVerified) {
-      throw new BadRequestException('Email is not verified.');
-    }
-
-    const accessToken = this.token.generate(userRecord);
-
-    return {
-      user: {
-        id: userRecord.id,
-        firstName: userRecord.firstName,
-        lastName: userRecord.lastName,
-        email: userRecord.email,
-      },
-      access_token: accessToken,
-    };
+    return await this.loginUseCase.execute(dto);
   }
 
   async logout() {

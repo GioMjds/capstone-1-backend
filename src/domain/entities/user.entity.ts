@@ -1,8 +1,8 @@
 import { User as PrismaUser } from "@prisma/client";
 
-export class UserAggregate {
+export class User {
   constructor(
-    public id: string,
+    public readonly id: string,
     public firstName: string,
     public lastName: string,
     public email: string,
@@ -11,7 +11,7 @@ export class UserAggregate {
   ) {}
 
   static fromPrisma(user: PrismaUser) {
-    return new UserAggregate(
+    return new User(
       user.id,
       user.firstName,
       user.lastName,

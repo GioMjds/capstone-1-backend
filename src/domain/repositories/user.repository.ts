@@ -6,4 +6,5 @@ export interface IUserRepository {
   create(data: Omit<User, "createdAt" | "updatedAt">): Promise<User>;
   update(id: string, data: Omit<User, "createdAt" | "updatedAt">): Promise<User>;
   delete(id: string): Promise<void>;
+  existsByEmail(email: string): Promise<boolean>;
 }

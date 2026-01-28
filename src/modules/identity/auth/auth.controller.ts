@@ -39,7 +39,6 @@ import { LoginUseCase } from '@/application/use-cases/identity/auth';
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly loginUse: LoginUseCase,
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
   ) {}
@@ -52,7 +51,7 @@ export class AuthController {
     @Body() dto: LoginUserDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.loginUse.execute(dto);
+    const result = await this.authService.login(dto);
     res.cookie('access_token', result.access_token, {
       sameSite: 'none',
       secure: this.configService.get('NODE_ENV') === 'production',

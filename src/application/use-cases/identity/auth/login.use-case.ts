@@ -8,7 +8,7 @@ import { LoginUserDto } from '@/modules/identity/auth/dto';
 import type { IUserRepository } from '@/domain/repositories';
 import { Token } from '@/shared/utils';
 import { compare } from 'bcrypt';
-import { UserAggregate } from '@/domain/entities/user.aggregate';
+import { User } from '@/domain/entities/user.entity';
 
 @Injectable()
 export class LoginUseCase {
@@ -25,7 +25,7 @@ export class LoginUseCase {
     const userRecord = await this.userRepository.findByEmail(dto.email);
     if (!userRecord) throw new NotFoundException('User not found');
 
-    const user = UserAggregate.fromPrisma(userRecord);
+    const user = User.fromPrisma(userRecord);
     if (!user) throw new NotFoundException('User not found');
 
     const passwordValid = await compare(dto.password, userRecord.password);
