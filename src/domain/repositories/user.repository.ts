@@ -1,14 +1,14 @@
 import { UserEntity } from "@/domain/entities";
 import { EmailValueObject } from "@/domain/value-objects";
 
-export interface IUserRepository {
-  findById(id: string): Promise<UserEntity | null>;
-  findByEmail(email: EmailValueObject): Promise<UserEntity | null>;
-  findAll(page: number, limit: number): Promise<UserEntity[]>;
-  save(user: UserEntity): Promise<UserEntity>;
-  update(user: UserEntity): Promise<UserEntity>;
-  delete(id: string): Promise<void>;
-  existsByEmail(email: EmailValueObject): Promise<boolean>;
-  count(): Promise<number>;
-  findActiveUsers(page: number, limit: number): Promise<UserEntity[]>;
+export abstract class IUserRepository {
+  abstract findById(id: string): Promise<UserEntity | null>;
+  abstract findByEmail(email: EmailValueObject): Promise<UserEntity | null>;
+  abstract findAll(page: number, limit: number): Promise<UserEntity[]>;
+  abstract save(user: UserEntity): Promise<UserEntity>;
+  abstract update(user: UserEntity): Promise<UserEntity>;
+  abstract delete(id: string): Promise<void>;
+  abstract existsByEmail(email: EmailValueObject): Promise<boolean>;
+  abstract count(): Promise<number>;
+  abstract findActiveUsers(page: number, limit: number): Promise<UserEntity[]>;
 }

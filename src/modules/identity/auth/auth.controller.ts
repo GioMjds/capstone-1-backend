@@ -77,30 +77,30 @@ export class AuthController {
     return this.authService.register(dto);
   }
 
-  // @Post('verify-email')
-  // @HttpCode(HttpStatus.CREATED)
-  // @VerifyEmailDocs()
-  // async verifyEmail(
-  //   @Body() dto: VerifyUserDto,
-  //   @Res({ passthrough: true }) res: Response,
-  // ) {
-  //   const result = await this.authService.verifyUser(dto);
-  //   res.cookie('access_token', result.access_token, {
-  //     sameSite: 'none',
-  //     secure: this.configService.get('NODE_ENV') === 'production',
-  //     httpOnly: true,
-  //     path: '/',
-  //     maxAge: 7 * 24 * 60 * 60 * 1000,
-  //   });
-  //   return result;
-  // }
+  @Post('verify-email')
+  @HttpCode(HttpStatus.CREATED)
+  @VerifyEmailDocs()
+  async verifyEmail(
+    @Body() dto: VerifyUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.authService.verifyUser(dto);
+    res.cookie('access_token', result.accessToken, {
+      sameSite: 'none',
+      secure: this.configService.get('NODE_ENV') === 'production',
+      httpOnly: true,
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    return result;
+  }
 
-  // @Post('resend-verif')
-  // @HttpCode(HttpStatus.OK)
-  // @ResendVerificationDocs()
-  // resendVerificationEmail(@Body() dto: ResendVerificationDto) {
-  //   return this.authService.resendEmail(dto);
-  // }
+  @Post('resend-verif')
+  @HttpCode(HttpStatus.OK)
+  @ResendVerificationDocs()
+  resendVerificationEmail(@Body() dto: ResendVerificationDto) {
+    return this.authService.resendEmailVerification(dto);
+  }
 
   // @Post('forgot-password-request')
   // @Throttle({ default: { limit: 3, ttl: 60000 } })

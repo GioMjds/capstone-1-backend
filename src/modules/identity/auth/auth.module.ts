@@ -1,18 +1,20 @@
 import { Module } from '@nestjs/common';
+import { HttpModule } from '@nestjs/axios';
+import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { getJwtConfig } from '@/infrastructure/config';
-import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { OAuth, OtpService, Token } from '@/shared/utils';
-import { EmailModule } from '@/shared/email/email.module';
-import { EmailListener } from '@/shared/email/listeners/email.listener';
-import { PrismaService, RedisService } from '@/infrastructure/persistence';
+import { EmailModule } from '@/shared/email';
+import { EmailListener } from '@/shared/email/listeners';
+import {
+  PrismaService,
+  RedisService,
+  JwtTokenService,
+} from '@/infrastructure/persistence';
 import { PrismaUserRepository } from '@/infrastructure/persistence/prisma/repositories';
-import { LoginUseCase } from '@/application/use-cases/identity/auth';
-import { RegisterUserUseCase } from '@/application/use-cases/identity/auth/register.use-case';
-import { JwtTokenService } from '@/infrastructure/persistence/jwt.service';
-import { HttpModule } from '@nestjs/axios';
+import { AUTH_USE_CASES } from '@/application/use-cases/identity/auth';
 
 @Module({
   imports: [
@@ -28,15 +30,13 @@ import { HttpModule } from '@nestjs/axios';
   controllers: [AuthController],
   providers: [
     AuthService,
-    LoginUseCase,
-    RegisterUserUseCase,
+    ...AUTH_USE_CASES,
     PrismaService,
     RedisService,
     OAuth,
     OtpService,
     Token,
     EmailListener,
-    LoginUseCase,
     {
       provide: 'IUserRepository',
       useClass: PrismaUserRepository,
@@ -44,7 +44,7 @@ import { HttpModule } from '@nestjs/axios';
     {
       provide: 'ITokenService',
       useClass: JwtTokenService,
-    }
+    },
   ],
   exports: [AuthService],
 })

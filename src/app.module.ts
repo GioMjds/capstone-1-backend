@@ -7,6 +7,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { useThrottlerConfig } from '@/infrastructure/config';
 import { AdminModule, IdentityModule } from '@/modules';
+import { PrismaModule } from '@/infrastructure/persistence/prisma';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { AdminModule, IdentityModule } from '@/modules';
       verboseMemoryLeak: false,
       ignoreErrors: false,
     }),
+    PrismaModule,
     AdminModule,
     IdentityModule,
   ],
