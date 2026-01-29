@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { JwtModule } from '@nestjs/jwt';
-import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { getJwtConfig } from '@/infrastructure/config';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -15,6 +14,7 @@ import {
 } from '@/infrastructure/persistence';
 import { PrismaUserRepository } from '@/infrastructure/persistence/prisma/repositories';
 import { AUTH_USE_CASES } from '@/application/use-cases/identity/auth';
+import { UserMapper } from '@/infrastructure/persistence/prisma/mappers';
 
 @Module({
   imports: [
@@ -44,6 +44,7 @@ import { AUTH_USE_CASES } from '@/application/use-cases/identity/auth';
       provide: 'ITokenService',
       useClass: JwtTokenService,
     },
+    UserMapper,
   ],
   exports: [],
 })

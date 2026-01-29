@@ -1,7 +1,10 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { JwtService } from "@nestjs/jwt";
-import { ITokenService, TokenPayload } from "@/application/ports/token-service.port";
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import {
+  ITokenService,
+  TokenPayload,
+} from '@/application/ports/token-service.port';
 
 @Injectable()
 export class JwtTokenService implements ITokenService {
@@ -11,7 +14,10 @@ export class JwtTokenService implements ITokenService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {
-    const expiryString = this.configService.get<string>('jwt.accessTokenExpiry', '1h');
+    const expiryString = this.configService.get<string>(
+      'jwt.accessTokenExpiry',
+      '1h',
+    );
     this.expiresIn = this.parseExpiryToSeconds(expiryString);
   }
 
@@ -36,14 +42,17 @@ export class JwtTokenService implements ITokenService {
   }
 
   getTokenExpiresIn(): number {
-    return this.expiresIn;
+    return parseInt(
+      this.configService.get<string>('JWT_EXPIRES_IN', '3600'),
+      10,
+    );
   }
 
   private parseExpiryToSeconds(expiry: string): number {
     const match = expiry.match(/^(\d+)([smhd])$/);
 
     if (!match) return 3600; // Default 1 hour
-    
+
     const value = parseInt(match[1], 10);
     const unit = match[2];
 

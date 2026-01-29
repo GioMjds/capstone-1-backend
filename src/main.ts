@@ -70,6 +70,10 @@ async function bootstrap() {
       'Authorization',
       'Accept',
       'X-Requested-With',
+      'Bearer',
+      'Origin',
+      'Access-Control-Allow-Origin',
+      'Access-Control-Allow-Credentials',
     ],
   });
 

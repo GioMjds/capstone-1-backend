@@ -849,7 +849,7 @@ WHEN: Creating a new feature or bounded context
 
 WHERE: identity/, admin/, modules
 
-HOW: Module + Controller + Service files
+HOW: Module + Controller only
 
 WHY: Organize by feature, clear boundaries, easy to find and maintain
 
@@ -1311,12 +1311,6 @@ This section shows how all the pieces connect together in a request flow.
 │  │  IdentityController                                    │     │
 │  │  @Post('users')                                        │     │
 │  │  createUser(@Body() dto: CreateUserDto)                │     │
-│  └────────────────────────────────────────────────────────┘     │
-│                                 │                               │
-│                                 ▼                               │
-│  ┌────────────────────────────────────────────────────────┐     │
-│  │  IdentityService                                       │     │
-│  │  createUser(dto: CreateUserDto)                        │     │
 │  └────────────────────────────────────────────────────────┘     │
 └─────────────────────────────────────────────────────────────────┘
                                  │

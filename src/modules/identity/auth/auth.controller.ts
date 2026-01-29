@@ -42,6 +42,7 @@ import {
   ForgotPasswordVerifyUseCase,
   ChangePasswordUseCase,
 } from '@/application/use-cases/identity/auth';
+import { CookieConfig } from '@/infrastructure/config/cookie.config';
 
 @ApiTags('/auth')
 @Controller('auth')
@@ -67,13 +68,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.loginUseCase.execute(dto);
-    res.cookie('access_token', result.accessToken, {
-      sameSite: 'none',
-      secure: this.configService.get('NODE_ENV') === 'production',
-      httpOnly: true,
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    this.setAuthCookie(res, result.accessToken);
     return result;
   }
 
@@ -100,13 +95,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.verifyUserUseCase.execute(dto);
-    res.cookie('access_token', result.accessToken, {
-      sameSite: 'none',
-      secure: this.configService.get('NODE_ENV') === 'production',
-      httpOnly: true,
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    this.setAuthCookie(res, result.accessToken);
     return result;
   }
 
@@ -148,6 +137,16 @@ export class AuthController {
   @ChangePasswordDocs()
   changePassword(@Body() dto: ChangePasswordDto) {
     return this.changePasswordUseCase.execute(dto);
+  }
+
+  private setAuthCookie(res: Response, token: string): void {
+    const isProduction =
+      this.configService.get<string>('NODE_ENV') === 'production';
+    res.cookie(
+      CookieConfig.AUTH_COOKIE_NAME,
+      token,
+      CookieConfig.getAuthCookieOptions(isProduction),
+    );
   }
 
   // @Post('google-login')

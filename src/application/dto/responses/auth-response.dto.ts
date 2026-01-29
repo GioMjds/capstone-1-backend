@@ -8,7 +8,7 @@ export class AuthResponseDto {
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
   })
   @IsOptional()
-  accessToken?: string;
+  accessToken: string;
 
   @ApiProperty({
     description: 'User information',
