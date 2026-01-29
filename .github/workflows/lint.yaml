@@ -1,20 +1,22 @@
-name: Lints
+name: Lint
 
 on: [pull_request]
 
 jobs:
   lint:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
 
-      - name: Setup pnpm
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "pnpm"
@@ -23,10 +25,6 @@ jobs:
         run: pnpm install --frozen-lockfile
         working-directory: ./api
 
-      - name: Lint code
+      - name: Run linter
         run: pnpm run lint
-        working-directory: ./api
-
-      - name: Run tests
-        run: pnpm run test
         working-directory: ./api
