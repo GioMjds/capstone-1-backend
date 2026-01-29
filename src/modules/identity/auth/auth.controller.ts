@@ -102,38 +102,38 @@ export class AuthController {
     return this.authService.resendEmailVerification(dto);
   }
 
-  // @Post('forgot-password-request')
-  // @Throttle({ default: { limit: 3, ttl: 60000 } })
-  // @HttpCode(HttpStatus.OK)
-  // // @ForgotPasswordRequestDocs() // Add this decorator in your docus
-  // async forgotPasswordRequest(@Body() dto: ForgotPasswordRequestDto) {
-  //   return this.authService.forgotPasswordRequest(dto);
-  // }
+  @Post('forgot-password-request')
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  @HttpCode(HttpStatus.OK)
+  // @ForgotPasswordRequestDocs() // Add this decorator in your docus
+  async forgotPasswordRequest(@Body() dto: ForgotPasswordRequestDto) {
+    return this.authService.forgotPasswordRequest(dto);
+  }
 
-  // @Post('forgot-password-verify')
-  // @Throttle({ default: { limit: 5, ttl: 60000 } })
-  // @HttpCode(HttpStatus.OK)
-  // // @ForgotPasswordVerifyDocs() // Add this decorator in your docus
-  // async forgotPasswordVerify(@Body() dto: ForgotPasswordVerifyDto) {
-  //   return this.authService.forgotPasswordVerify(dto);
-  // }
+  @Post('forgot-password-verify')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @HttpCode(HttpStatus.OK)
+  // @ForgotPasswordVerifyDocs() // Add this decorator in your docus
+  async forgotPasswordVerify(@Body() dto: ForgotPasswordVerifyDto) {
+    return this.authService.forgotPasswordVerify(dto);
+  }
 
-  // @Post('forgot-password-reset')
-  // @Throttle({ default: { limit: 5, ttl: 60000 } })
-  // @HttpCode(HttpStatus.OK)
-  // // @ForgotPasswordResetDocs() // Add this decorator in your docus
-  // async forgotPasswordReset(@Body() dto: ForgotPasswordResetDto) {
-  //   return this.authService.forgotPasswordReset(dto);
-  // }
+  @Post('forgot-password-reset')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @HttpCode(HttpStatus.OK)
+  // @ForgotPasswordResetDocs() // Add this decorator in your docus
+  async forgotPasswordReset(@Body() dto: ForgotPasswordResetDto) {
+    return this.authService.forgotPasswordReset(dto);
+  }
 
-  // @Post('change-password')
-  // @Throttle({ default: { limit: 5, ttl: 60000 } })
-  // @UseGuards(JwtAuthGuard)
-  // @HttpCode(HttpStatus.OK)
-  // @ChangePasswordDocs()
-  // changePassword(@Body() dto: ChangePasswordDto) {
-  //   return this.authService.changePassword(dto);
-  // }
+  @Post('change-password')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @ChangePasswordDocs()
+  changePassword(@Body() dto: ChangePasswordDto) {
+    return this.authService.changePassword(dto);
+  }
 
   // @Post('google-login')
   // @HttpCode(HttpStatus.OK)

@@ -18,6 +18,7 @@ import {
   ForgotPasswordRequestUseCase,
   ForgotPasswordResetUseCase,
   ForgotPasswordVerifyUseCase,
+  ChangePasswordUseCase,
 } from '@/application/use-cases/identity/auth';
 
 @Injectable()
@@ -30,6 +31,7 @@ export class AuthService {
     private readonly forgotPasswordRequestUseCase: ForgotPasswordRequestUseCase,
     private readonly forgotPasswordVerifyUseCase: ForgotPasswordVerifyUseCase,
     private readonly forgotPasswordResetUseCase: ForgotPasswordResetUseCase,
+    private readonly changePasswordUseCase: ChangePasswordUseCase,
   ) {}
 
   async logout() {
@@ -62,5 +64,9 @@ export class AuthService {
 
   async forgotPasswordReset(dto: ForgotPasswordResetDto) {
     return await this.forgotPasswordResetUseCase.execute(dto);
+  }
+
+  async changePassword(dto: ChangePasswordDto) {
+    return await this.changePasswordUseCase.execute(dto);
   }
 }
