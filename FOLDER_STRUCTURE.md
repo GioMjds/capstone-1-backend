@@ -98,16 +98,13 @@ project-root/
 │   │   ├── admin/
 │   │   │   ├── admin.module.ts
 │   │   │   ├── admin.controller.ts
-│   │   │   ├── admin.service.ts
 │   │   │   └── index.ts
 │   │   ├── email/
 │   │   │   ├── email.module.ts
-│   │   │   ├── email.service.ts
 │   │   │   └── index.ts
 │   │   ├── identity/
 │   │   │   ├── identity.module.ts
 │   │   │   ├── identity.controller.ts
-│   │   │   ├── identity.service.ts
 │   │   │   └── index.ts
 │   │   └── index.ts
 │   ├── shared/                      -> Shared Resources
@@ -540,6 +537,19 @@ export class CreateUserUseCase {
 }
 ```
 
+#### **Barrel Imports**: (CRUCIAL for cleaner imports)
+
+```typescript
+export * from './create-user.use-case';
+
+import { CreateUserUseCase } from './create-user.use-case';
+
+// To spread use cases in modules, so all `*<feature>*.module.ts` can import easily for cleaner code
+export const YOUR_USE_CASE = [
+  CreateUserUseCase,
+]
+```
+
 ---
 
 #### 📁 **`events/`** - Application Events
@@ -854,18 +864,6 @@ WHERE: IdentityModule, AdminModule, etc.
 HOW: `@Module` decorator with imports/controllers/providers/exports
 
 WHY: Configure how NestJS injects dependencies
-
-#### 📄 **`<feature>`.service.ts**
-
-WHAT: Thin coordinator between controllers and use cases
-
-WHEN: Need to compose multiple use cases or add module logic
-
-WHERE: IdentityService, AdminService, etc.
-
-HOW: Inject and call use cases, minimal logic
-
-WHY: Keep controllers thin, coordinate with `application/` layer
 
 #### 📄 **`<feature>`.controller.ts**
 
@@ -1908,7 +1906,6 @@ Guidelines in the `@Module` decorator:
   imports: [PrismaModule, ProductModule],
   controllers: [ReviewController],
   providers: [
-    ReviewService,
     CreateReviewUseCase,
     {
       provide: 'IReviewRepository',
@@ -1920,35 +1917,13 @@ Guidelines in the `@Module` decorator:
 export class ReviewModule {}
 ```
 
-We have to put everything together first in the service file. Mainly because the controller will depend on the service and service layer in module will glue everything we implemented in the application layer.
-
-```typescript
-// modules/review/review.service.ts
-import { Injectable } from '@nestjs/common';
-import { CreateReviewUseCase } from '@/application/use-cases/create-review.use-case';
-import { CreateReviewDto } from '@/application/dto/create-review.dto';
-
-@Injectable()
-export class ReviewService {
-  constructor(
-    private readonly createReviewUseCase: CreateReviewUseCase,
-  ) {}
-
-  async createReview(userId: string, dto: CreateReviewDto) {
-    return this.createReviewUseCase.execute(userId, dto);
-  }
-
-  // Additional methods like getProductReviews can be added here
-}
-```
-
 Finally, we can implement the controller to expose the endpoints for creating and retrieving reviews.
 
 Guidelines for the controller and we need:
 
 - Use appropriate decorators to define routes and HTTP methods (e.g., @Post, @Get)
 
-- Inject the ReviewService to handle business logic
+- Inject all use cases to handle business logic
 
 - Use guards and decorators for authentication and authorization (e.g., JwtAuthGuard, CurrentUser)
 
@@ -1961,12 +1936,13 @@ Guidelines for the controller and we need:
 ```typescript
 // modules/review/review.controller.ts
 import { Controller, Post, Get, Body, Param, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
-import { ReviewService } from './review.service';
 
 @Controller('reviews')
 @UseGuards(JwtAuthGuard)
 export class ReviewController {
-  constructor(private readonly reviewService: ReviewService) {}
+  constructor(
+    private readonly yourUseCase: YourUseCase,
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -1974,7 +1950,7 @@ export class ReviewController {
     @CurrentUser() user: any,
     @Body() dto: CreateReviewDto,
   ): Promise<ReviewResponseDto> {
-    return this.reviewService.createReview(user.id, dto);
+    return this.yourUseCase.execute(user.id, dto);
   }
 
   @Get('product/:productId')
@@ -1982,7 +1958,7 @@ export class ReviewController {
   async getProductReviews(
     @Param('productId') productId: string,
   ): Promise<ReviewResponseDto[]> {
-    return this.reviewService.getProductReviews(productId);
+    return this.yourUseCase.execute(productId);
   }
 
   // Other endpoints as needed

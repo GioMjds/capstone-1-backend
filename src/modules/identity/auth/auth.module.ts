@@ -29,7 +29,6 @@ import { AUTH_USE_CASES } from '@/application/use-cases/identity/auth';
   ],
   controllers: [AuthController],
   providers: [
-    AuthService,
     ...AUTH_USE_CASES,
     PrismaService,
     RedisService,
@@ -46,6 +45,6 @@ import { AUTH_USE_CASES } from '@/application/use-cases/identity/auth';
       useClass: JwtTokenService,
     },
   ],
-  exports: [AuthService],
+  exports: [],
 })
 export class AuthModule {}

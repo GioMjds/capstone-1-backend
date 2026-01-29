@@ -1,4 +1,4 @@
-import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Inject, UnauthorizedException, Logger } from '@nestjs/common';
 import { LoginUserDto } from '@/application/dto/auth';
 import type { IUserRepository } from '@/domain/repositories';
 import type { ITokenService } from '@/application/ports/token-service.port';
@@ -30,6 +30,8 @@ export class LoginUseCase {
       userId: user.id,
       email: user.email.getValue(),
     });
+
+    Logger.log(`User ${user.email.getValue()} logged in successfully.`);
 
     return {
       accessToken: accessToken,

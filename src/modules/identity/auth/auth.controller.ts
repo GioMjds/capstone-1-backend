@@ -8,7 +8,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import type { Response } from 'express';
-import { AuthService } from './auth.service';
 import { JwtAuthGuard } from '@/shared/guards';
 import {
   LoginUserDto,
@@ -33,13 +32,30 @@ import {
 } from '@/shared/docs';
 import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
+import {
+  LoginUseCase,
+  RegisterUserUseCase,
+  VerifyUserUseCase,
+  ResendVerificationUseCase,
+  ForgotPasswordRequestUseCase,
+  ForgotPasswordResetUseCase,
+  ForgotPasswordVerifyUseCase,
+  ChangePasswordUseCase,
+} from '@/application/use-cases/identity/auth';
 
 @ApiTags('/auth')
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly authService: AuthService,
     private readonly configService: ConfigService,
+    private readonly loginUseCase: LoginUseCase,
+    private readonly registerUserUseCase: RegisterUserUseCase,
+    private readonly verifyUserUseCase: VerifyUserUseCase,
+    private readonly resendVerificationUseCase: ResendVerificationUseCase,
+    private readonly forgotPasswordRequestUseCase: ForgotPasswordRequestUseCase,
+    private readonly forgotPasswordVerifyUseCase: ForgotPasswordVerifyUseCase,
+    private readonly forgotPasswordResetUseCase: ForgotPasswordResetUseCase,
+    private readonly changePasswordUseCase: ChangePasswordUseCase,
   ) {}
 
   @Post('login')
@@ -50,7 +66,7 @@ export class AuthController {
     @Body() dto: LoginUserDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.authService.login(dto);
+    const result = await this.loginUseCase.execute(dto);
     res.cookie('access_token', result.accessToken, {
       sameSite: 'none',
       secure: this.configService.get('NODE_ENV') === 'production',
@@ -67,14 +83,13 @@ export class AuthController {
   @LogoutDocs()
   logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('access_token');
-    return this.authService.logout();
   }
 
   @Post('register')
   @HttpCode(HttpStatus.OK)
   @RegisterDocs()
   register(@Body() dto: RegisterUserDto) {
-    return this.authService.register(dto);
+    return this.registerUserUseCase.execute(dto);
   }
 
   @Post('verify-email')
@@ -84,7 +99,7 @@ export class AuthController {
     @Body() dto: VerifyUserDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.authService.verifyUser(dto);
+    const result = await this.verifyUserUseCase.execute(dto);
     res.cookie('access_token', result.accessToken, {
       sameSite: 'none',
       secure: this.configService.get('NODE_ENV') === 'production',
@@ -99,7 +114,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ResendVerificationDocs()
   resendVerificationEmail(@Body() dto: ResendVerificationDto) {
-    return this.authService.resendEmailVerification(dto);
+    return this.resendVerificationUseCase.execute(dto);
   }
 
   @Post('forgot-password-request')
@@ -107,7 +122,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   // @ForgotPasswordRequestDocs() // Add this decorator in your docus
   async forgotPasswordRequest(@Body() dto: ForgotPasswordRequestDto) {
-    return this.authService.forgotPasswordRequest(dto);
+    return this.forgotPasswordRequestUseCase.execute(dto);
   }
 
   @Post('forgot-password-verify')
@@ -115,7 +130,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   // @ForgotPasswordVerifyDocs() // Add this decorator in your docus
   async forgotPasswordVerify(@Body() dto: ForgotPasswordVerifyDto) {
-    return this.authService.forgotPasswordVerify(dto);
+    return this.forgotPasswordVerifyUseCase.execute(dto);
   }
 
   @Post('forgot-password-reset')
@@ -123,7 +138,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   // @ForgotPasswordResetDocs() // Add this decorator in your docus
   async forgotPasswordReset(@Body() dto: ForgotPasswordResetDto) {
-    return this.authService.forgotPasswordReset(dto);
+    return this.forgotPasswordResetUseCase.execute(dto);
   }
 
   @Post('change-password')
@@ -132,7 +147,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ChangePasswordDocs()
   changePassword(@Body() dto: ChangePasswordDto) {
-    return this.authService.changePassword(dto);
+    return this.changePasswordUseCase.execute(dto);
   }
 
   // @Post('google-login')
