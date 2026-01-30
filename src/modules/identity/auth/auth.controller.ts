@@ -7,67 +7,41 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import type { Response } from 'express';
-import { JwtAuthGuard } from '@/shared/guards';
-import {
-  LoginUserDto,
-  RegisterUserDto,
-  VerifyUserDto,
-  ResendVerificationDto,
-  ChangePasswordDto,
-  GoogleLoginOAuthDto,
-  ForgotPasswordRequestDto,
-  ForgotPasswordVerifyDto,
-  ForgotPasswordResetDto,
-} from '@/application/dto/auth';
-import { ApiTags } from '@nestjs/swagger';
-import {
-  RegisterDocs,
-  LoginDocs,
-  LogoutDocs,
-  VerifyEmailDocs,
-  ResendVerificationDocs,
-  GoogleOAuthLoginDocs,
-  ChangePasswordDocs,
-} from '@/shared/docs';
 import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
-import {
-  LoginUseCase,
-  RegisterUserUseCase,
-  VerifyUserUseCase,
-  ResendVerificationUseCase,
-  ForgotPasswordRequestUseCase,
-  ForgotPasswordResetUseCase,
-  ForgotPasswordVerifyUseCase,
-  ChangePasswordUseCase,
-} from '@/application/use-cases/identity/auth';
-import { CookieConfig } from '@/infrastructure/config/cookie.config';
+import { ApiTags } from '@nestjs/swagger';
+import type { Response } from 'express';
+import { CookieConfig } from '@/infrastructure/config';
+import { JwtAuthGuard } from '@/shared/guards';
+import * as AuthDto from '@/application/dto/auth';
+import * as AuthDocs from '@/shared/docs';
+import * as AuthUseCase from '@/application/use-cases/identity/auth';
 
 @ApiTags('/auth')
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly configService: ConfigService,
-    private readonly loginUseCase: LoginUseCase,
-    private readonly registerUserUseCase: RegisterUserUseCase,
-    private readonly verifyUserUseCase: VerifyUserUseCase,
-    private readonly resendVerificationUseCase: ResendVerificationUseCase,
-    private readonly forgotPasswordRequestUseCase: ForgotPasswordRequestUseCase,
-    private readonly forgotPasswordVerifyUseCase: ForgotPasswordVerifyUseCase,
-    private readonly forgotPasswordResetUseCase: ForgotPasswordResetUseCase,
-    private readonly changePasswordUseCase: ChangePasswordUseCase,
+    private readonly loginUse: AuthUseCase.LoginUseCase,
+    private readonly registerUse: AuthUseCase.RegisterUserUseCase,
+    private readonly verifyUserUse: AuthUseCase.VerifyUserUseCase,
+    private readonly resendVerificationUse: AuthUseCase.ResendVerificationUseCase,
+    private readonly forgotPasswordRequestUse: AuthUseCase.ForgotPasswordRequestUseCase,
+    private readonly forgotPasswordVerifyUse: AuthUseCase.ForgotPasswordVerifyUseCase,
+    private readonly forgotPasswordResetUse: AuthUseCase.ForgotPasswordResetUseCase,
+    private readonly changePasswordUse: AuthUseCase.ChangePasswordUseCase,
+    private readonly googleOAuthUse: AuthUseCase.GoogleOAuthUseCase,
   ) {}
 
   @Post('login')
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
-  @LoginDocs()
+  @AuthDocs.LoginDocs()
   async login(
-    @Body() dto: LoginUserDto,
+    @Body() dto: AuthDto.LoginUserDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.loginUseCase.execute(dto);
+    const result = await this.loginUse.execute(dto);
     this.setAuthCookie(res, result.accessToken);
     return result;
   }
@@ -75,68 +49,77 @@ export class AuthController {
   @Post('logout')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  @LogoutDocs()
+  @AuthDocs.LogoutDocs()
   logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('access_token');
   }
 
   @Post('register')
   @HttpCode(HttpStatus.OK)
-  @RegisterDocs()
-  register(@Body() dto: RegisterUserDto) {
-    return this.registerUserUseCase.execute(dto);
+  @AuthDocs.RegisterDocs()
+  register(@Body() dto: AuthDto.RegisterUserDto) {
+    return this.registerUse.execute(dto);
   }
 
   @Post('verify-email')
   @HttpCode(HttpStatus.CREATED)
-  @VerifyEmailDocs()
+  @AuthDocs.VerifyEmailDocs()
   async verifyEmail(
-    @Body() dto: VerifyUserDto,
+    @Body() dto: AuthDto.VerifyUserDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.verifyUserUseCase.execute(dto);
+    const result = await this.verifyUserUse.execute(dto);
     this.setAuthCookie(res, result.accessToken);
     return result;
   }
 
   @Post('resend-verif')
+  @Throttle({ default: { limit: 1, ttl: 120000 } })
   @HttpCode(HttpStatus.OK)
-  @ResendVerificationDocs()
-  resendVerificationEmail(@Body() dto: ResendVerificationDto) {
-    return this.resendVerificationUseCase.execute(dto);
+  @AuthDocs.ResendVerificationDocs()
+  resendVerificationEmail(@Body() dto: AuthDto.ResendVerificationDto) {
+    return this.resendVerificationUse.execute(dto);
   }
 
   @Post('forgot-password-request')
   @Throttle({ default: { limit: 3, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
-  // @ForgotPasswordRequestDocs() // Add this decorator in your docus
-  async forgotPasswordRequest(@Body() dto: ForgotPasswordRequestDto) {
-    return this.forgotPasswordRequestUseCase.execute(dto);
+  @AuthDocs.ForgotPasswordRequestDocs()
+  async forgotPasswordRequest(@Body() dto: AuthDto.ForgotPasswordRequestDto) {
+    return this.forgotPasswordRequestUse.execute(dto);
   }
 
   @Post('forgot-password-verify')
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
-  // @ForgotPasswordVerifyDocs() // Add this decorator in your docus
-  async forgotPasswordVerify(@Body() dto: ForgotPasswordVerifyDto) {
-    return this.forgotPasswordVerifyUseCase.execute(dto);
+  @AuthDocs.ForgotPasswordVerifyDocs()
+  async forgotPasswordVerify(@Body() dto: AuthDto.ForgotPasswordVerifyDto) {
+    return this.forgotPasswordVerifyUse.execute(dto);
   }
 
   @Post('forgot-password-reset')
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
-  // @ForgotPasswordResetDocs() // Add this decorator in your docus
-  async forgotPasswordReset(@Body() dto: ForgotPasswordResetDto) {
-    return this.forgotPasswordResetUseCase.execute(dto);
+  @AuthDocs.ForgotPasswordResetDocs()
+  async forgotPasswordReset(@Body() dto: AuthDto.ForgotPasswordResetDto) {
+    return this.forgotPasswordResetUse.execute(dto);
   }
 
   @Post('change-password')
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  @ChangePasswordDocs()
-  changePassword(@Body() dto: ChangePasswordDto) {
-    return this.changePasswordUseCase.execute(dto);
+  @AuthDocs.ChangePasswordDocs()
+  changePassword(@Body() dto: AuthDto.ChangePasswordDto) {
+    return this.changePasswordUse.execute(dto);
+  }
+
+  @Post('google-login')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @HttpCode(HttpStatus.OK)
+  @AuthDocs.GoogleOAuthLoginDocs()
+  googleOAuthLogin(@Body() dto: AuthDto.GoogleLoginOAuthDto) {
+    return this.googleOAuthUse.execute(dto);
   }
 
   private setAuthCookie(res: Response, token: string): void {
@@ -148,11 +131,4 @@ export class AuthController {
       CookieConfig.getAuthCookieOptions(isProduction),
     );
   }
-
-  // @Post('google-login')
-  // @HttpCode(HttpStatus.OK)
-  // @GoogleOAuthLoginDocs()
-  // googleOAuthLogin(@Body() dto: GoogleLoginOAuthDto) {
-  //   return this.authService.googleAuth(dto);
-  // }
 }

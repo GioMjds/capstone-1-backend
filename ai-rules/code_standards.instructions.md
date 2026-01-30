@@ -5,8 +5,7 @@
 ## File Length Rules
 
 ### Maximum Lines Per File
-- **Controllers**: 100-150 lines maximum
-- **Services**: 100-150 lines maximum (thin coordinators)
+- **Controllers**: 150-250 lines maximum
 - **Use Cases**: 100-200 lines maximum
 - **Domain Entities**: 150-250 lines maximum
 - **Value Objects**: 50-100 lines maximum
@@ -69,7 +68,6 @@ src/
 │   ├── feature-name/
 │   │   ├── feature-name.module.ts
 │   │   ├── feature-name.controller.ts
-│   │   ├── feature-name.service.ts
 │   │   └── index.ts
 │   └── index.ts
 ├── shared/                   -> Shared Resources
@@ -86,7 +84,6 @@ src/
 #### Files
 - **Modules**: kebab-case with `.module.ts` (e.g., `user-profile.module.ts`)
 - **Controllers**: kebab-case with `.controller.ts` (e.g., `user-profile.controller.ts`)
-- **Services**: kebab-case with `.service.ts` (e.g., `user-profile.service.ts`)
 - **Use Cases**: kebab-case with `.use-case.ts` (e.g., `create-user.use-case.ts`)
 - **Domain Entities**: kebab-case with `.entity.ts` (e.g., `user.entity.ts`)
 - **Value Objects**: kebab-case with `.value-object.ts` (e.g., `email.value-object.ts`)

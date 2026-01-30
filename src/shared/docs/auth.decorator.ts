@@ -382,3 +382,109 @@ export const ChangePasswordDocs = () =>
       description: 'Unexpected server error occurred during password change.',
     }),
   );
+
+export const ForgotPasswordRequestDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Request password reset (send verification code)',
+      description: `
+      Initiates the forgot-password flow by sending a verification code or reset link to the user's email.
+
+      **Flow:**
+      1. Validate email format
+      2. Find user by email
+      3. Generate a verification token/code
+      4. Persist token and expiry
+      5. Send password reset email to user
+
+      **Business Rules:**
+      - Do not leak whether an email exists (implementations may return a generic success message)
+      - Token/code expires after configured TTL
+      - Rate limited to prevent abuse
+    `,
+    }),
+    ApiBody({
+      type: ForgotPasswordRequestDto,
+      description:
+        'Email address to receive the password reset verification code',
+    }),
+    ApiOkResponse({
+      description:
+        'Password reset initiated. Check your email for the verification code.',
+    }),
+    ApiBadRequestResponse({ description: 'Invalid email format or input.' }),
+    ApiTooManyRequestsResponse({
+      description: 'Too many requests. Please try again later.',
+    }),
+    ApiInternalServerErrorResponse({
+      description:
+        'Unexpected server error occurred while initiating password reset.',
+    }),
+  );
+
+export const ForgotPasswordVerifyDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Verify password reset code',
+      description: `
+      Verifies the password reset verification code/token sent to the user's email.
+
+      **Flow:**
+      1. Validate email and verification code format
+      2. Lookup token and check expiry
+      3. Mark verification as successful (allow subsequent password reset)
+    `,
+    }),
+    ApiBody({
+      type: ForgotPasswordVerifyDto,
+      description: 'Email and verification code received via email',
+    }),
+    ApiOkResponse({
+      description: 'Verification successful. You may now reset the password.',
+    }),
+    ApiBadRequestResponse({
+      description: 'Invalid or expired verification code.',
+    }),
+    ApiNotFoundResponse({
+      description: 'Verification token not found or already used.',
+    }),
+    ApiTooManyRequestsResponse({
+      description: 'Too many verification attempts. Please try again later.',
+    }),
+    ApiInternalServerErrorResponse({
+      description: 'Unexpected server error occurred during verification.',
+    }),
+  );
+
+export const ForgotPasswordResetDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Reset password using verification code',
+      description: `
+      Resets the user's password after successful verification of the reset code/token.
+
+      **Flow:**
+      1. Validate new password format and confirmation
+      2. Verify the reset token/code
+      3. Hash and update the new password
+      4. Invalidate the reset token
+    `,
+    }),
+    ApiBody({
+      type: ForgotPasswordResetDto,
+      description: 'Email, verification code, new password and confirmation',
+    }),
+    ApiOkResponse({ description: 'Password has been reset successfully.' }),
+    ApiBadRequestResponse({
+      description: 'Invalid input or password does not meet requirements.',
+    }),
+    ApiUnauthorizedResponse({
+      description: 'Invalid or expired verification token.',
+    }),
+    ApiTooManyRequestsResponse({
+      description: 'Too many reset attempts. Please try again later.',
+    }),
+    ApiInternalServerErrorResponse({
+      description: 'Unexpected server error occurred during password reset.',
+    }),
+  );

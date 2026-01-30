@@ -1,12 +1,23 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { UsersController } from './users.controller';
 import { PrismaService } from '@/infrastructure/persistence';
 import { PrismaUserRepository } from '@/infrastructure/persistence/prisma/repositories';
+import { UserMapper } from '@/infrastructure/persistence/prisma/mappers';
+import { USER_USE_CASES } from '@/application/use-cases/identity/user';
 
 @Module({
-  imports: [],
+  imports: [ConfigModule],
   controllers: [UsersController],
-  providers: [PrismaService, PrismaUserRepository],
-  exports: [PrismaUserRepository],
+  providers: [
+    ...USER_USE_CASES,
+    PrismaService,
+    {
+      provide: 'IUserRepository',
+      useClass: PrismaUserRepository,
+    },
+    UserMapper,
+  ],
+  exports: [],
 })
 export class UsersModule {}
