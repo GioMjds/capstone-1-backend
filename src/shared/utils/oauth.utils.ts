@@ -1,7 +1,6 @@
 import { HttpService } from '@nestjs/axios';
 import {
   BadRequestException,
-  Global,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
@@ -35,8 +34,10 @@ interface GoogleAuthResponse {
 
 @Injectable()
 export class OAuth {
-  private readonly GOOGLE_TOKEN_URL = 'https://www.googleapis.com/oauth2/v1/tokeninfo';
-  private readonly GOOGLE_CERTS_URL = 'https://www.googleapis.com/oauth2/v1/certs';
+  private readonly GOOGLE_TOKEN_URL =
+    'https://www.googleapis.com/oauth2/v1/tokeninfo';
+  private readonly GOOGLE_CERTS_URL =
+    'https://www.googleapis.com/oauth2/v1/certs';
   private readonly TOKEN_EXPIRY_BUFFER = 300;
 
   constructor(
@@ -60,7 +61,9 @@ export class OAuth {
     }
   }
 
-  private async verifyGoogleIdToken(idToken: string): Promise<GoogleTokenPayload> {
+  private async verifyGoogleIdToken(
+    idToken: string,
+  ): Promise<GoogleTokenPayload> {
     const googleClientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
 
     if (!googleClientId) {
@@ -109,10 +112,7 @@ export class OAuth {
   }
 
   private validateTokenIssuer(issuer: string): void {
-    const validIssuers = [
-      'https://accounts.google.com',
-      'accounts.google.com',
-    ];
+    const validIssuers = ['https://accounts.google.com', 'accounts.google.com'];
 
     if (!validIssuers.includes(issuer)) {
       throw new BadRequestException('Invalid token issuer');
