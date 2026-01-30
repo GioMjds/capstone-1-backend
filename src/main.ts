@@ -59,7 +59,7 @@ async function bootstrap() {
 
   SwaggerModule.setup('/docs', app, document);
 
-  app.use(cookieParser(process.env.JWT_SECRET));
+  app.use(cookieParser());
 
   app.enableCors({
     origin: ['http://localhost:3000', `http://${hostIp}:3000`],

@@ -1,25 +1,30 @@
-import { Injectable, Inject, ConflictException } from "@nestjs/common";
-import type { IUserRepository } from "@/domain/repositories";
-import { UserEntity } from "@/domain/entities";
-import { EmailValueObject, PasswordValueObject, PhoneValueObject } from "@/domain/value-objects";
-import { RegisterUserDto } from "@/application/dto/auth";
-import { generateUserId, OtpService } from "@/shared/utils";
-import { EventEmitter2 } from "@nestjs/event-emitter";
-import { AuthResponseDto } from "@/application/dto/responses";
+import { Injectable, Inject, ConflictException } from '@nestjs/common';
+import type { IUserRepository } from '@/domain/repositories';
+import { UserEntity } from '@/domain/entities';
+import {
+  EmailValueObject,
+  PasswordValueObject,
+  PhoneValueObject,
+} from '@/domain/value-objects';
+import { RegisterUserDto } from '@/application/dto/auth';
+import { generateUserId, OtpService } from '@/shared/utils';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { UserResponseDto } from '@/application/dto/responses';
 
 @Injectable()
 export class RegisterUserUseCase {
   constructor(
-    @Inject("IUserRepository")
+    @Inject('IUserRepository')
     private readonly userRepository: IUserRepository,
     private readonly otpService: OtpService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  async execute(dto: RegisterUserDto): Promise<AuthResponseDto> {
+  async execute(dto: RegisterUserDto): Promise<{ user: UserResponseDto }> {
     const email = new EmailValueObject(dto.email);
     const existingUser = await this.userRepository.findByEmail(email);
-    if (existingUser) throw new ConflictException("User with this email already exists");
+    if (existingUser)
+      throw new ConflictException('User with this email already exists');
 
     const password = await PasswordValueObject.fromPlainText(dto.password);
     const phone = dto.phone ? new PhoneValueObject(dto.phone) : null;
@@ -35,30 +40,40 @@ export class RegisterUserUseCase {
       phone,
       true,
       false,
-    )
+    );
 
     const savedUser = await this.userRepository.save(user);
     const otp = this.otpService.generate();
     await this.otpService.store(savedUser.email.getValue(), otp);
 
-    this.eventEmitter.emit('email.sendOtp', {
-      to: savedUser.email.getValue(),
-      name: savedUser.getFullName(),
-      otp,
-    })
+    await this.processPostRegistration(savedUser);
 
     return {
-      user: {
-        id: savedUser.id,
-        firstName: savedUser.firstName,
-        lastName: savedUser.lastName,
-        email: savedUser.email.getValue(),
-        phone: savedUser.phone?.getValue() || null,
-        isActive: savedUser.isActive,
-        isEmailVerified: savedUser.isEmailVerified,
-        createdAt: savedUser.createdAt,
-        updatedAt: savedUser.updatedAt,
-      },
-    }
+      user: this.mapToResponse(savedUser),
+    };
+  }
+
+  private mapToResponse(user: UserEntity): UserResponseDto {
+    return {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email.getValue(),
+      phone: user.phone?.getValue() || null,
+      isActive: user.isActive,
+      isEmailVerified: user.isEmailVerified,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  }
+
+  private async processPostRegistration(user: UserEntity): Promise<void> {
+    const otp = this.otpService.generate();
+    await this.otpService.store(user.email.getValue(), otp);
+    this.eventEmitter.emit('email.sendOtp', {
+      to: user.email.getValue(),
+      name: user.getFullName(),
+      otp,
+    });
   }
 }

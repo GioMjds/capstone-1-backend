@@ -14,11 +14,7 @@ export class JwtTokenService implements ITokenService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {
-    const expiryString = this.configService.get<string>(
-      'jwt.accessTokenExpiry',
-      '1h',
-    );
-    this.expiresIn = this.parseExpiryToSeconds(expiryString);
+    this.expiresIn = this.getTokenExpiresIn();
   }
 
   async generateAccessToken(payload: TokenPayload): Promise<string> {
@@ -46,27 +42,5 @@ export class JwtTokenService implements ITokenService {
       this.configService.get<string>('JWT_EXPIRES_IN', '3600'),
       10,
     );
-  }
-
-  private parseExpiryToSeconds(expiry: string): number {
-    const match = expiry.match(/^(\d+)([smhd])$/);
-
-    if (!match) return 3600; // Default 1 hour
-
-    const value = parseInt(match[1], 10);
-    const unit = match[2];
-
-    switch (unit) {
-      case 's':
-        return value;
-      case 'm':
-        return value * 60;
-      case 'h':
-        return value * 3600;
-      case 'd':
-        return value * 86400;
-      default:
-        return 3600;
-    }
   }
 }

@@ -99,9 +99,6 @@ project-root/
 │   │   │   ├── admin.module.ts
 │   │   │   ├── admin.controller.ts
 │   │   │   └── index.ts
-│   │   ├── email/
-│   │   │   ├── email.module.ts
-│   │   │   └── index.ts
 │   │   ├── identity/
 │   │   │   ├── identity.module.ts
 │   │   │   ├── identity.controller.ts
@@ -873,7 +870,7 @@ WHEN: Exposing functionality via REST API
 
 WHERE: Routes like POST /users, GET /users/:id
 
-HOW: Decorators (@Controller, @Get, @Post) + inject service
+HOW: Decorators (@Controller, @Get, @Post) + inject each use case
 
 WHY: Separate transport layer from business logic
 
@@ -885,29 +882,26 @@ WHY: Separate transport layer from business logic
 // modules/identity/identity.module.ts
 import { Module } from '@nestjs/common';
 import { IdentityController } from './identity.controller';
-import { IdentityService } from './identity.service';
 import { PrismaModule } from '@/infrastructure/persistence/prisma/prisma.module';
 import { PrismaUserRepository } from '@/infrastructure/persistence/prisma/repositories';
 import {
   CreateUserUseCase,
   UpdateUserUseCase,
   GetUserByIdUseCase,
+  ...YOUR_USE_CASE,
 } from '@/application/use-cases';
 
 @Module({
   imports: [PrismaModule],
   controllers: [IdentityController],
   providers: [
-    IdentityService,
-    CreateUserUseCase,
-    UpdateUserUseCase,
-    GetUserByIdUseCase,
+    ...YOUR_USE_CASE,
     {
       provide: 'IUserRepository',
       useClass: PrismaUserRepository,
     },
   ],
-  exports: [IdentityService],
+  exports: [],
 })
 export class IdentityModule {}
 ```
@@ -927,13 +921,14 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { IdentityService } from './identity.service';
 import { CreateUserDto, UpdateUserDto, UserResponseDto } from '@/application/dto';
 
 @ApiTags('Identity')
 @Controller('identity')
 export class IdentityController {
-  constructor(private readonly identityService: IdentityService) {}
+  constructor(
+    private readonly yourUseCase: YourUseCase,
+  ) {}
 
   @Post('users')
   @HttpCode(HttpStatus.CREATED)
@@ -941,7 +936,7 @@ export class IdentityController {
   @ApiResponse({ status: 201, description: 'User created successfully', type: UserResponseDto })
   @ApiResponse({ status: 409, description: 'User already exists' })
   async createUser(@Body() dto: CreateUserDto): Promise<UserResponseDto> {
-    return this.identityService.createUser(dto);
+    return this.yourUseCase.execute(dto);
   }
 
   @Get('users/:id')
@@ -949,7 +944,7 @@ export class IdentityController {
   @ApiResponse({ status: 200, description: 'User found', type: UserResponseDto })
   @ApiResponse({ status: 404, description: 'User not found' })
   async getUserById(@Param('id') id: string): Promise<UserResponseDto> {
-    return this.identityService.getUserById(id);
+    return this.yourUseCase.execute(id);
   }
 
   @Patch('users/:id')
@@ -960,41 +955,7 @@ export class IdentityController {
     @Param('id') id: string,
     @Body() dto: UpdateUserDto,
   ): Promise<UserResponseDto> {
-    return this.identityService.updateUser(id, dto);
-  }
-}
-```
-
-#### **Service File**
-
-```typescript
-// modules/identity/identity.service.ts
-import { Injectable } from '@nestjs/common';
-import {
-  CreateUserUseCase,
-  UpdateUserUseCase,
-  GetUserByIdUseCase,
-} from '@/application/use-cases';
-import { CreateUserDto, UpdateUserDto, UserResponseDto } from '@/application/dto';
-
-@Injectable()
-export class IdentityService {
-  constructor(
-    private readonly createUserUseCase: CreateUserUseCase,
-    private readonly updateUserUseCase: UpdateUserUseCase,
-    private readonly getUserByIdUseCase: GetUserByIdUseCase,
-  ) {}
-
-  async createUser(dto: CreateUserDto): Promise<UserResponseDto> {
-    return this.createUserUseCase.execute(dto);
-  }
-
-  async getUserById(id: string): Promise<UserResponseDto> {
-    return this.getUserByIdUseCase.execute(id);
-  }
-
-  async updateUser(id: string, dto: UpdateUserDto): Promise<UserResponseDto> {
-    return this.updateUserUseCase.execute(id, dto);
+    return this.yourUseCase.execute(id, dto);
   }
 }
 ```
@@ -2031,8 +1992,7 @@ To maintain clean architecture:
 1. **Create/update DTO** in `application/dto/`
 2. **Add use case** in `application/use-cases/`
 3. **Add controller method** in `modules/*/controller.ts`
-4. **Update service** in `modules/*/service.ts` if needed
-5. **Add guards/decorators** if authorization needed
+4. **Add guards/decorators** if authorization needed
 
 ---
 

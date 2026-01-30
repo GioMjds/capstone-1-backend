@@ -18,20 +18,19 @@ export class LoginUseCase {
     const email = new EmailValueObject(dto.email);
     const user = await this.userRepository.findByEmail(email);
 
-    if (!user) throw new UnauthorizedException('Invalid credentials');
+    if (!user) throw new UnauthorizedException('User not found.');
     if (!user.canLogin())
       throw new UnauthorizedException('Account is inactive');
 
     const isPasswordValid = await user.verifyPassword(dto.password);
-    if (!isPasswordValid)
-      throw new UnauthorizedException('Invalid credentials');
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Your password is incorrect.');
+    }
 
     const accessToken = await this.tokenService.generateAccessToken({
       userId: user.id,
       email: user.email.getValue(),
     });
-
-    Logger.log(`User ${user.email.getValue()} logged in successfully.`);
 
     return {
       accessToken: accessToken,
