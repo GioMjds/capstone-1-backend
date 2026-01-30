@@ -1,4 +1,9 @@
-import { Injectable, Inject, UnauthorizedException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { LoginUserDto } from '@/application/dto/auth';
 import type { IUserRepository } from '@/domain/repositories';
 import type { ITokenService } from '@/application/ports/token-service.port';
@@ -18,14 +23,11 @@ export class LoginUseCase {
     const email = new EmailValueObject(dto.email);
     const user = await this.userRepository.findByEmail(email);
 
-    if (!user) throw new UnauthorizedException('User not found.');
-    if (!user.canLogin())
-      throw new UnauthorizedException('Account is inactive');
+    if (!user) throw new NotFoundException('Invalid credentials');
+    if (!user.canLogin()) throw new BadRequestException('Account is inactive');
 
     const isPasswordValid = await user.verifyPassword(dto.password);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Your password is incorrect.');
-    }
+    if (!isPasswordValid) throw new BadRequestException('Invalid credentials');
 
     const accessToken = await this.tokenService.generateAccessToken({
       userId: user.id,
