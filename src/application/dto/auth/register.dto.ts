@@ -3,14 +3,14 @@ import {
   IsPasswordValid,
 } from '@/shared/decorators';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString } from 'class-validator';
+import { IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class RegisterUserDto {
   @ApiProperty({ 
     description: 'User first name',
     example: 'John',
     required: true,
-    minLength: 1,
+    minLength: 3,
     maxLength: 50
   })
   @IsString({ message: 'First name must be a string' })
@@ -20,7 +20,7 @@ export class RegisterUserDto {
     description: 'User last name',
     example: 'Doe',
     required: true,
-    minLength: 1,
+    minLength: 3,
     maxLength: 50
   })
   @IsString({ message: 'Last name must be a string' })
@@ -35,7 +35,8 @@ export class RegisterUserDto {
   email: string;
 
   @IsString({ message: 'Number must be a string' })
-  phone: string;
+  @IsOptional()
+  phone?: string;
 
   @ApiProperty({ 
     description: 'Strong password (min 8 characters, must contain uppercase, lowercase, number, and special character)',

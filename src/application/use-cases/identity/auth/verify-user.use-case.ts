@@ -35,7 +35,7 @@ export class VerifyUserUseCase {
     await this.otpService.invalidate(dto.email);
     user.isEmailVerified = true;
 
-    await this.userRepository.save(user);
+    await this.userRepository.update(user);
 
     const accessToken = await this.tokenService.generateAccessToken({
       userId: user.id,

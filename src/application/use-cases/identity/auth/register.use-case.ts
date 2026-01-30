@@ -1,4 +1,9 @@
-import { Injectable, Inject, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  Logger,
+  BadRequestException,
+} from '@nestjs/common';
 import type { IUserRepository } from '@/domain/repositories';
 import { UserEntity } from '@/domain/entities';
 import {
@@ -20,11 +25,13 @@ export class RegisterUserUseCase {
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  async execute(dto: RegisterUserDto): Promise<{ user: UserResponseDto }> {
+  async execute(
+    dto: RegisterUserDto,
+  ): Promise<{ message: string; user: UserResponseDto }> {
     const email = new EmailValueObject(dto.email);
     const existingUser = await this.userRepository.findByEmail(email);
     if (existingUser)
-      throw new ConflictException('User with this email already exists');
+      throw new BadRequestException('User with this email already exists');
 
     const password = await PasswordValueObject.fromPlainText(dto.password);
     const phone = dto.phone ? new PhoneValueObject(dto.phone) : null;
@@ -43,12 +50,13 @@ export class RegisterUserUseCase {
     );
 
     const savedUser = await this.userRepository.save(user);
-    const otp = this.otpService.generate();
-    await this.otpService.store(savedUser.email.getValue(), otp);
 
     await this.processPostRegistration(savedUser);
 
+    Logger.log(`User registered with email: ${savedUser.email.getValue()}`);
+
     return {
+      message: 'User registered successfully. Please verify your email.',
       user: this.mapToResponse(savedUser),
     };
   }
