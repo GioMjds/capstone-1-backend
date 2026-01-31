@@ -28,5 +28,5 @@ jobs:
         working-directory: ./api
 
       - name: Run tests
-        run: pnpm run test
+        run: pnpm run test:e2e
         working-directory: ./api

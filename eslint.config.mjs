@@ -34,7 +34,7 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-enum-comparison': 'off',
       '@typescript-eslint/require-await': 'off',
       '@typescript-eslint/no-misused-promises': 'off',
-      "prettier/prettier": ["warn", { endOfLine: "auto" }],
+      // "prettier/prettier": ["warn", { endOfLine: "auto" }],
       'indent': 'off',
       '@typescript-eslint/indent': 'off',
     },
