@@ -1,4 +1,4 @@
-# Code Standards for NestJS
+# NestJS Code Standards for Capstone 1 Project
 
 ## Clean Architecture + Domain-Driven Design
 

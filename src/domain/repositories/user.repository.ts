@@ -11,4 +11,9 @@ export abstract class IUserRepository {
   abstract existsByEmail(email: EmailValueObject): Promise<boolean>;
   abstract count(): Promise<number>;
   abstract findActiveUsers(page: number, limit: number): Promise<UserEntity[]>;
+  
+  abstract archive(id: string, archivedAt?: Date): Promise<UserEntity>;
+  abstract unarchive(id: string): Promise<UserEntity>;
+  abstract findArchivedById(id: string): Promise<UserEntity | null>;
+  abstract findArchivedUsers(page: number, limit: number): Promise<UserEntity[]>;
 }

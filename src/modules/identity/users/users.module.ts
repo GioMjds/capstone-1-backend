@@ -5,11 +5,13 @@ import { PrismaService } from '@/infrastructure/persistence';
 import { PrismaUserRepository } from '@/infrastructure/persistence/prisma/repositories';
 import { UserMapper } from '@/infrastructure/persistence/prisma/mappers';
 import { USER_USE_CASES } from '@/application/use-cases/identity/user';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [ConfigModule],
   controllers: [UsersController],
   providers: [
+    JwtService,
     ...USER_USE_CASES,
     PrismaService,
     {

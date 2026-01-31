@@ -14,6 +14,7 @@ export class UserEntity {
     public phone: PhoneValueObject | null = null,
     public isActive: boolean = true,
     public isEmailVerified: boolean = false,
+    public archivedAt: Date | null = null,
     public readonly createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),
   ) {
@@ -39,37 +40,48 @@ export class UserEntity {
   }
 
   canLogin(): boolean {
-    return this.isActive;
+    return this.isActive && !this.isArchived();
+  }
+
+  isArchived(): boolean {
+    return this.archivedAt !== null;
+  }
+
+  archive(): void {
+    if (this.isArchived()) throw new Error('User account is already archived');
+    this.archivedAt = new Date();
+    this.isActive = false;
+    this.updatedAt = new Date();
+  }
+
+  unarchive(): void {
+    if (!this.isArchived()) throw new Error('User account is not archived');
+    this.archivedAt = null;
+    this.isActive = true;
+    this.updatedAt = new Date();
   }
 
   activate(): void {
-    if (this.isActive) {
-      throw new Error('User account is already active');
-    }
+    if (this.isActive) throw new Error('User account is already active');
+    if (this.isArchived()) throw new Error('Cannot activate an archived account');
     this.isActive = true;
     this.updatedAt = new Date();
   }
 
   deactivate(reason?: string): void {
-    if (!this.isActive) {
-      throw new Error('User account is already inactive');
-    }
+    if (!this.isActive) throw new Error('User account is already inactive');
     this.isActive = false;
     this.updatedAt = new Date();
   }
 
   verifyEmail(): void {
-    if (this.isEmailVerified) {
-      throw new Error('Email is already verified');
-    }
+    if (this.isEmailVerified) throw new Error('Email is already verified');
     this.isEmailVerified = true;
     this.updatedAt = new Date();
   }
 
   async verifyPassword(plainPassword: string): Promise<boolean> {
-    if (!this.canLogin()) {
-      throw new Error('User account is inactive');
-    }
+    if (!this.canLogin()) throw new Error('User account is inactive');
     return this.password.compare(plainPassword);
   }
 
