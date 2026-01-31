@@ -1,4 +1,7 @@
-import { User as PrismaUser } from '@prisma/client';
+import {
+  User as PrismaUser,
+  ArchivedUsers as PrismaArchivedUsers,
+} from '@prisma/client';
 import { UserEntity } from '@/domain/entities/user.entity';
 import {
   EmailValueObject,
@@ -7,12 +10,19 @@ import {
 } from '@/domain/value-objects';
 
 export class UserMapper {
-  static toDomain(prismaUser: PrismaUser): UserEntity {
+  static toDomain(
+    prismaUser: PrismaUser & { isArchived: PrismaArchivedUsers[] },
+  ): UserEntity {
     const email = new EmailValueObject(prismaUser.email);
     const password = PasswordValueObject.fromHash(prismaUser.password);
     const phone = prismaUser.phone
       ? new PhoneValueObject(prismaUser.phone)
       : null;
+
+    const archivedAt =
+      prismaUser.isArchived && prismaUser.isArchived.length
+        ? prismaUser.isArchived[0].archivedAt
+        : null;
 
     return new UserEntity(
       prismaUser.id,
@@ -23,6 +33,7 @@ export class UserMapper {
       phone,
       prismaUser.isActive,
       prismaUser.isEmailVerified,
+      archivedAt,
       prismaUser.createdAt,
       prismaUser.updatedAt,
     );
