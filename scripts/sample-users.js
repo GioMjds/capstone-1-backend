@@ -1,1 +1,0 @@
-// Custom script to add sample users to the database
