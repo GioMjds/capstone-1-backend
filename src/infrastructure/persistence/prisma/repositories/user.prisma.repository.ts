@@ -3,7 +3,7 @@ import { PrismaService } from '@/infrastructure/persistence';
 import { IUserRepository } from '@/domain/repositories';
 import { UserEntity } from '@/domain/entities/user.entity';
 import { EmailValueObject } from '@/domain/value-objects';
-import { UserMapper } from '@/infrastructure/persistence/prisma/mappers';
+import { UserMapper } from '@/infrastructure/persistence/prisma/mappers/user.mapper';
 
 @Injectable()
 export class PrismaUserRepository implements IUserRepository {

@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { AdminController } from './admin.controller';
+import { UsersModule } from '../identity';
 
 @Module({
-  imports: [],
-  controllers: [AdminController]
+  imports: [UsersModule],
+  controllers: [AdminController],
 })
 export class AdminModule {}

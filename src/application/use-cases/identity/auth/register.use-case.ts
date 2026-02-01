@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  Inject,
-  Logger,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import type { IUserRepository } from '@/domain/repositories';
 import { UserEntity } from '@/domain/entities';
 import {
@@ -47,13 +42,12 @@ export class RegisterUserUseCase {
       phone,
       true,
       false,
+      'USER',
     );
 
     const savedUser = await this.userRepository.save(user);
 
     await this.processPostRegistration(savedUser);
-
-    Logger.log(`User registered with email: ${savedUser.email.getValue()}`);
 
     return {
       message: 'User registered successfully. Please verify your email.',
@@ -72,6 +66,7 @@ export class RegisterUserUseCase {
       isEmailVerified: user.isEmailVerified,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+      role: user.role,
     };
   }
 

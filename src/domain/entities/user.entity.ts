@@ -4,6 +4,11 @@ import {
   PhoneValueObject,
 } from '@/domain/value-objects';
 
+export enum Roles {
+  ADMIN = 'ADMIN',
+  USER = 'USER',
+}
+
 export class UserEntity {
   constructor(
     public readonly id: string,
@@ -14,6 +19,7 @@ export class UserEntity {
     public phone: PhoneValueObject | null = null,
     public isActive: boolean = true,
     public isEmailVerified: boolean = false,
+    public role: Roles = Roles.USER,
     public archivedAt: Date | null = null,
     public readonly createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),
@@ -45,6 +51,14 @@ export class UserEntity {
 
   isArchived(): boolean {
     return this.archivedAt !== null;
+  }
+
+  isAdmin(): boolean {
+    return this.role === Roles.ADMIN;
+  }
+
+  isUser(): boolean {
+    return this.role === Roles.USER;
   }
 
   archive(): void {

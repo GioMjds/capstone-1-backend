@@ -20,6 +20,15 @@ import { JwtService } from '@nestjs/jwt';
     },
     UserMapper,
   ],
-  exports: [],
+  exports: [
+    JwtService,
+    ...USER_USE_CASES,
+    {
+      provide: 'IUserRepository',
+      useClass: PrismaUserRepository,
+    },
+    UserMapper,
+    PrismaService,
+  ],
 })
 export class UsersModule {}

@@ -13,6 +13,7 @@ model User {
   email           String          @unique
   password        String
   phone           String?
+  role            Roles           @default(USER)
   isActive        Boolean         @default(true)
   isEmailVerified Boolean         @default(false)
   createdAt       DateTime        @default(now())
@@ -25,4 +26,9 @@ model ArchivedUsers {
   userId     String   @unique
   archivedAt DateTime @default(now())
   user       User     @relation("ArchivedUserRelation", fields: [userId], references: [id])
+}
+
+enum Roles {
+  ADMIN
+  USER
 }

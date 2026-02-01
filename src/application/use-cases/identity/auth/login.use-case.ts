@@ -44,6 +44,8 @@ export class LoginUseCase {
         phone: user.phone?.getValue() || null,
         isActive: user.isActive,
         isEmailVerified: user.isEmailVerified,
+        role: user.role,
+        archivedAt: user.archivedAt,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },

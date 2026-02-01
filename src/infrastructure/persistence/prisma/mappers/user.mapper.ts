@@ -2,7 +2,7 @@ import {
   User as PrismaUser,
   ArchivedUsers as PrismaArchivedUsers,
 } from '@prisma/client';
-import { UserEntity } from '@/domain/entities/user.entity';
+import { Roles, UserEntity } from '@/domain/entities/user.entity';
 import {
   EmailValueObject,
   PasswordValueObject,
@@ -24,6 +24,8 @@ export class UserMapper {
         ? prismaUser.isArchived[0].archivedAt
         : null;
 
+    const role = (prismaUser.role) as Roles;
+
     return new UserEntity(
       prismaUser.id,
       prismaUser.firstName,
@@ -33,6 +35,7 @@ export class UserMapper {
       phone,
       prismaUser.isActive,
       prismaUser.isEmailVerified,
+      role,
       archivedAt,
       prismaUser.createdAt,
       prismaUser.updatedAt,
@@ -51,6 +54,7 @@ export class UserMapper {
       phone: user.phone?.getValue() || null,
       isActive: user.isActive,
       isEmailVerified: user.isEmailVerified,
+      role: user.role,
     };
   }
 }

@@ -17,6 +17,7 @@ export class ForgotPasswordVerifyDto {
 export class ForgotPasswordResetDto {
   @IsEmail()
   email: string;
+
   @IsString()
   otp: string;
 
