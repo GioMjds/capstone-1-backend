@@ -9,7 +9,7 @@ import {
   RegisterUserDto,
   ResendVerificationDto,
   VerifyUserDto,
-} from '@/application/dto/auth';
+} from '@/application/dto/identity/auth';
 import { applyDecorators } from '@nestjs/common';
 import {
   ApiOperation,

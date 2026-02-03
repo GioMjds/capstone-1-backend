@@ -1,9 +1,9 @@
-import { ResendVerificationDto } from '@/application/dto/auth';
-import type { IUserRepository } from '@/domain/repositories';
-import { EmailValueObject } from '@/domain/value-objects';
-import { OtpService } from '@/shared/utils';
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ResendVerificationDto } from '@/application/dto/identity/auth';
+import type { IUserRepository } from '@/domain/repositories';
+import { EmailValueObject } from '@/domain/value-objects/identity';
+import { OtpService } from '@/shared/utils';
 
 @Injectable()
 export class ResendVerificationUseCase {

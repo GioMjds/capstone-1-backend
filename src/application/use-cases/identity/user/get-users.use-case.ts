@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import type { IUserRepository } from '@/domain/repositories';
-import { GetUsersResponseDto } from '@/application/dto/user';
+import { GetUsersResponseDto } from '@/application/dto/identity/user';
 import { UserEntity } from '@/domain/entities';
 import { UserResponseDto } from '@/application/dto/responses';
 

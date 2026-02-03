@@ -1,18 +1,26 @@
-import { Injectable, Inject, NotFoundException, BadRequestException } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";  
-import type { IUserRepository } from "@/domain/repositories";
-import type { ITokenService } from "@/application/ports";
-import { VerifyUserDto, VerifyUserResponseDto } from "@/application/dto/auth";
-import { EmailValueObject } from "@/domain/value-objects";
-import { VerifyUserEvent } from "@/shared/email/events";
-import { OtpService } from "@/shared/utils";
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import {
+  VerifyUserDto,
+  VerifyUserResponseDto,
+} from '@/application/dto/identity/auth';
+import type { ITokenService } from '@/application/ports';
+import type { IUserRepository } from '@/domain/repositories';
+import { EmailValueObject } from '@/domain/value-objects/identity';
+import { VerifyUserEvent } from '@/shared/email/events';
+import { OtpService } from '@/shared/utils';
 
 @Injectable()
 export class VerifyUserUseCase {
   constructor(
-    @Inject("IUserRepository")
+    @Inject('IUserRepository')
     private readonly userRepository: IUserRepository,
-    @Inject("ITokenService")
+    @Inject('ITokenService')
     private readonly tokenService: ITokenService,
     private readonly otpService: OtpService,
     private readonly eventEmitter: EventEmitter2,
@@ -27,11 +35,15 @@ export class VerifyUserUseCase {
     const user = await this.userRepository.findByEmail(email);
 
     if (!user) throw new NotFoundException('User not found');
-    if (user.isEmailVerified) throw new NotFoundException('Email is already verified');
+    if (user.isEmailVerified)
+      throw new NotFoundException('Email is already verified');
 
     const isValidOtp = await this.otpService.verify(dto.email, dto.otp);
-    if (!isValidOtp) throw new BadRequestException('Invalid or expired OTP. Please request a new one.');
-    
+    if (!isValidOtp)
+      throw new BadRequestException(
+        'Invalid or expired OTP. Please request a new one.',
+      );
+
     await this.otpService.invalidate(dto.email);
     user.isEmailVerified = true;
 
@@ -62,6 +74,6 @@ export class VerifyUserUseCase {
         updatedAt: user.updatedAt,
       },
       accessToken: accessToken,
-    }
+    };
   }
 }

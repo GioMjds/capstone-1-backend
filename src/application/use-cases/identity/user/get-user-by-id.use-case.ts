@@ -1,6 +1,6 @@
 import { Injectable, Inject, NotFoundException } from "@nestjs/common";
 import type { IUserRepository } from "@/domain/repositories";
-import { GetUserByIdDto } from "@/application/dto/user";
+import { GetUserByIdDto } from "@/application/dto/identity/user";
 import { UserResponseDto } from "@/application/dto/responses";
 
 @Injectable()

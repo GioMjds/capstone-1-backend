@@ -2,12 +2,9 @@ import {
   EmailValueObject,
   PasswordValueObject,
   PhoneValueObject,
-} from '@/domain/value-objects';
-
-export enum Roles {
-  ADMIN = 'ADMIN',
-  USER = 'USER',
-}
+} from '@/domain/value-objects/identity';
+import { Roles } from '../interfaces';
+import { UserPreferencesEntity } from './user-preferences.entity';
 
 export class UserEntity {
   constructor(
@@ -19,8 +16,9 @@ export class UserEntity {
     public phone: PhoneValueObject | null = null,
     public isActive: boolean = true,
     public isEmailVerified: boolean = false,
-    public role: Roles = Roles.USER,
+    public role: Roles,
     public archivedAt: Date | null = null,
+    public userPreferences: UserPreferencesEntity | null = null,
     public readonly createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),
   ) {
@@ -84,6 +82,9 @@ export class UserEntity {
 
   deactivate(reason?: string): void {
     if (!this.isActive) throw new Error('User account is already inactive');
+    if (!reason) {
+      reason = 'No reason provided';
+    }
     this.isActive = false;
     this.updatedAt = new Date();
   }
@@ -138,5 +139,14 @@ export class UserEntity {
 
   getPasswordHash(): string {
     return this.password.getHashedValue();
+  }
+
+  getPreferences(): UserPreferencesEntity | null {
+    return this.userPreferences;
+  }
+
+  setPreferences(prefs: UserPreferencesEntity | null): void {
+    this.userPreferences = prefs;
+    this.updatedAt = new Date();
   }
 }

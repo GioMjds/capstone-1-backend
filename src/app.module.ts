@@ -8,6 +8,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { useThrottlerConfig } from '@/infrastructure/config';
 import { AdminModule, IdentityModule } from '@/modules';
 import { PrismaModule } from '@/infrastructure/persistence/prisma';
+import { PreferencesModule } from './modules/identity/preferences/preferences.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { PrismaModule } from '@/infrastructure/persistence/prisma';
     PrismaModule,
     AdminModule,
     IdentityModule,
+    PreferencesModule,
   ],
   providers: [
     {

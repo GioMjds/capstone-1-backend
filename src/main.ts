@@ -6,6 +6,8 @@ import { AppModule } from './app.module';
 import { networkInterfaces } from 'os';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationError } from 'class-validator';
+import { TransformInterceptor } from '@/shared/interceptors';
+import { DomainExceptionFilter } from '@/shared/filters';
 
 const logger = new Logger('Server');
 
@@ -92,6 +94,9 @@ async function bootstrap() {
       },
     }),
   );
+
+  app.useGlobalFilters(new DomainExceptionFilter());
+  app.useGlobalInterceptors(new TransformInterceptor());
 
   app.setGlobalPrefix('api');
 

@@ -5,11 +5,12 @@ import {
   EmailValueObject,
   PasswordValueObject,
   PhoneValueObject,
-} from '@/domain/value-objects';
-import { RegisterUserDto } from '@/application/dto/auth';
+} from '@/domain/value-objects/identity';
+import { RegisterUserDto } from '@/application/dto/identity/auth';
 import { generateUserId, OtpService } from '@/shared/utils';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { UserResponseDto } from '@/application/dto/responses';
+import { Roles } from '@prisma/client';
 
 @Injectable()
 export class RegisterUserUseCase {
@@ -42,7 +43,11 @@ export class RegisterUserUseCase {
       phone,
       true,
       false,
-      'USER',
+      Roles.USER,
+      null,
+      null,
+      new Date(),
+      new Date(),
     );
 
     const savedUser = await this.userRepository.save(user);
@@ -67,6 +72,7 @@ export class RegisterUserUseCase {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       role: user.role,
+      archivedAt: user.archivedAt,
     };
   }
 

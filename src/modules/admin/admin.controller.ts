@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import * as UserUseCase from '@/application/use-cases/identity/user';
-import * as UsersDto from '@/application/dto/user';
+import * as UsersDto from '@/application/dto/identity/user';
 import { JwtAuthGuard } from '@/shared/guards';
 
 @Controller('admin')

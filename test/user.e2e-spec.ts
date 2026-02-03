@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from '@/modules';
 import * as UserUseCase from '@/application/use-cases/identity/user';
-import * as UserDto from '@/application/dto/user';
+import * as UserDto from '@/application/dto/identity/user';
 import { ConfigModule } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '@/infrastructure/persistence';

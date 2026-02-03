@@ -5,7 +5,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import type { IUserRepository } from '@/domain/repositories';
-import { UpdateUserDto } from '@/application/dto/user';
+import { UpdateUserDto } from '@/application/dto/identity/user';
 import { UserEntity } from '@/domain/entities';
 import { EmailValueObject, PhoneValueObject } from '@/domain/value-objects';
 

@@ -13,7 +13,7 @@ import { ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { CookieConfig } from '@/infrastructure/config';
 import { JwtAuthGuard } from '@/shared/guards';
-import * as AuthDto from '@/application/dto/auth';
+import * as AuthDto from '@/application/dto/identity/auth';
 import * as AuthDocs from '@/shared/docs';
 import * as AuthUseCase from '@/application/use-cases/identity/auth';
 

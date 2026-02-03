@@ -1,4 +1,4 @@
-import { UserResponseDto } from "../responses";
+import { UserResponseDto } from "../../responses";
 
 export class GetUsersResponseDto {
   page?: number;

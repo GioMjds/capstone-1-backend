@@ -1,7 +1,7 @@
 import { Injectable, Inject, ConflictException } from '@nestjs/common';
 import type { IUserRepository } from '@/domain/repositories';
 import { UserEntity } from '@/domain/entities';
-import { CreateUserDto } from '@/application/dto/user';
+import { CreateUserDto } from '@/application/dto/identity/user';
 import {
   EmailValueObject,
   PasswordValueObject,

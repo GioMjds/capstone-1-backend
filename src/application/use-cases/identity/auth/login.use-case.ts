@@ -4,11 +4,11 @@ import {
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
-import { LoginUserDto } from '@/application/dto/auth';
+import { LoginUserDto } from '@/application/dto/identity/auth';
 import type { IUserRepository } from '@/domain/repositories';
 import type { ITokenService } from '@/application/ports/token-service.port';
 import { AuthResponseDto } from '@/application/dto/responses';
-import { EmailValueObject } from '@/domain/value-objects';
+import { EmailValueObject } from '@/domain/value-objects/identity';
 
 @Injectable()
 export class LoginUseCase {

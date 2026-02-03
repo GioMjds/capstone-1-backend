@@ -3,8 +3,8 @@ import type { IUserRepository } from '@/domain/repositories';
 import type { ITokenService } from '@/application/ports';
 import { generateUserId, OAuth } from '@/shared/utils';
 import { UserEntity } from '@/domain/entities';
-import { EmailValueObject, PasswordValueObject } from '@/domain/value-objects';
-import { GoogleLoginOAuthDto } from '@/application/dto/auth';
+import { EmailValueObject, PasswordValueObject } from '@/domain/value-objects/identity';
+import { GoogleLoginOAuthDto } from '@/application/dto/identity/auth';
 import { AuthResponseDto } from '@/application/dto/responses';
 
 @Injectable()

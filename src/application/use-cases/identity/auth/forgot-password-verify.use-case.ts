@@ -1,8 +1,8 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { IUserRepository } from '@/domain/repositories';
-import { EmailValueObject } from '@/domain/value-objects';
+import { EmailValueObject } from '@/domain/value-objects/identity';
 import { OtpService } from '@/shared/utils';
-import { ForgotPasswordVerifyDto } from '@/application/dto/auth';
+import { ForgotPasswordVerifyDto } from '@/application/dto/identity/auth';
 
 @Injectable()
 export class ForgotPasswordVerifyUseCase {

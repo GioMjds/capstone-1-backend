@@ -1,9 +1,9 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import type { IUserRepository } from '@/domain/repositories';
-import { ForgotPasswordRequestDto } from '@/application/dto/auth';
+import { ForgotPasswordRequestDto } from '@/application/dto/identity/auth';
+import { EmailValueObject } from '@/domain/value-objects/identity';
 import { OtpService } from '@/shared/utils';
-import { EmailValueObject } from '@/domain/value-objects';
 
 @Injectable()
 export class ForgotPasswordRequestUseCase {

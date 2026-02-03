@@ -7,18 +7,19 @@ datasource db {
 }
 
 model User {
-  id              String          @id @db.VarChar(12)
+  id              String           @id @db.VarChar(12)
   firstName       String
   lastName        String
-  email           String          @unique
+  email           String           @unique
   password        String
   phone           String?
-  role            Roles           @default(USER)
-  isActive        Boolean         @default(true)
-  isEmailVerified Boolean         @default(false)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  isArchived      ArchivedUsers[] @relation("ArchivedUserRelation")
+  role            Roles            @default(USER)
+  isActive        Boolean          @default(true)
+  isEmailVerified Boolean          @default(false)
+  userPreferences UserPreferences?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  isArchived      ArchivedUsers[]  @relation("ArchivedUserRelation")
 }
 
 model ArchivedUsers {
@@ -26,6 +27,90 @@ model ArchivedUsers {
   userId     String   @unique
   archivedAt DateTime @default(now())
   user       User     @relation("ArchivedUserRelation", fields: [userId], references: [id])
+}
+
+model UserPreferences {
+  id                   String                  @id @db.VarChar(12)
+  userId               String                  @unique
+  uiPreferences        Json                    @default("{}")
+  notificationSettings Json                    @default("{}")
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+  user                 User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  securitySettings     UserSecuritySettings?
+  complianceSettings   UserComplianceSettings?
+  preferenceAuditLogs  PreferenceAuditLog[]
+}
+
+model UserSecuritySettings {
+  id                String             @id @db.VarChar(12)
+  userPreferencesId String             @unique
+  twoFactorEnabled  Boolean            @default(false)
+  twoFactorMethod   String?
+  passwordChangedAt DateTime?
+  activeSessions    Json               @default("[]")
+  trustedDevices    Json               @default("[]")
+  passkeysEnabled   Boolean            @default(false)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  userPreferences   UserPreferences    @relation(fields: [userPreferencesId], references: [id], onDelete: Cascade)
+  securityAuditLogs SecurityAuditLog[]
+}
+
+model UserComplianceSettings {
+  id                   String               @id @db.VarChar(12)
+  userPreferencesId    String               @unique
+  dataShareConsent     Boolean              @default(false)
+  dataRetentionMonths  Int                  @default(12)
+  allowAccountDeletion Boolean              @default(true)
+  auditLogPreference   String               @default("full")
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  userPreferences      UserPreferences      @relation(fields: [userPreferencesId], references: [id], onDelete: Cascade)
+  complianceAuditLogs  ComplianceAuditLog[]
+}
+
+model PreferenceAuditLog {
+  id                String          @id @db.VarChar(12)
+  userPreferencesId String
+  category          String
+  field             String
+  oldValue          Json?
+  newValue          Json
+  changedBy         String
+  changeReason      String?
+  createdAt         DateTime        @default(now())
+  userPreferences   UserPreferences @relation(fields: [userPreferencesId], references: [id], onDelete: Cascade)
+
+  @@index([userPreferencesId])
+  @@index([createdAt])
+}
+
+model SecurityAuditLog {
+  id                 String               @id @db.VarChar(12)
+  securitySettingsId String
+  event              String
+  details            Json
+  ipAddress          String?
+  userAgent          String?
+  createdAt          DateTime             @default(now())
+  securitySettings   UserSecuritySettings @relation(fields: [securitySettingsId], references: [id], onDelete: Cascade)
+
+  @@index([securitySettingsId])
+  @@index([createdAt])
+}
+
+model ComplianceAuditLog {
+  id                   String                 @id @db.VarChar(12)
+  complianceSettingsId String
+  event                String
+  action               String
+  details              Json
+  createdAt            DateTime               @default(now())
+  complianceSettings   UserComplianceSettings @relation(fields: [complianceSettingsId], references: [id], onDelete: Cascade)
+
+  @@index([complianceSettingsId])
+  @@index([createdAt])
 }
 
 enum Roles {

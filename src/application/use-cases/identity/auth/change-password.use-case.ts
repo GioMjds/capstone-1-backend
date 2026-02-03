@@ -1,7 +1,7 @@
 import { Injectable, Inject, NotFoundException, BadRequestException } from "@nestjs/common";
+import { ChangePasswordDto } from "@/application/dto/identity/auth";
 import type { IUserRepository } from "@/domain/repositories";
-import { ChangePasswordDto } from "@/application/dto/auth";
-import { EmailValueObject, PasswordValueObject } from "@/domain/value-objects";
+import { EmailValueObject, PasswordValueObject } from "@/domain/value-objects/identity";
 
 @Injectable()
 export class ChangePasswordUseCase {

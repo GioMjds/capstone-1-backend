@@ -2,29 +2,49 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/infrastructure/persistence';
 import { IUserRepository } from '@/domain/repositories';
 import { UserEntity } from '@/domain/entities/user.entity';
-import { EmailValueObject } from '@/domain/value-objects';
+import { EmailValueObject } from '@/domain/value-objects/identity';
 import { UserMapper } from '@/infrastructure/persistence/prisma/mappers/user.mapper';
+import { randomUUID } from 'crypto';
+
+const uuidv4 = (): string => randomUUID();
 
 @Injectable()
 export class PrismaUserRepository implements IUserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  private normalizePrismaUser(prismaUser: any): any {
+    if (!prismaUser) return prismaUser;
+
+    const userPreferences =
+      prismaUser.userPreferences === null
+        ? null
+        : Array.isArray(prismaUser.userPreferences)
+          ? prismaUser.userPreferences
+          : [prismaUser.userPreferences];
+
+    return { ...prismaUser, userPreferences };
+  }
+
   async findById(id: string): Promise<UserEntity | null> {
     const prismaUser = await this.prisma.user.findUnique({
       where: { id },
-      include: { isArchived: true },
+      include: { isArchived: true, userPreferences: true },
     });
 
-    return prismaUser ? UserMapper.toDomain(prismaUser) : null;
+    return prismaUser
+      ? UserMapper.toDomain(this.normalizePrismaUser(prismaUser))
+      : null;
   }
 
   async findByEmail(email: EmailValueObject): Promise<UserEntity | null> {
     const prismaUser = await this.prisma.user.findUnique({
       where: { email: email.getValue() },
-      include: { isArchived: true },
+      include: { isArchived: true, userPreferences: true },
     });
 
-    return prismaUser ? UserMapper.toDomain(prismaUser) : null;
+    return prismaUser
+      ? UserMapper.toDomain(this.normalizePrismaUser(prismaUser))
+      : null;
   }
 
   async findAll(page: number, limit: number): Promise<UserEntity[]> {
@@ -34,10 +54,12 @@ export class PrismaUserRepository implements IUserRepository {
       skip,
       take: limit,
       orderBy: { createdAt: 'desc' },
-      include: { isArchived: true },
+      include: { isArchived: true, userPreferences: true },
     });
 
-    return prismaUsers.map((user) => UserMapper.toDomain(user));
+    return prismaUsers.map((user) =>
+      UserMapper.toDomain(this.normalizePrismaUser(user)),
+    );
   }
 
   async save(user: UserEntity): Promise<UserEntity> {
@@ -45,7 +67,7 @@ export class PrismaUserRepository implements IUserRepository {
 
     const savedUser = await this.prisma.user.create({
       data,
-      include: { isArchived: true },
+      include: { isArchived: true, userPreferences: true },
     });
 
     if (user.archivedAt) {
@@ -58,12 +80,12 @@ export class PrismaUserRepository implements IUserRepository {
 
     const prismaUser = await this.prisma.user.findUnique({
       where: { id: savedUser.id },
-      include: { isArchived: true },
+      include: { isArchived: true, userPreferences: true },
     });
 
     if (!prismaUser) throw new Error('User not found after creation');
 
-    return UserMapper.toDomain(prismaUser);
+    return UserMapper.toDomain(this.normalizePrismaUser(prismaUser));
   }
 
   async update(user: UserEntity): Promise<UserEntity> {
@@ -72,7 +94,7 @@ export class PrismaUserRepository implements IUserRepository {
     const updatedUser = await this.prisma.user.update({
       where: { id: user.id },
       data,
-      include: { isArchived: true },
+      include: { isArchived: true, userPreferences: true },
     });
 
     if (user.archivedAt) {
@@ -87,17 +109,41 @@ export class PrismaUserRepository implements IUserRepository {
       });
     }
 
+    const userPreference = user.userPreferences;
+    if (userPreference) {
+      await this.prisma.userPreferences.upsert({
+        where: { userId: user.id },
+        update: {
+          theme: userPreference.getTheme(),
+          language: userPreference.getLanguage(),
+          notifications: userPreference.isNotificationsEnabled(),
+        },
+        create: {
+          id: uuidv4().slice(0, 12),
+          userId: user.id,
+          theme: userPreference.getTheme(),
+          language: userPreference.getLanguage(),
+          notifications: userPreference.isNotificationsEnabled(),
+        },
+      });
+    } else {
+      await this.prisma.userPreferences.deleteMany({
+        where: { userId: user.id },
+      });
+    }
+
     const prismaUser = await this.prisma.user.findUnique({
       where: { id: updatedUser.id },
-      include: { isArchived: true },
+      include: { isArchived: true, userPreferences: true },
     });
 
     if (!prismaUser) throw new Error('User not found after update');
 
-    return UserMapper.toDomain(prismaUser);
+    return UserMapper.toDomain(this.normalizePrismaUser(prismaUser));
   }
 
   async delete(id: string): Promise<void> {
+    await this.prisma.userPreferences.deleteMany({ where: { userId: id } });
     await this.prisma.archivedUsers.deleteMany({ where: { userId: id } });
     await this.prisma.user.delete({
       where: { id },
@@ -124,16 +170,18 @@ export class PrismaUserRepository implements IUserRepository {
       skip,
       take: limit,
       orderBy: { createdAt: 'desc' },
-      include: { isArchived: true },
+      include: { isArchived: true, userPreferences: true },
     });
 
-    return prismaUsers.map((user) => UserMapper.toDomain(user));
+    return prismaUsers.map((user) =>
+      UserMapper.toDomain(this.normalizePrismaUser(user)),
+    );
   }
 
   async archive(id: string, archivedAt?: Date): Promise<UserEntity> {
     const prismaUser = await this.prisma.user.findUnique({
       where: { id },
-      include: { isArchived: true },
+      include: { isArchived: true, userPreferences: true },
     });
 
     if (!prismaUser) throw new Error('User not found');
@@ -148,18 +196,18 @@ export class PrismaUserRepository implements IUserRepository {
 
     const refreshed = await this.prisma.user.findUnique({
       where: { id },
-      include: { isArchived: true },
+      include: { isArchived: true, userPreferences: true },
     });
 
     if (!refreshed) throw new Error('User not found after archiving');
 
-    return UserMapper.toDomain(refreshed);
+    return UserMapper.toDomain(this.normalizePrismaUser(refreshed));
   }
 
   async unarchive(id: string): Promise<UserEntity> {
     const prismaUser = await this.prisma.user.findUnique({
       where: { id },
-      include: { isArchived: true },
+      include: { isArchived: true, userPreferences: true },
     });
 
     if (!prismaUser) throw new Error('User not found');
@@ -175,25 +223,28 @@ export class PrismaUserRepository implements IUserRepository {
 
     const refreshed = await this.prisma.user.findUnique({
       where: { id },
-      include: { isArchived: true },
+      include: { isArchived: true, userPreferences: true },
     });
 
     if (!refreshed) throw new Error('User not found after unarchiving');
 
-    return UserMapper.toDomain(refreshed);
+    return UserMapper.toDomain(this.normalizePrismaUser(refreshed));
   }
 
   async findArchivedById(id: string): Promise<UserEntity | null> {
     const prismaUser = await this.prisma.user.findUnique({
       where: { id },
-      include: { isArchived: true },
+      include: { isArchived: true, userPreferences: true },
     });
 
     if (!prismaUser) return null;
 
-    const hasArchive = prismaUser.isArchived && prismaUser.isArchived.length > 0;
+    const hasArchive =
+      prismaUser.isArchived && prismaUser.isArchived.length > 0;
 
-    return hasArchive ? UserMapper.toDomain(prismaUser) : null;
+    return hasArchive
+      ? UserMapper.toDomain(this.normalizePrismaUser(prismaUser))
+      : null;
   }
 
   async findArchivedUsers(page: number, limit: number): Promise<UserEntity[]> {
@@ -204,9 +255,11 @@ export class PrismaUserRepository implements IUserRepository {
       skip,
       take: limit,
       orderBy: { createdAt: 'desc' },
-      include: { isArchived: true },
+      include: { isArchived: true, userPreferences: true },
     });
 
-    return prismaUsers.map((user) => UserMapper.toDomain(user));
+    return prismaUsers.map((user) =>
+      UserMapper.toDomain(this.normalizePrismaUser(user)),
+    );
   }
 }

@@ -1,5 +1,5 @@
 import { UserEntity } from "@/domain/entities";
-import { EmailValueObject } from "@/domain/value-objects";
+import { EmailValueObject } from "@/domain/value-objects/identity";
 
 export abstract class IUserRepository {
   abstract findById(id: string): Promise<UserEntity | null>;

@@ -1,6 +1,6 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import type { IUserRepository } from '@/domain/repositories';
-import { ArchiveUserDto } from '@/application/dto/user';
+import { ArchiveUserDto } from '@/application/dto/identity/user';
 
 @Injectable()
 export class ArchiveUserUseCase {
