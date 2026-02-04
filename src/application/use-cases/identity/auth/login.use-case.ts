@@ -23,11 +23,11 @@ export class LoginUseCase {
     const email = new EmailValueObject(dto.email);
     const user = await this.userRepository.findByEmail(email);
 
-    if (!user) throw new NotFoundException('Invalid credentials');
+    if (!user) throw new NotFoundException('User not found.');
     if (!user.canLogin()) throw new BadRequestException('Account is inactive');
 
     const isPasswordValid = await user.verifyPassword(dto.password);
-    if (!isPasswordValid) throw new BadRequestException('Invalid credentials');
+    if (!isPasswordValid) throw new BadRequestException('Your password is incorrect.');
 
     const accessToken = await this.tokenService.generateAccessToken({
       userId: user.id,

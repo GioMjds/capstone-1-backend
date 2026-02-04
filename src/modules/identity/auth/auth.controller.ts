@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -13,6 +14,7 @@ import { ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { CookieConfig } from '@/infrastructure/config';
 import { JwtAuthGuard } from '@/shared/guards';
+import { CurrentUser, JwtPayload } from '@/shared/decorators';
 import * as AuthDto from '@/application/dto/identity/auth';
 import * as AuthDocs from '@/shared/docs';
 import * as AuthUseCase from '@/application/use-cases/identity/auth';
@@ -31,7 +33,15 @@ export class AuthController {
     private readonly forgotPasswordResetUse: AuthUseCase.ForgotPasswordResetUseCase,
     private readonly changePasswordUse: AuthUseCase.ChangePasswordUseCase,
     private readonly googleOAuthUse: AuthUseCase.GoogleOAuthUseCase,
+    private readonly getCurrentUserUse: AuthUseCase.GetCurrentUserUseCase,
   ) {}
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async getCurrentUser(@CurrentUser() user: JwtPayload) {
+    return await this.getCurrentUserUse.execute(user.sub);
+  }
 
   @Post('login')
   @Throttle({ default: { limit: 5, ttl: 60000 } })

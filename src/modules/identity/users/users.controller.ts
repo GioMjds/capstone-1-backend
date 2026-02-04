@@ -34,8 +34,8 @@ export class UsersController {
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async getUserById(@Param('id') dto: UserDto.GetUserByIdDto) {
-    return await this.getUserByIdUseCase.execute(dto);
+  async getUserById(@Param('id') id: string) {
+    return await this.getUserByIdUseCase.execute({ id });
   }
 
   @Post()
