@@ -6,8 +6,9 @@ import {
   EmailValueObject,
   PasswordValueObject,
   PhoneValueObject,
-} from '@/domain/value-objects';
+} from '@/domain/value-objects/identity';
 import { generateUserId } from '@/shared/utils';
+import { Roles } from '@/domain/interfaces';
 
 @Injectable()
 export class CreateUserUseCase {
@@ -25,6 +26,8 @@ export class CreateUserUseCase {
     const password = PasswordValueObject.fromHash('');
     const phone = dto.phone ? new PhoneValueObject(dto.phone) : null;
     const userId = generateUserId();
+    const isActive = true;
+    const isEmailVerified = true;
 
     const user = new UserEntity(
       userId,
@@ -33,6 +36,9 @@ export class CreateUserUseCase {
       email,
       password,
       phone,
+      isActive,
+      isEmailVerified,
+      Roles.USER,
     );
 
     return this.userRepository.save(user);

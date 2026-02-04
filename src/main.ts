@@ -8,6 +8,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationError } from 'class-validator';
 import { TransformInterceptor } from '@/shared/interceptors';
 import { DomainExceptionFilter } from '@/shared/filters';
+import { CustomLoggerService } from '@/shared/services';
 
 const logger = new Logger('Server');
 
@@ -47,7 +48,12 @@ function formatValidationErrors(errors: ValidationError[]) {
 async function bootstrap() {
   const port = process.env.PORT || 3000;
 
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const createOptions: Record<string, any> = {};
+  if (process.env.NODE_ENV !== 'production') {
+    createOptions.logger = new CustomLoggerService();
+  }
+
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, createOptions);
 
   const config = new DocumentBuilder()
     .setTitle('Capstone 1 API')
@@ -101,6 +107,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   await app.listen(port, '0.0.0.0');
+  console.log('');
   logger.log(`Local: http://localhost:${port}`);
   logger.log(`Network: http://${hostIp}:${port}`);
   logger.log(`API Docs: http://localhost:${port}/docs`);

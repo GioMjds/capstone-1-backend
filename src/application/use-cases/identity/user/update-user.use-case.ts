@@ -7,7 +7,7 @@ import {
 import type { IUserRepository } from '@/domain/repositories';
 import { UpdateUserDto } from '@/application/dto/identity/user';
 import { UserEntity } from '@/domain/entities';
-import { EmailValueObject, PhoneValueObject } from '@/domain/value-objects';
+import { EmailValueObject, PhoneValueObject } from '@/domain/value-objects/identity';
 
 @Injectable()
 export class UpdateUserUseCase {

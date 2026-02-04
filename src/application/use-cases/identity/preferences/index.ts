@@ -1,31 +1,179 @@
-export * from './update-ui-preferences.use-case';
-export * from './update-notification-settings.use-case';
-export * from './update-security-settings.use-case';
-export * from './update-compliance-settings.use-case';
-export * from './get-preference-audit-logs.use-case';
-export * from './get-ui-preferences.use-case';
-export * from './get-notification-settings.use-case';
-export * from './get-security-settings.use-case';
-export * from './get-compliance-settings.use-case';
+export * from './accessibility';
+export * from './account-controls';
+export * from './activity';
+export * from './customizations';
+export * from './data-ownership';
+export * from './notification';
+export * from './privacy';
+export * from './security';
 
-import { UpdateComplianceSettingsUseCase } from './update-compliance-settings.use-case';
-import { UpdateNotificationSettingsUseCase } from './update-notification-settings.use-case';
-import { UpdateSecuritySettingsUseCase } from './update-security-settings.use-case';
-import { UpdateUiPreferencesUseCase } from './update-ui-preferences.use-case';
-import { GetPreferenceAuditLogsUseCase } from './get-preference-audit-logs.use-case';
-import { GetUiPreferencesUseCase } from './get-ui-preferences.use-case';
-import { GetNotificationSettingsUseCase } from './get-notification-settings.use-case';
-import { GetSecuritySettingsUseCase } from './get-security-settings.use-case';
-import { GetComplianceSettingsUseCase } from './get-compliance-settings.use-case';
+import {
+  AccountDeactivationUseCase,
+  AccountDeletionUseCase,
+  AccountRecoveryUseCase,
+  GetUiPreferencesUseCase,
+  UpdateUiPreferencesUseCase,
+  ChangeEmailUseCase,
+  ChangeUsernameUseCase,
+  LogoutAllDevicesUseCase,
+  ManageRecoveryOptionsUseCase,
+} from './account-controls';
+
+import {
+  GetPreferenceAuditLogsUseCase,
+  ViewActiveSessionsUseCase,
+  GetLoginHistoryUseCase,
+  GetSecurityEventsUseCase,
+  GetAccountChangeHistoryUseCase,
+  GetPermissionChangeHistoryUseCase,
+  ExportAuditLogsUseCase,
+  GetDataAccessHistoryUseCase,
+} from './activity';
+
+import {
+  GetNotificationSettingsUseCase,
+  UpdateNotificationSettingsUseCase,
+  SetQuietHoursUseCase,
+  ManageMarketingOptInUseCase,
+  ConfigureEmailNotificationsByCategoryUseCase,
+  ConfigurePushNotificationsByCategoryUseCase,
+  ConfigureSmsAlertsUseCase,
+} from './notification';
+
+import {
+  GetComplianceSettingsUseCase,
+  UpdateComplianceSettingsUseCase,
+  GetProfileVisibilityUseCase,
+  UpdateProfileVisibilityUseCase,
+  GetActivityVisibilityUseCase,
+  UpdateActivityVisibilityUseCase,
+  GetOnlinePresenceSettingsUseCase,
+  UpdateOnlinePresenceSettingsUseCase,
+  GetFieldLevelVisibilityUseCase,
+  UpdateFieldLevelVisibilityUseCase,
+} from './privacy';
+
+import {
+  GetSecuritySettingsUseCase,
+  MultiFactorAuthUseCase,
+  UpdateSecuritySettingsUseCase,
+  SelectMfaMethodUseCase,
+  RegenerateBackupCodesUseCase,
+  ManageTrustedDevicesUseCase,
+  ConfigureLoginAlertsUseCase,
+  ConfigureSuspiciousActivityAlertsUseCase,
+  SetPasswordRotationReminderUseCase,
+  SetSessionExpirationUseCase,
+  ConfigureIpRestrictionsUseCase,
+} from './security';
+
+import {
+  SetLanguageUseCase,
+  SetTimezoneUseCase,
+  SetDateNumberFormatsUseCase,
+  SetCurrencyUseCase,
+  SetTimeFormatUseCase,
+  SetAccessibilityPreferencesUseCase,
+  SetHighContrastModeUseCase,
+} from './accessibility';
+
+import {
+  SetThemeUseCase,
+  SetLayoutPreferencesUseCase,
+  SetDefaultViewsUseCase,
+  SetSortFilterDefaultsUseCase,
+  SetPaginationSizeUseCase,
+  ManageFeatureTogglesUseCase,
+  ManageBetaFeaturesOptInUseCase,
+  ManageAiFeaturesOptInUseCase,
+  SetContentSensitivityFiltersUseCase,
+} from './customizations';
+
+import {
+  ExportPersonalDataUseCase,
+  ExportActivityHistoryUseCase,
+  DownloadAccountArchiveUseCase,
+  RequestDataDeletionUseCase,
+  RequestDataCorrectionUseCase,
+  AnonymizeDataUseCase,
+  SetExportFormatUseCase,
+} from './data-ownership';
 
 export const USER_PREFERENCES_USE_CASES = [
-  UpdateUiPreferencesUseCase,
-  UpdateNotificationSettingsUseCase,
-  UpdateSecuritySettingsUseCase,
-  UpdateComplianceSettingsUseCase,
+  AccountDeactivationUseCase,
+  AccountDeletionUseCase,
+  AccountRecoveryUseCase,
+  ChangeEmailUseCase,
+  ChangeUsernameUseCase,
+  LogoutAllDevicesUseCase,
+  ManageRecoveryOptionsUseCase,
+
   GetPreferenceAuditLogsUseCase,
-  GetUiPreferencesUseCase,
+  ViewActiveSessionsUseCase,
+  GetLoginHistoryUseCase,
+  GetSecurityEventsUseCase,
+  GetAccountChangeHistoryUseCase,
+  GetPermissionChangeHistoryUseCase,
+  ExportAuditLogsUseCase,
+  GetDataAccessHistoryUseCase,
+
   GetNotificationSettingsUseCase,
-  GetSecuritySettingsUseCase,
+  UpdateNotificationSettingsUseCase,
+  SetQuietHoursUseCase,
+  ManageMarketingOptInUseCase,
+  ConfigureEmailNotificationsByCategoryUseCase,
+  ConfigurePushNotificationsByCategoryUseCase,
+  ConfigureSmsAlertsUseCase,
+
   GetComplianceSettingsUseCase,
+  UpdateComplianceSettingsUseCase,
+  GetProfileVisibilityUseCase,
+  UpdateProfileVisibilityUseCase,
+  GetActivityVisibilityUseCase,
+  UpdateActivityVisibilityUseCase,
+  GetOnlinePresenceSettingsUseCase,
+  UpdateOnlinePresenceSettingsUseCase,
+  GetFieldLevelVisibilityUseCase,
+  UpdateFieldLevelVisibilityUseCase,
+
+  GetSecuritySettingsUseCase,
+  MultiFactorAuthUseCase,
+  UpdateSecuritySettingsUseCase,
+  SelectMfaMethodUseCase,
+  RegenerateBackupCodesUseCase,
+  ManageTrustedDevicesUseCase,
+  ConfigureLoginAlertsUseCase,
+  ConfigureSuspiciousActivityAlertsUseCase,
+  SetPasswordRotationReminderUseCase,
+  SetSessionExpirationUseCase,
+  ConfigureIpRestrictionsUseCase,
+
+  SetLanguageUseCase,
+  SetTimezoneUseCase,
+  SetDateNumberFormatsUseCase,
+  SetCurrencyUseCase,
+  SetTimeFormatUseCase,
+  SetAccessibilityPreferencesUseCase,
+  SetHighContrastModeUseCase,
+
+  SetThemeUseCase,
+  SetLayoutPreferencesUseCase,
+  SetDefaultViewsUseCase,
+  SetSortFilterDefaultsUseCase,
+  SetPaginationSizeUseCase,
+  ManageFeatureTogglesUseCase,
+  ManageBetaFeaturesOptInUseCase,
+  ManageAiFeaturesOptInUseCase,
+  SetContentSensitivityFiltersUseCase,
+
+  ExportPersonalDataUseCase,
+  ExportActivityHistoryUseCase,
+  DownloadAccountArchiveUseCase,
+  RequestDataDeletionUseCase,
+  RequestDataCorrectionUseCase,
+  AnonymizeDataUseCase,
+  SetExportFormatUseCase,
+
+  UpdateUiPreferencesUseCase,
+  GetUiPreferencesUseCase,
 ];

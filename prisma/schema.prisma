@@ -6,6 +6,15 @@ datasource db {
   provider = "postgresql"
 }
 
+enum PreferenceCategory {
+  UI
+  NOTIFICATION
+  SECURITY
+  COMPLIANCE
+  ACCOUNT
+  ACTIVITY
+}
+
 model User {
   id              String           @id @db.VarChar(12)
   firstName       String
@@ -30,16 +39,71 @@ model ArchivedUsers {
 }
 
 model UserPreferences {
-  id                   String                  @id @db.VarChar(12)
-  userId               String                  @unique
-  uiPreferences        Json                    @default("{}")
-  notificationSettings Json                    @default("{}")
-  createdAt            DateTime                @default(now())
-  updatedAt            DateTime                @updatedAt
-  user                 User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                   String                    @id @db.VarChar(12)
+  userId               String                    @unique
+  uiPreferences        Json                      @default("{}")
+  notificationSettings UserNotificationSettings?
+  createdAt            DateTime                  @default(now())
+  updatedAt            DateTime                  @updatedAt
+  user                 User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
   securitySettings     UserSecuritySettings?
   complianceSettings   UserComplianceSettings?
   preferenceAuditLogs  PreferenceAuditLog[]
+
+  accountControl AccountControlSettings?
+  activeSessions ActiveSession[]
+  trustedDevices TrustedDevice[]
+}
+
+model UserNotificationSettings {
+  id                 String          @id @db.VarChar(12)
+  userPreferencesId  String          @unique
+  emailNotifications Boolean         @default(true)
+  pushNotifications  Boolean         @default(false)
+  smsNotifications   Boolean         @default(false)
+  preferences        Json            @default("{}")
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  userPreferences    UserPreferences @relation(fields: [userPreferencesId], references: [id], onDelete: Cascade)
+}
+
+model AccountControlSettings {
+  id                  String          @id @db.VarChar(12)
+  userPreferencesId   String          @unique
+  deactivated         Boolean         @default(false)
+  deactivatedAt       DateTime?
+  deletionRequested   Boolean         @default(false)
+  deletionRequestedAt DateTime?
+  recoveryToken       String?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  userPreferences     UserPreferences @relation(fields: [userPreferencesId], references: [id], onDelete: Cascade)
+}
+
+model ActiveSession {
+  id                String          @id @db.VarChar(12)
+  userPreferencesId String
+  sessionId         String
+  ipAddress         String?
+  userAgent         String?
+  lastSeen          DateTime        @default(now())
+  createdAt         DateTime        @default(now())
+  userPreferences   UserPreferences @relation(fields: [userPreferencesId], references: [id], onDelete: Cascade)
+
+  @@index([userPreferencesId])
+  @@index([lastSeen])
+}
+
+model TrustedDevice {
+  id                String          @id @db.VarChar(12)
+  userPreferencesId String
+  deviceId          String
+  deviceName        String?
+  lastUsed          DateTime        @default(now())
+  createdAt         DateTime        @default(now())
+  userPreferences   UserPreferences @relation(fields: [userPreferencesId], references: [id], onDelete: Cascade)
+
+  @@index([userPreferencesId])
 }
 
 model UserSecuritySettings {
