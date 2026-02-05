@@ -7,26 +7,38 @@ export enum ThemeOption {
   SYSTEM = 'system',
 }
 
+export enum ColorScheme {
+  DEFAULT = 'default',
+  WARM = 'warm',
+  COOL = 'cool',
+  HIGH_CONTRAST = 'high_contrast',
+}
+
 export class SetThemeDto {
   @IsEnum(ThemeOption)
   @ApiProperty({ enum: ThemeOption, example: ThemeOption.DARK })
   theme: ThemeOption;
 
+  @IsEnum(ColorScheme)
+  @IsOptional()
+  @ApiPropertyOptional({ enum: ColorScheme, example: ColorScheme.DEFAULT })
+  colorScheme?: ColorScheme;
+
   @IsObject()
   @IsOptional()
-  @ApiPropertyOptional()
-  customizations?: Record<string, any>;
+  @ApiPropertyOptional({ example: { primary: '#007bff', secondary: '#6c757d' } })
+  customColors?: Record<string, string>;
 }
 
-export class SetThemeResponseDto {
-  @ApiProperty()
-  id: string;
+export class ThemeResponseDto {
+  @ApiProperty({ enum: ThemeOption, example: ThemeOption.DARK })
+  theme: ThemeOption;
 
-  @ApiProperty()
-  theme: string;
+  @ApiPropertyOptional({ enum: ColorScheme, example: ColorScheme.DEFAULT })
+  colorScheme?: ColorScheme;
 
-  @ApiProperty()
-  appliesImmediately: boolean;
+  @ApiPropertyOptional({ example: { primary: '#007bff', secondary: '#6c757d' } })
+  customColors?: Record<string, string>;
 
   @ApiProperty()
   updatedAt: Date;

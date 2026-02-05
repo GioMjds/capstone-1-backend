@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { FieldLevelVisibilityResponseDto } from '@/application/dto/identity/preferences';
+import {
+  FieldLevelVisibilityResponseDto,
+  FieldVisibility,
+} from '@/application/dto/identity/preferences';
 
 @Injectable()
 export class GetFieldLevelVisibilityUseCase {
@@ -8,9 +11,9 @@ export class GetFieldLevelVisibilityUseCase {
   async execute(userId: string): Promise<FieldLevelVisibilityResponseDto> {
     return {
       fields: [
-        { fieldName: 'email', visibility: 'private' },
-        { fieldName: 'phone', visibility: 'contacts' },
-        { fieldName: 'birthday', visibility: 'public' },
+        { fieldName: 'email', visibility: FieldVisibility.PRIVATE },
+        { fieldName: 'phone', visibility: FieldVisibility.CONTACTS },
+        { fieldName: 'birthday', visibility: FieldVisibility.PUBLIC },
       ],
       updatedAt: new Date(),
     };

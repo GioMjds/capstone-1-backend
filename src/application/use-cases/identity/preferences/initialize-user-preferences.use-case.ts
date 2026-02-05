@@ -1,6 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
 import type { IUserPreferencesRepository } from '@/domain/repositories/identity/preferences';
-import { UserPreferencesEntity } from '@/domain/entities/identity/preferences';
 
 export interface InitializePreferencesResult {
   preferencesId: string;
@@ -16,7 +15,8 @@ export class InitializeUserPreferencesUseCase {
   ) {}
 
   async execute(userId: string): Promise<InitializePreferencesResult> {
-    const existingPreferences = await this.userPreferencesRepository.findByUserId(userId);
+    const existingPreferences =
+      await this.userPreferencesRepository.findByUserId(userId);
 
     if (existingPreferences) {
       return {
@@ -26,7 +26,8 @@ export class InitializeUserPreferencesUseCase {
       };
     }
 
-    const preferences = await this.userPreferencesRepository.createDefaultPreferences(userId);
+    const preferences =
+      await this.userPreferencesRepository.createDefaultPreferences(userId);
 
     return {
       preferencesId: preferences.id,

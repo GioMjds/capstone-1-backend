@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsObject } from 'class-validator';
 
-export class ConfigureEmailNotificationsByCategoryDto {
+export class ConfigureEmailNotificationsDto {
   @IsObject()
   @ApiProperty({
     example: {
@@ -14,11 +14,15 @@ export class ConfigureEmailNotificationsByCategoryDto {
   categories: Record<string, boolean>;
 }
 
-export class ConfigureEmailNotificationsByCategoryResponseDto {
-  @ApiProperty()
-  id: string;
-
-  @ApiProperty()
+export class EmailNotificationCategoriesResponseDto {
+  @ApiProperty({
+    example: {
+      security: true,
+      updates: true,
+      marketing: false,
+      comments: true,
+    },
+  })
   categories: Record<string, boolean>;
 
   @ApiProperty()

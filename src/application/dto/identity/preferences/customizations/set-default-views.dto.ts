@@ -1,26 +1,46 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsObject } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEnum, IsOptional } from 'class-validator';
 
-export class SetDefaultViewsDto {
-  @IsObject()
-  @ApiProperty({
-    example: {
-      dashboard: 'grid',
-      projects: 'list',
-      calendar: 'month',
-    },
-    type: 'object',
-    additionalProperties: { type: 'string' },
-  })
-  views: Record<string, string>;
+export enum ViewType {
+  GRID = 'grid',
+  LIST = 'list',
+  KANBAN = 'kanban',
+  TABLE = 'table',
 }
 
-export class SetDefaultViewsResponseDto {
-  @ApiProperty()
-  id: string;
+export enum CalendarViewType {
+  DAY = 'day',
+  WEEK = 'week',
+  MONTH = 'month',
+  YEAR = 'year',
+}
 
-  @ApiProperty()
-  views: Record<string, string>;
+export class SetDefaultViewsDto {
+  @IsEnum(ViewType)
+  @IsOptional()
+  @ApiPropertyOptional({ enum: ViewType, example: ViewType.GRID })
+  dashboardView?: ViewType;
+
+  @IsEnum(ViewType)
+  @IsOptional()
+  @ApiPropertyOptional({ enum: ViewType, example: ViewType.LIST })
+  listView?: ViewType;
+
+  @IsEnum(CalendarViewType)
+  @IsOptional()
+  @ApiPropertyOptional({ enum: CalendarViewType, example: CalendarViewType.MONTH })
+  calendarView?: CalendarViewType;
+}
+
+export class DefaultViewsResponseDto {
+  @ApiProperty({ enum: ViewType, example: ViewType.GRID })
+  dashboardView: ViewType;
+
+  @ApiProperty({ enum: ViewType, example: ViewType.LIST })
+  listView: ViewType;
+
+  @ApiProperty({ enum: CalendarViewType, example: CalendarViewType.MONTH })
+  calendarView: CalendarViewType;
 
   @ApiProperty()
   updatedAt: Date;

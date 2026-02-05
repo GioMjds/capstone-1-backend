@@ -1,10 +1,23 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsBoolean, IsOptional } from 'class-validator';
+import { IsBoolean, IsEnum, IsOptional } from 'class-validator';
+
+export enum SidebarPosition {
+  LEFT = 'left',
+  RIGHT = 'right',
+}
+
+export enum ContentWidth {
+  NARROW = 'narrow',
+  NORMAL = 'normal',
+  WIDE = 'wide',
+  FULL = 'full',
+}
 
 export class SetLayoutPreferencesDto {
-  @IsString()
-  @ApiProperty({ example: 'default' })
-  sidebarPosition: string;
+  @IsEnum(SidebarPosition)
+  @IsOptional()
+  @ApiPropertyOptional({ enum: SidebarPosition, example: SidebarPosition.LEFT })
+  sidebarPosition?: SidebarPosition;
 
   @IsBoolean()
   @IsOptional()
@@ -16,21 +29,24 @@ export class SetLayoutPreferencesDto {
   @ApiPropertyOptional({ example: false })
   compactMode?: boolean;
 
-  @IsString()
+  @IsEnum(ContentWidth)
   @IsOptional()
-  @ApiPropertyOptional({ example: 'auto' })
-  contentWidth?: string;
+  @ApiPropertyOptional({ enum: ContentWidth, example: ContentWidth.NORMAL })
+  contentWidth?: ContentWidth;
 }
 
-export class SetLayoutPreferencesResponseDto {
-  @ApiProperty()
-  id: string;
+export class LayoutPreferencesResponseDto {
+  @ApiProperty({ enum: SidebarPosition, example: SidebarPosition.LEFT })
+  sidebarPosition: SidebarPosition;
 
-  @ApiProperty()
-  layout: string;
+  @ApiProperty({ example: false })
+  sidebarCollapsed: boolean;
 
-  @ApiProperty()
-  preferences: Record<string, any>;
+  @ApiProperty({ example: false })
+  compactMode: boolean;
+
+  @ApiProperty({ enum: ContentWidth, example: ContentWidth.NORMAL })
+  contentWidth: ContentWidth;
 
   @ApiProperty()
   updatedAt: Date;

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/infrastructure/persistence';
-import { UpdateActivityVisibilityDto } from '@/application/dto';
 import { SecuritySettingsValueObject } from '@/domain/value-objects/identity';
 import { InvalidStateException } from '@/shared/exceptions';
 import { randomUUID } from 'crypto';
+import { UpdateSecuritySettingsDto } from '@/application/dto/identity/preferences/security/update-security-settings.dto';
 
 @Injectable()
 export class UpdateSecuritySettingsUseCase {

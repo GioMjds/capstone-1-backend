@@ -1,34 +1,35 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class RequestDataCorrectionDto {
   @IsString()
-  @ApiProperty()
-  field: string;
+  @ApiProperty({ example: 'email' })
+  fieldName: string;
 
   @IsString()
-  @ApiProperty()
+  @ApiProperty({ example: 'old@example.com' })
   currentValue: string;
 
   @IsString()
-  @ApiProperty()
+  @ApiProperty({ example: 'new@example.com' })
   correctedValue: string;
 
   @IsString()
-  @ApiPropertyOptional()
+  @IsOptional()
+  @ApiPropertyOptional({ example: 'Typo in email address' })
   reason?: string;
 }
 
-export class RequestDataCorrectionResponseDto {
-  @ApiProperty()
+export class DataCorrectionResponseDto {
+  @ApiProperty({ example: 'correction-123' })
   requestId: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'pending' })
   status: string;
 
-  @ApiProperty()
-  reviewedAt?: Date;
+  @ApiProperty({ example: 'email' })
+  fieldName: string;
 
   @ApiProperty()
-  appliedAt?: Date;
+  requestedAt: Date;
 }

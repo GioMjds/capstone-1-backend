@@ -1,39 +1,31 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsString, IsOptional } from 'class-validator';
+import { IsArray, IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class ConfigureSmsAlertsDto {
   @IsBoolean()
-  @ApiProperty()
+  @ApiProperty({ example: true })
   enabled: boolean;
 
   @IsString()
   @IsOptional()
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '+1234567890' })
   phoneNumber?: string;
 
-  @IsBoolean()
+  @IsArray()
   @IsOptional()
-  @ApiPropertyOptional()
-  securityAlerts?: boolean;
-
-  @IsBoolean()
-  @IsOptional()
-  @ApiPropertyOptional()
-  criticalUpdates?: boolean;
+  @ApiPropertyOptional({ example: ['security', 'critical_updates', 'login_alerts'] })
+  alertTypes?: string[];
 }
 
-export class ConfigureSmsAlertsResponseDto {
-  @ApiProperty()
-  id: string;
-
-  @ApiProperty()
+export class SmsAlertsResponseDto {
+  @ApiProperty({ example: true })
   enabled: boolean;
 
-  @ApiProperty()
-  phoneNumber: string;
+  @ApiPropertyOptional({ example: '+1234567890' })
+  phoneNumber?: string;
 
-  @ApiProperty()
-  alertTypes: string[];
+  @ApiPropertyOptional({ example: ['security', 'critical_updates', 'login_alerts'] })
+  alertTypes?: string[];
 
   @ApiProperty()
   updatedAt: Date;

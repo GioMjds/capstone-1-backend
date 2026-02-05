@@ -1,26 +1,32 @@
-import { ActivityVisibility } from '@/domain/interfaces';
-import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsEnum } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsBoolean, IsOptional } from 'class-validator';
 
 export class UpdateActivityVisibilityDto {
-  @IsEnum(ActivityVisibility)
-  @ApiProperty({ enum: ActivityVisibility })
-  visibility: ActivityVisibility;
+  @IsBoolean()
+  @IsOptional()
+  @ApiPropertyOptional({ example: true })
+  showRecentActivity?: boolean;
 
   @IsBoolean()
-  @ApiProperty()
-  hideTimestamps?: boolean;
+  @IsOptional()
+  @ApiPropertyOptional({ example: false })
+  showLoginHistory?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  @ApiPropertyOptional({ example: true })
+  showLastSeen?: boolean;
 }
 
-export class GetActivityVisibilityResponseDto {
-  @ApiProperty()
-  id: string;
+export class ActivityVisibilityResponseDto {
+  @ApiProperty({ example: true })
+  showRecentActivity: boolean;
 
-  @ApiProperty({ enum: ActivityVisibility })
-  visibility: ActivityVisibility;
+  @ApiProperty({ example: false })
+  showLoginHistory: boolean;
 
-  @ApiProperty()
-  hideTimestamps: boolean;
+  @ApiProperty({ example: true })
+  showLastSeen: boolean;
 
   @ApiProperty()
   updatedAt: Date;

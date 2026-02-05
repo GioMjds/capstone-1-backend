@@ -6,3 +6,5 @@ export * from './configure-suspicious-activity-alerts.dto';
 export * from './set-password-rotation-reminder.dto';
 export * from './set-session-expiration.dto';
 export * from './configure-ip-restrictions.dto';
+export * from './enable-mfa.dto';
+export * from './get-security-settings.dto';

@@ -1,45 +1,39 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsArray, IsOptional, IsEnum, ArrayMinSize } from 'class-validator';
+import { IsArray, IsBoolean, IsEnum, IsOptional, IsString } from 'class-validator';
 
-export enum ContentSensitivityFilter {
-  VIOLENCE = 'violence',
-  ADULT_CONTENT = 'adult_content',
-  SPOILERS = 'spoilers',
-  GRAPHIC_CONTENT = 'graphic_content',
-}
-
-export enum StrictnessLevel {
-  STRICT = 'strict',
-  MODERATE = 'moderate',
-  PERMISSIVE = 'permissive',
+export enum SensitivityLevel {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
 }
 
 export class SetContentSensitivityFiltersDto {
-  @IsArray()
-  @ArrayMinSize(0)
-  @IsEnum(ContentSensitivityFilter, { each: true })
-  @ApiProperty({
-    enum: ContentSensitivityFilter,
-    example: ['violence', 'adult_content'],
-    isArray: true,
-  })
-  filters: ContentSensitivityFilter[];
-
-  @IsEnum(StrictnessLevel)
+  @IsEnum(SensitivityLevel)
   @IsOptional()
-  @ApiPropertyOptional({ enum: StrictnessLevel, example: StrictnessLevel.MODERATE })
-  strictness?: StrictnessLevel;
+  @ApiPropertyOptional({ enum: SensitivityLevel, example: SensitivityLevel.MEDIUM })
+  sensitivityLevel?: SensitivityLevel;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  @ApiPropertyOptional({ example: ['violence', 'adult_content'] })
+  blockedCategories?: string[];
+
+  @IsBoolean()
+  @IsOptional()
+  @ApiPropertyOptional({ example: true })
+  safeSearchEnabled?: boolean;
 }
 
-export class SetContentSensitivityFiltersResponseDto {
-  @ApiProperty()
-  id: string;
+export class ContentSensitivityFiltersResponseDto {
+  @ApiProperty({ enum: SensitivityLevel, example: SensitivityLevel.MEDIUM })
+  sensitivityLevel: SensitivityLevel;
 
-  @ApiProperty()
-  filters: string[];
+  @ApiPropertyOptional({ example: ['violence', 'adult_content'] })
+  blockedCategories?: string[];
 
-  @ApiProperty()
-  strictness: string;
+  @ApiProperty({ example: true })
+  safeSearchEnabled: boolean;
 
   @ApiProperty()
   updatedAt: Date;

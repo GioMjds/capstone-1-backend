@@ -14,11 +14,16 @@ export class ManageFeatureTogglesDto {
 }
 
 export class ManageFeatureTogglesResponseDto {
-  @ApiProperty()
+  @ApiProperty({ example: 'user-id-placeholder' })
   id: string;
 
-  @ApiProperty()
-  @IsObject()
+  @ApiProperty({
+    example: {
+      newDashboard: true,
+      advancedAnalytics: false,
+      experimentalUI: true,
+    },
+  })
   toggles: Record<string, boolean>;
 
   @ApiProperty()

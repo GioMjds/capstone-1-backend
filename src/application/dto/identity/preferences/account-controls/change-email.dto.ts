@@ -21,7 +21,7 @@ export class ChangeEmailResponseDto {
   email: string;
 
   @ApiProperty()
-  verified: boolean;
+  requiresVerification: boolean;
 
   @ApiProperty()
   verificationSentAt: Date;

@@ -11,7 +11,7 @@ export class SetPaginationSizeUseCase {
   async execute(dto: SetPaginationSizeDto): Promise<PaginationSizeResponseDto> {
     return {
       defaultPageSize: dto.defaultPageSize,
-      maxPageSize: dto.maxPageSize,
+      maxPageSize: dto.maxPageSize ?? 100,
       updatedAt: new Date(),
     };
   }

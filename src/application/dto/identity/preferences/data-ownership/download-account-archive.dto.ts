@@ -1,20 +1,39 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsBoolean, IsEnum, IsOptional } from 'class-validator';
 
-export class DownloadAccountArchiveDto {}
+export enum ArchiveFormat {
+  ZIP = 'zip',
+  TAR_GZ = 'tar.gz',
+}
 
-export class DownloadAccountArchiveResponseDto {
+export class DownloadAccountArchiveDto {
+  @IsEnum(ArchiveFormat)
+  @IsOptional()
+  @ApiPropertyOptional({ enum: ArchiveFormat, default: ArchiveFormat.ZIP })
+  format?: ArchiveFormat;
+
+  @IsBoolean()
+  @IsOptional()
+  @ApiPropertyOptional({ example: true })
+  includeAttachments?: boolean;
+}
+
+export class AccountArchiveResponseDto {
+  @ApiProperty({ example: 'archive-123' })
+  archiveId: string;
+
+  @ApiProperty({ example: 'pending' })
+  status: string;
+
+  @ApiProperty({ enum: ArchiveFormat, example: ArchiveFormat.ZIP })
+  format: ArchiveFormat;
+
+  @ApiProperty({ example: true })
+  includeAttachments: boolean;
+
   @ApiProperty()
-  downloadUrl: string;
+  requestedAt: Date;
 
   @ApiProperty()
-  fileName: string;
-
-  @ApiProperty()
-  size: number;
-
-  @ApiProperty()
-  createdAt: Date;
-
-  @ApiProperty()
-  expiresAt: Date;
+  estimatedCompletionAt: Date;
 }

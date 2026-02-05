@@ -5,30 +5,33 @@ import { IsEnum, IsOptional, IsDateString } from 'class-validator';
 export class ExportActivityHistoryDto {
   @IsDateString()
   @IsOptional()
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '2026-01-01' })
   fromDate?: string;
 
   @IsDateString()
   @IsOptional()
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '2026-02-05' })
   toDate?: string;
 
   @IsEnum(ExportFormat)
   @IsOptional()
-  @ApiPropertyOptional({ enum: ExportFormat })
+  @ApiPropertyOptional({ enum: ExportFormat, default: ExportFormat.JSON })
   format?: ExportFormat;
 }
 
-export class ExportActivityHistoryResponseDto {
-  @ApiProperty()
-  downloadUrl: string;
+export class DataExportResponseDto {
+  @ApiProperty({ example: 'export-123' })
+  exportId: string;
+
+  @ApiProperty({ example: 'pending' })
+  status: string;
+
+  @ApiProperty({ enum: ExportFormat, example: ExportFormat.JSON })
+  format: ExportFormat;
 
   @ApiProperty()
-  recordCount: number;
+  requestedAt: Date;
 
   @ApiProperty()
-  fileName: string;
-
-  @ApiProperty()
-  expiresAt: Date;
+  estimatedCompletionAt: Date;
 }

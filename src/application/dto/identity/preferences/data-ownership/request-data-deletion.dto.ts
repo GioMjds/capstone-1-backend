@@ -1,28 +1,37 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional } from 'class-validator';
+import { IsArray, IsOptional, IsString } from 'class-validator';
 
 export class RequestDataDeletionDto {
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  @ApiPropertyOptional({ example: ['profile', 'activity', 'preferences'] })
+  dataCategories?: string[];
+
   @IsString()
   @IsOptional()
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'No longer using the service' })
   reason?: string;
 
   @IsString()
   @IsOptional()
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'feedback@example.com' })
   feedbackEmail?: string;
 }
 
-export class RequestDataDeletionResponseDto {
-  @ApiProperty()
+export class DataDeletionResponseDto {
+  @ApiProperty({ example: 'deletion-123' })
   requestId: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'pending' })
   status: string;
 
-  @ApiProperty()
-  gracePeriodDays: number;
+  @ApiPropertyOptional({ example: ['profile', 'activity', 'preferences'] })
+  dataCategories?: string[];
 
   @ApiProperty()
-  willBeDeletedAt: Date;
+  requestedAt: Date;
+
+  @ApiProperty()
+  scheduledDeletionAt: Date;
 }

@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import {
   SetDefaultViewsDto,
   DefaultViewsResponseDto,
+  ViewType,
+  CalendarViewType,
 } from '@/application/dto/identity/preferences';
 
 @Injectable()
@@ -10,9 +12,9 @@ export class SetDefaultViewsUseCase {
 
   async execute(dto: SetDefaultViewsDto): Promise<DefaultViewsResponseDto> {
     return {
-      dashboardView: dto.dashboardView,
-      listView: dto.listView,
-      calendarView: dto.calendarView,
+      dashboardView: dto.dashboardView ?? ViewType.GRID,
+      listView: dto.listView ?? ViewType.LIST,
+      calendarView: dto.calendarView ?? CalendarViewType.MONTH,
       updatedAt: new Date(),
     };
   }

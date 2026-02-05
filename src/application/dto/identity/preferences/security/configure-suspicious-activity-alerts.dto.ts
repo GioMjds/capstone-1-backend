@@ -1,40 +1,33 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsEnum, IsOptional } from 'class-validator';
-import { AlertSeverity } from '@/domain/interfaces';
+import { IsBoolean, IsArray, IsOptional, IsString } from 'class-validator';
 
 export class ConfigureSuspiciousActivityAlertsDto {
   @IsBoolean()
-  @ApiProperty()
+  @ApiProperty({ example: true })
   enabled: boolean;
 
-  @IsBoolean()
+  @IsArray()
+  @IsString({ each: true })
   @IsOptional()
-  @ApiPropertyOptional()
-  multipleFailedLogins?: boolean;
+  @ApiPropertyOptional({ example: ['failed_login', 'unusual_activity', 'password_change'] })
+  alertTypes?: string[];
 
-  @IsBoolean()
+  @IsArray()
+  @IsString({ each: true })
   @IsOptional()
-  @ApiPropertyOptional()
-  unusualActivity?: boolean;
-
-  @IsEnum(AlertSeverity)
-  @IsOptional()
-  @ApiPropertyOptional({ enum: AlertSeverity })
-  minSeverity?: AlertSeverity;
+  @ApiPropertyOptional({ example: ['email', 'sms', 'push'] })
+  notificationChannels?: string[];
 }
 
-export class ConfigureSuspiciousActivityAlertsResponseDto {
-  @ApiProperty()
-  id: string;
-
+export class SuspiciousActivityAlertsResponseDto {
   @ApiProperty()
   enabled: boolean;
 
-  @ApiProperty()
-  alertsFor: string[];
+  @ApiPropertyOptional({ type: [String] })
+  alertTypes?: string[];
 
-  @ApiProperty()
-  minSeverity: AlertSeverity;
+  @ApiPropertyOptional({ type: [String] })
+  notificationChannels?: string[];
 
   @ApiProperty()
   updatedAt: Date;

@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional, IsEnum, IsUUID } from 'class-validator';
+import { IsString, IsOptional, IsEnum, IsNumber, Min, Max } from 'class-validator';
 
 export enum TrustedDeviceAction {
   ADD = 'add',
@@ -21,9 +21,16 @@ export class ManageTrustedDevicesDto {
   @IsOptional()
   @ApiPropertyOptional({ example: 'My iPhone' })
   deviceName?: string;
+
+  @IsNumber()
+  @IsOptional()
+  @Min(1)
+  @Max(10)
+  @ApiPropertyOptional({ example: 5, minimum: 1, maximum: 10 })
+  maxDevices?: number;
 }
 
-export class ManageTrustedDevicesResponseDto {
+export class TrustedDeviceDto {
   @ApiProperty()
   id: string;
 
@@ -41,4 +48,15 @@ export class ManageTrustedDevicesResponseDto {
 
   @ApiProperty()
   addedAt: Date;
+}
+
+export class TrustedDevicesResponseDto {
+  @ApiProperty({ type: [TrustedDeviceDto] })
+  devices: TrustedDeviceDto[];
+
+  @ApiPropertyOptional()
+  maxDevices?: number;
+
+  @ApiProperty()
+  updatedAt: Date;
 }

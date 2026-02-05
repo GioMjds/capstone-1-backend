@@ -1,5 +1,8 @@
 import { Injectable, NotFoundException, Inject } from '@nestjs/common';
-import { ComplianceSettingsResponseDto } from '@/application/dto/identity/preferences';
+import {
+  ComplianceSettingsResponseDto,
+  AuditLogPreference,
+} from '@/application/dto/identity/preferences';
 import { IUserRepository } from '@/domain/repositories';
 
 @Injectable()
@@ -23,7 +26,7 @@ export class GetComplianceSettingsUseCase {
         dataShareConsent: false,
         dataRetentionMonths: 12,
         allowAccountDeletion: true,
-        auditLogPreference: 'minimal',
+        auditLogPreference: AuditLogPreference.MINIMAL,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -33,7 +36,7 @@ export class GetComplianceSettingsUseCase {
       dataShareConsent: false,
       dataRetentionMonths: 12,
       allowAccountDeletion: true,
-      auditLogPreference: 'minimal',
+      auditLogPreference: AuditLogPreference.MINIMAL,
       createdAt: new Date(),
       updatedAt: new Date(),
     };

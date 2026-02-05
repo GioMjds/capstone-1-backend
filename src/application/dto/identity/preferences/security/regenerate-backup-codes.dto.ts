@@ -2,19 +2,13 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class RegenerateBackupCodesDto {}
 
-export class RegenerateBackupCodesResponseDto {
-  @ApiProperty()
-  backupCodes: string[];
+export class BackupCodesResponseDto {
+  @ApiProperty({ type: [String], example: ['ABCD-EFGH-1234', 'IJKL-MNOP-5678'] })
+  codes: string[];
 
   @ApiProperty()
   generatedAt: Date;
 
   @ApiProperty()
   expiresAt: Date;
-
-  @ApiProperty()
-  usedCount: number;
-
-  @ApiProperty()
-  totalCount: number;
 }

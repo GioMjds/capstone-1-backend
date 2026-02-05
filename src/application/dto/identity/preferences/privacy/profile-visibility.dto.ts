@@ -1,25 +1,41 @@
-import { ProfileVisibility, VisibilityLevel } from '@/domain/interfaces';
+import { ProfileVisibility } from '@/domain/interfaces';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsOptional } from 'class-validator';
+import { IsBoolean, IsEnum, IsOptional } from 'class-validator';
 
 export class UpdateProfileVisibilityDto {
-  @IsEnum(VisibilityLevel)
-  @ApiProperty({ enum: VisibilityLevel, example: VisibilityLevel.PRIVATE })
-  visibility: VisibilityLevel;
-
+  @IsEnum(ProfileVisibility)
   @IsOptional()
-  @ApiPropertyOptional({
-    description: 'Custom visibility rules (for CUSTOM level)',
-  })
-  customRules?: Record<string, unknown>;
+  @ApiPropertyOptional({ enum: ProfileVisibility, example: ProfileVisibility.PUBLIC })
+  profileVisibility?: ProfileVisibility;
+
+  @IsBoolean()
+  @IsOptional()
+  @ApiPropertyOptional({ example: false })
+  showEmail?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  @ApiPropertyOptional({ example: false })
+  showPhone?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  @ApiPropertyOptional({ example: true })
+  showBirthday?: boolean;
 }
 
-export class GetProfileVisibilityResponseDto {
-  @ApiProperty()
-  id: string;
+export class ProfileVisibilityResponseDto {
+  @ApiProperty({ enum: ProfileVisibility, example: ProfileVisibility.PUBLIC })
+  profileVisibility: ProfileVisibility;
 
-  @ApiProperty({ enum: ProfileVisibility })
-  visibility: ProfileVisibility;
+  @ApiProperty({ example: false })
+  showEmail: boolean;
+
+  @ApiProperty({ example: false })
+  showPhone: boolean;
+
+  @ApiProperty({ example: true })
+  showBirthday: boolean;
 
   @ApiProperty()
   updatedAt: Date;

@@ -1,27 +1,37 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsObject } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEnum, IsObject, IsOptional, IsString } from 'class-validator';
 
-export class SetSortFilterDefaultsDto {
-  @IsObject()
-  @ApiProperty({
-    example: {
-      sortBy: 'date',
-      sortOrder: 'desc',
-      filters: ['active'],
-    },
-    type: 'object',
-    additionalProperties: true,
-  })
-  defaults: Record<string, unknown>;
+export enum SortOrder {
+  ASC = 'asc',
+  DESC = 'desc',
 }
 
-export class SetSortFilterDefaultsResponseDto {
-  @ApiProperty()
-  id: string;
+export class SetSortFilterDefaultsDto {
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional({ example: 'createdAt' })
+  defaultSortField?: string;
 
-  @ApiProperty()
+  @IsEnum(SortOrder)
+  @IsOptional()
+  @ApiPropertyOptional({ enum: SortOrder, example: SortOrder.DESC })
+  defaultSortOrder?: SortOrder;
+
   @IsObject()
-  defaults: Record<string, any>;
+  @IsOptional()
+  @ApiPropertyOptional({ example: { status: 'active', category: 'all' } })
+  defaultFilters?: Record<string, unknown>;
+}
+
+export class SortFilterDefaultsResponseDto {
+  @ApiProperty({ example: 'createdAt' })
+  defaultSortField: string;
+
+  @ApiProperty({ enum: SortOrder, example: SortOrder.DESC })
+  defaultSortOrder: SortOrder;
+
+  @ApiPropertyOptional({ example: { status: 'active', category: 'all' } })
+  defaultFilters?: Record<string, unknown>;
 
   @ApiProperty()
   updatedAt: Date;

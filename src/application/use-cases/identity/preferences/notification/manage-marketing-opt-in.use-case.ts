@@ -10,10 +10,10 @@ export class ManageMarketingOptInUseCase {
 
   async execute(dto: ManageMarketingOptInDto): Promise<MarketingOptInResponseDto> {
     return {
-      emailMarketing: dto.emailMarketing,
-      smsMarketing: dto.smsMarketing,
-      pushMarketing: dto.pushMarketing,
-      thirdPartySharing: dto.thirdPartySharing,
+      emailMarketing: dto.emailMarketing ?? false,
+      smsMarketing: dto.smsMarketing ?? false,
+      pushMarketing: dto.pushMarketing ?? false,
+      thirdPartySharing: dto.thirdPartySharing ?? false,
       updatedAt: new Date(),
     };
   }

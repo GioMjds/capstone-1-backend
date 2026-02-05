@@ -3,6 +3,7 @@ import {
   ExportActivityHistoryDto,
   DataExportResponseDto,
 } from '@/application/dto/identity/preferences';
+import { ExportFormat } from '@/domain/interfaces';
 
 @Injectable()
 export class ExportActivityHistoryUseCase {
@@ -12,7 +13,7 @@ export class ExportActivityHistoryUseCase {
     return {
       exportId: 'export-activity-123',
       status: 'pending',
-      format: dto.format,
+      format: dto.format ?? ExportFormat.JSON,
       requestedAt: new Date(),
       estimatedCompletionAt: new Date(Date.now() + 3600000),
     };

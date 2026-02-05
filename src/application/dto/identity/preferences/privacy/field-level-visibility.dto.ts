@@ -1,13 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsEnum, IsObject } from 'class-validator';
+import { IsArray, IsEnum, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export enum FieldVisibility {
   PUBLIC = 'public',
-  FRIENDS = 'friends',
+  CONTACTS = 'contacts',
   PRIVATE = 'private',
 }
 
-export class UpdateFieldLevelVisibilityDto {
+export class FieldVisibilityItem {
   @IsString()
   @ApiProperty({ example: 'email' })
   fieldName: string;
@@ -17,13 +18,17 @@ export class UpdateFieldLevelVisibilityDto {
   visibility: FieldVisibility;
 }
 
-export class GetFieldLevelVisibilityResponseDto {
-  @ApiProperty()
-  id: string;
+export class UpdateFieldLevelVisibilityDto {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => FieldVisibilityItem)
+  @ApiProperty({ type: [FieldVisibilityItem] })
+  fields: FieldVisibilityItem[];
+}
 
-  @IsObject()
-  @ApiProperty()
-  fieldVisibilities: Record<string, string>;
+export class FieldLevelVisibilityResponseDto {
+  @ApiProperty({ type: [FieldVisibilityItem] })
+  fields: FieldVisibilityItem[];
 
   @ApiProperty()
   updatedAt: Date;

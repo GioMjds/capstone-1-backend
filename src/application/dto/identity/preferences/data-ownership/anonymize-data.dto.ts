@@ -1,22 +1,28 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsArray, IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class AnonymizeDataDto {
   @IsBoolean()
-  @ApiProperty()
+  @ApiProperty({ example: true })
   confirmAnonymization: boolean;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  @ApiPropertyOptional({ example: ['profile', 'activity', 'preferences'] })
+  dataCategories?: string[];
 }
 
-export class AnonymizeDataResponseDto {
-  @ApiProperty()
+export class AnonymizationResponseDto {
+  @ApiProperty({ example: 'anonymize-123' })
+  requestId: string;
+
+  @ApiProperty({ example: 'pending' })
   status: string;
 
-  @ApiProperty()
-  message: string;
+  @ApiPropertyOptional({ example: ['profile', 'activity', 'preferences'] })
+  dataCategories?: string[];
 
   @ApiProperty()
-  anonymizedAt: Date;
-
-  @ApiProperty()
-  dataPreserved: boolean;
+  requestedAt: Date;
 }

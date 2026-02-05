@@ -1,23 +1,24 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsArray, IsBoolean, IsOptional, IsString } from 'class-validator';
 
-export class ManageBetaFeaturesOptInDto {
+export class ManageBetaFeaturesDto {
   @IsBoolean()
-  @ApiProperty()
-  optIn: boolean;
+  @ApiProperty({ example: true })
+  betaOptIn: boolean;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  @ApiPropertyOptional({ example: ['feature-a', 'feature-b'] })
+  enrolledFeatures?: string[];
 }
 
-export class ManageBetaFeaturesOptInResponseDto {
-  @ApiProperty()
-  id: string;
+export class BetaFeaturesResponseDto {
+  @ApiProperty({ example: true })
+  betaOptIn: boolean;
 
-  @ApiProperty()
-  @IsBoolean()
-  optedInBetaFeatures: boolean;
-
-  @ApiProperty()
-  @IsString({ each: true })
-  availableFeatures: string[];
+  @ApiPropertyOptional({ example: ['feature-a', 'feature-b'] })
+  enrolledFeatures?: string[];
 
   @ApiProperty()
   updatedAt: Date;

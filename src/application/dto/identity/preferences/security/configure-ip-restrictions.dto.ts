@@ -26,21 +26,15 @@ export class ConfigureIpRestrictionsDto {
   blockNewCountries?: boolean;
 }
 
-export class ConfigureIpRestrictionsResponseDto {
-  @ApiProperty()
-  id: string;
-
+export class IpRestrictionsResponseDto {
   @ApiProperty()
   enabled: boolean;
 
-  @ApiProperty()
-  allowedIps: string[];
+  @ApiPropertyOptional({ type: [String] })
+  allowedIps?: string[];
 
-  @ApiProperty()
-  blockedIps: string[];
-
-  @ApiProperty()
-  blockNewCountries: boolean;
+  @ApiPropertyOptional({ type: [String] })
+  blockedIps?: string[];
 
   @ApiProperty()
   updatedAt: Date;

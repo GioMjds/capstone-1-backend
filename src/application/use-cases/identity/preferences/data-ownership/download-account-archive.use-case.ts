@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {
   DownloadAccountArchiveDto,
   AccountArchiveResponseDto,
+  ArchiveFormat,
 } from '@/application/dto/identity/preferences';
 
 @Injectable()
@@ -12,8 +13,8 @@ export class DownloadAccountArchiveUseCase {
     return {
       archiveId: 'archive-123',
       status: 'pending',
-      format: dto.format,
-      includeAttachments: dto.includeAttachments,
+      format: dto.format ?? ArchiveFormat.ZIP,
+      includeAttachments: dto.includeAttachments ?? true,
       requestedAt: new Date(),
       estimatedCompletionAt: new Date(Date.now() + 7200000),
     };

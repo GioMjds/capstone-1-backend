@@ -1,40 +1,47 @@
-import { AlertSeverity } from '@/domain/interfaces';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsOptional, IsEnum } from 'class-validator';
+import { IsBoolean, IsOptional } from 'class-validator';
 
 export class ConfigureLoginAlertsDto {
   @IsBoolean()
-  @ApiProperty()
-  enabled: boolean;
+  @ApiProperty({ example: true })
+  emailAlerts: boolean;
 
   @IsBoolean()
   @IsOptional()
-  @ApiPropertyOptional()
-  newDevice?: boolean;
+  @ApiPropertyOptional({ example: false })
+  smsAlerts?: boolean;
 
   @IsBoolean()
   @IsOptional()
-  @ApiPropertyOptional()
-  newLocation?: boolean;
+  @ApiPropertyOptional({ example: true })
+  pushAlerts?: boolean;
 
-  @IsEnum(AlertSeverity)
+  @IsBoolean()
   @IsOptional()
-  @ApiPropertyOptional({ enum: AlertSeverity })
-  minSeverity?: AlertSeverity;
+  @ApiPropertyOptional({ example: true })
+  alertOnNewDevice?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  @ApiPropertyOptional({ example: true })
+  alertOnNewLocation?: boolean;
 }
 
-export class ConfigureLoginAlertsResponseDto {
+export class LoginAlertsResponseDto {
   @ApiProperty()
-  id: string;
+  emailAlerts: boolean;
 
-  @ApiProperty()
-  enabled: boolean;
+  @ApiPropertyOptional()
+  smsAlerts?: boolean;
 
-  @ApiProperty()
-  alertsFor: string[];
+  @ApiPropertyOptional()
+  pushAlerts?: boolean;
 
-  @ApiProperty()
-  minSeverity: AlertSeverity;
+  @ApiPropertyOptional()
+  alertOnNewDevice?: boolean;
+
+  @ApiPropertyOptional()
+  alertOnNewLocation?: boolean;
 
   @ApiProperty()
   updatedAt: Date;

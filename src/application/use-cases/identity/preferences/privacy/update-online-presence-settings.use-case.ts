@@ -10,9 +10,9 @@ export class UpdateOnlinePresenceSettingsUseCase {
 
   async execute(dto: UpdateOnlinePresenceSettingsDto): Promise<OnlinePresenceSettingsResponseDto> {
     return {
-      showOnlineStatus: dto.showOnlineStatus,
-      showTypingIndicator: dto.showTypingIndicator,
-      showReadReceipts: dto.showReadReceipts,
+      showOnlineStatus: dto.showOnlineStatus ?? true,
+      showTypingIndicator: dto.showTypingIndicator ?? true,
+      showReadReceipts: dto.showReadReceipts ?? false,
       updatedAt: new Date(),
     };
   }

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsObject } from 'class-validator';
 
-export class ConfigurePushNotificationsByCategoryDto {
+export class ConfigurePushNotificationsDto {
   @IsObject()
   @ApiProperty({
     example: {
@@ -14,11 +14,15 @@ export class ConfigurePushNotificationsByCategoryDto {
   categories: Record<string, boolean>;
 }
 
-export class ConfigurePushNotificationsByCategoryResponseDto {
-  @ApiProperty()
-  id: string;
-
-  @ApiProperty()
+export class PushNotificationCategoriesResponseDto {
+  @ApiProperty({
+    example: {
+      security: true,
+      messages: true,
+      updates: false,
+      reminders: true,
+    },
+  })
   categories: Record<string, boolean>;
 
   @ApiProperty()

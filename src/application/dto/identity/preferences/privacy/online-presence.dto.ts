@@ -3,32 +3,30 @@ import { IsBoolean, IsOptional } from 'class-validator';
 
 export class UpdateOnlinePresenceSettingsDto {
   @IsBoolean()
-  @ApiProperty({ example: true })
-  showOnlineStatus: boolean;
+  @IsOptional()
+  @ApiPropertyOptional({ example: true })
+  showOnlineStatus?: boolean;
 
   @IsBoolean()
   @IsOptional()
   @ApiPropertyOptional({ example: true })
-  showLastSeen?: boolean;
+  showTypingIndicator?: boolean;
 
   @IsBoolean()
   @IsOptional()
   @ApiPropertyOptional({ example: false })
-  hideFromFriendsList?: boolean;
+  showReadReceipts?: boolean;
 }
 
-export class GetOnlinePresenceSettingsResponseDto {
-  @ApiProperty()
-  id: string;
-
-  @ApiProperty()
+export class OnlinePresenceSettingsResponseDto {
+  @ApiProperty({ example: true })
   showOnlineStatus: boolean;
 
-  @ApiProperty()
-  showLastSeen: boolean;
+  @ApiProperty({ example: true })
+  showTypingIndicator: boolean;
 
-  @ApiProperty()
-  hideFromFriendsList: boolean;
+  @ApiProperty({ example: false })
+  showReadReceipts: boolean;
 
   @ApiProperty()
   updatedAt: Date;

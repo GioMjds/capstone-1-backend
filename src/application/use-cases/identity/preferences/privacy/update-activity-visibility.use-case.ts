@@ -10,9 +10,9 @@ export class UpdateActivityVisibilityUseCase {
 
   async execute(dto: UpdateActivityVisibilityDto): Promise<ActivityVisibilityResponseDto> {
     return {
-      showRecentActivity: dto.showRecentActivity,
-      showLoginHistory: dto.showLoginHistory,
-      showLastSeen: dto.showLastSeen,
+      showRecentActivity: dto.showRecentActivity ?? true,
+      showLoginHistory: dto.showLoginHistory ?? false,
+      showLastSeen: dto.showLastSeen ?? true,
       updatedAt: new Date(),
     };
   }

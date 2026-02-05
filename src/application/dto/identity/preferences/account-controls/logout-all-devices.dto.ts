@@ -4,11 +4,11 @@ export class LogoutAllDevicesDto {}
 
 export class LogoutAllDevicesResponseDto {
   @ApiProperty()
-  message: string;
+  success: boolean;
 
   @ApiProperty()
   sessionsTerminated: number;
 
   @ApiProperty()
-  loggedOutAt: Date;
+  terminatedAt: Date;
 }

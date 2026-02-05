@@ -13,7 +13,7 @@ export class SetTimeFormatUseCase {
     return {
       id: 'time-format-123',
       format: dto.format,
-      example: dto.format === TimeFormat.FORMAT_12H ? '12:30 PM' : '12:30',
+      example: dto.format === TimeFormat.TWELVE_HOUR ? '12:30 PM' : '12:30',
       updatedAt: new Date(),
     };
   }

@@ -3,34 +3,38 @@ import { IsBoolean, IsOptional } from 'class-validator';
 
 export class ManageMarketingOptInDto {
   @IsBoolean()
-  @ApiProperty()
-  optIn: boolean;
+  @IsOptional()
+  @ApiPropertyOptional({ example: true })
+  emailMarketing?: boolean;
 
   @IsBoolean()
   @IsOptional()
-  @ApiPropertyOptional()
-  productUpdates?: boolean;
+  @ApiPropertyOptional({ example: false })
+  smsMarketing?: boolean;
 
   @IsBoolean()
   @IsOptional()
-  @ApiPropertyOptional()
-  promotionalOffers?: boolean;
+  @ApiPropertyOptional({ example: true })
+  pushMarketing?: boolean;
 
   @IsBoolean()
   @IsOptional()
-  @ApiPropertyOptional()
-  researchSurveys?: boolean;
+  @ApiPropertyOptional({ example: false })
+  thirdPartySharing?: boolean;
 }
 
-export class ManageMarketingOptInResponseDto {
-  @ApiProperty()
-  id: string;
+export class MarketingOptInResponseDto {
+  @ApiProperty({ example: true })
+  emailMarketing: boolean;
 
-  @ApiProperty()
-  optIn: boolean;
+  @ApiProperty({ example: false })
+  smsMarketing: boolean;
 
-  @ApiProperty()
-  categories: Record<string, boolean>;
+  @ApiProperty({ example: true })
+  pushMarketing: boolean;
+
+  @ApiProperty({ example: false })
+  thirdPartySharing: boolean;
 
   @ApiProperty()
   updatedAt: Date;
