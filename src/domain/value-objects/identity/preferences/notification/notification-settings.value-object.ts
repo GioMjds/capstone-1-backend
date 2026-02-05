@@ -3,9 +3,9 @@ import { DomainException } from '@/shared/exceptions';
 export class NotificationSettingsValueObject {
   constructor(
     private readonly emailNotifications: boolean = true,
-    private readonly pushNotifications: boolean = true,
+    private readonly pushNotifications: boolean = false,
     private readonly smsNotifications: boolean = false,
-    private readonly digestFrequency: string = 'immediate',
+    private readonly digestFrequency: string = 'daily',
     private readonly quietHoursStart?: string,
     private readonly quietHoursEnd?: string,
     private readonly securityAlerts: boolean = true,
@@ -24,21 +24,33 @@ export class NotificationSettingsValueObject {
   }): NotificationSettingsValueObject {
     return new NotificationSettingsValueObject(
       props.emailNotifications ?? true,
-      props.pushNotifications ?? true,
+      props.pushNotifications ?? false,
       props.smsNotifications ?? false,
-      props.digestFrequency ?? 'immediate',
+      props.digestFrequency ?? 'daily',
       props.quietHoursStart,
       props.quietHoursEnd,
       props.securityAlerts ?? true,
     );
   }
 
+  static createDefault(): NotificationSettingsValueObject {
+    return new NotificationSettingsValueObject(
+      true,
+      false,
+      false,
+      'daily',
+      undefined,
+      undefined,
+      true,
+    );
+  }
+
   static fromPersistence(data: Record<string, any>): NotificationSettingsValueObject {
     return new NotificationSettingsValueObject(
       data.emailNotifications ?? true,
-      data.pushNotifications ?? true,
+      data.pushNotifications ?? false,
       data.smsNotifications ?? false,
-      data.digestFrequency ?? 'immediate',
+      data.digestFrequency ?? 'daily',
       data.quietHoursStart,
       data.quietHoursEnd,
       data.securityAlerts ?? true,
@@ -85,7 +97,7 @@ export class NotificationSettingsValueObject {
   }
 
   private validate(): void {
-    const validFrequencies = ['immediate', 'daily', 'weekly', 'monthly'];
+    const validFrequencies = ['immediate', 'hourly', 'daily', 'weekly', 'monthly'];
     if (!validFrequencies.includes(this.digestFrequency)) {
       throw new DomainException('Invalid digest frequency');
     }

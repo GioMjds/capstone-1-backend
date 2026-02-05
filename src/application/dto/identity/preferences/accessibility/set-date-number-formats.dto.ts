@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsString, IsOptional } from 'class-validator';
 
 export class SetDateNumberFormatsDto {
   @IsString()
@@ -11,11 +11,13 @@ export class SetDateNumberFormatsDto {
   numberLocale: string;
 
   @IsString()
-  @ApiProperty({ example: '.' })
+  @IsOptional()
+  @ApiPropertyOptional({ example: '.' })
   decimalSeparator?: string;
 
   @IsString()
-  @ApiProperty({ example: ',' })
+  @IsOptional()
+  @ApiPropertyOptional({ example: ',' })
   thousandsSeparator?: string;
 }
 

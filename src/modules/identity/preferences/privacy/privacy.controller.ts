@@ -1,43 +1,30 @@
-import { Controller, Get, Put, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Put,
+  Body,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import {
-  GetComplianceSettingsUseCase,
-  UpdateComplianceSettingsUseCase,
-  GetProfileVisibilityUseCase,
-  UpdateProfileVisibilityUseCase,
-  GetActivityVisibilityUseCase,
-  UpdateActivityVisibilityUseCase,
-  GetOnlinePresenceSettingsUseCase,
-  UpdateOnlinePresenceSettingsUseCase,
-  GetFieldLevelVisibilityUseCase,
-  UpdateFieldLevelVisibilityUseCase,
-} from '@/application/use-cases/identity/preferences';
-import {
-  SetProfileVisibilityDto,
-  SetProfileVisibilityResponseDto,
-  SetActivityVisibilityDto,
-  SetActivityVisibilityResponseDto,
-  SetOnlinePresenceDto,
-  SetOnlinePresenceResponseDto,
-  SetFieldLevelVisibilityDto,
-  SetFieldLevelVisibilityResponseDto,
-} from '@/application/dto/identity/preferences';
+import * as PrivacyDto from '@/application/dto/identity/preferences/privacy';
+import * as PrivacyUseCase from '@/application/use-cases/identity/preferences/privacy';
 
 @ApiTags('Preferences - Privacy')
 @ApiBearerAuth()
 @Controller('preferences/privacy')
 export class PrivacyController {
   constructor(
-    private readonly getComplianceSettingsUseCase: GetComplianceSettingsUseCase,
-    private readonly updateComplianceSettingsUseCase: UpdateComplianceSettingsUseCase,
-    private readonly getProfileVisibilityUseCase: GetProfileVisibilityUseCase,
-    private readonly updateProfileVisibilityUseCase: UpdateProfileVisibilityUseCase,
-    private readonly getActivityVisibilityUseCase: GetActivityVisibilityUseCase,
-    private readonly updateActivityVisibilityUseCase: UpdateActivityVisibilityUseCase,
-    private readonly getOnlinePresenceSettingsUseCase: GetOnlinePresenceSettingsUseCase,
-    private readonly updateOnlinePresenceSettingsUseCase: UpdateOnlinePresenceSettingsUseCase,
-    private readonly getFieldLevelVisibilityUseCase: GetFieldLevelVisibilityUseCase,
-    private readonly updateFieldLevelVisibilityUseCase: UpdateFieldLevelVisibilityUseCase,
+    private readonly getComplianceSettingsUseCase: PrivacyUseCase.GetComplianceSettingsUseCase,
+    private readonly updateComplianceSettingsUseCase: PrivacyUseCase.UpdateComplianceSettingsUseCase,
+    private readonly getProfileVisibilityUseCase: PrivacyUseCase.GetProfileVisibilityUseCase,
+    private readonly updateProfileVisibilityUseCase: PrivacyUseCase.UpdateProfileVisibilityUseCase,
+    private readonly getActivityVisibilityUseCase: PrivacyUseCase.GetActivityVisibilityUseCase,
+    private readonly updateActivityVisibilityUseCase: PrivacyUseCase.UpdateActivityVisibilityUseCase,
+    private readonly getOnlinePresenceSettingsUseCase: PrivacyUseCase.GetOnlinePresenceSettingsUseCase,
+    private readonly updateOnlinePresenceSettingsUseCase: PrivacyUseCase.UpdateOnlinePresenceSettingsUseCase,
+    private readonly getFieldLevelVisibilityUseCase: PrivacyUseCase.GetFieldLevelVisibilityUseCase,
+    private readonly updateFieldLevelVisibilityUseCase: PrivacyUseCase.UpdateFieldLevelVisibilityUseCase,
   ) {}
 
   @Get('compliance')
@@ -49,7 +36,7 @@ export class PrivacyController {
   @Put('compliance')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update compliance settings' })
-  async updateComplianceSettings(@Body() dto: any) {
+  async updateComplianceSettings(@Body() dto: PrivacyDto.UpdateComplianceSettingsDto) {
     return this.updateComplianceSettingsUseCase.execute(dto);
   }
 
@@ -63,8 +50,8 @@ export class PrivacyController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update profile visibility' })
   async updateProfileVisibility(
-    @Body() dto: SetProfileVisibilityDto,
-  ): Promise<SetProfileVisibilityResponseDto> {
+    @Body() dto: PrivacyDto.SetProfileVisibilityDto,
+  ): Promise<PrivacyDto.SetProfileVisibilityResponseDto> {
     return this.updateProfileVisibilityUseCase.execute(dto);
   }
 
@@ -78,8 +65,8 @@ export class PrivacyController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update activity visibility' })
   async updateActivityVisibility(
-    @Body() dto: SetActivityVisibilityDto,
-  ): Promise<SetActivityVisibilityResponseDto> {
+    @Body() dto: PrivacyDto.SetActivityVisibilityDto,
+  ): Promise<PrivacyDto.SetActivityVisibilityResponseDto> {
     return this.updateActivityVisibilityUseCase.execute(dto);
   }
 
@@ -93,8 +80,8 @@ export class PrivacyController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update online presence settings' })
   async updateOnlinePresenceSettings(
-    @Body() dto: SetOnlinePresenceDto,
-  ): Promise<SetOnlinePresenceResponseDto> {
+    @Body() dto: PrivacyDto.SetOnlinePresenceDto,
+  ): Promise<PrivacyDto.SetOnlinePresenceResponseDto> {
     return this.updateOnlinePresenceSettingsUseCase.execute(dto);
   }
 
@@ -108,8 +95,8 @@ export class PrivacyController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update field-level visibility' })
   async updateFieldLevelVisibility(
-    @Body() dto: SetFieldLevelVisibilityDto,
-  ): Promise<SetFieldLevelVisibilityResponseDto> {
+    @Body() dto: PrivacyDto.SetFieldLevelVisibilityDto,
+  ): Promise<PrivacyDto.SetFieldLevelVisibilityResponseDto> {
     return this.updateFieldLevelVisibilityUseCase.execute(dto);
   }
 }

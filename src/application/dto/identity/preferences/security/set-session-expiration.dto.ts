@@ -1,16 +1,18 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNumber, IsOptional, Min } from 'class-validator';
+import { IsNumber, IsOptional, Min, Max } from 'class-validator';
 
 export class SetSessionExpirationDto {
   @IsNumber()
   @Min(5)
-  @ApiProperty({ minimum: 5, description: 'Minutes until session expires' })
+  @Max(10080)
+  @ApiProperty({ minimum: 5, maximum: 10080, description: 'Minutes until session expires', example: 60 })
   expirationMinutes: number;
 
   @IsNumber()
   @IsOptional()
   @Min(1)
-  @ApiPropertyOptional({ description: 'Warn user before expiration (minutes)' })
+  @Max(1440)
+  @ApiPropertyOptional({ description: 'Warn user before expiration (minutes)', example: 5 })
   warningMinutes?: number;
 }
 

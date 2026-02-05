@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsString, Length } from 'class-validator';
 
 export class SetCurrencyDto {
   @IsString()
+  @Length(3, 3)
   @ApiProperty({ example: 'USD', description: 'ISO 4217 currency code' })
   currency: string;
 }

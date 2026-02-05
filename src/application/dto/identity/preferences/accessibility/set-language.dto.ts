@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsString, IsLocale } from 'class-validator';
 
 export class SetLanguageDto {
   @IsString()
-  @ApiProperty({ example: 'en', description: 'Language code (ISO 639-1)' })
+  @IsLocale()
+  @ApiProperty({ example: 'en-US', description: 'Language locale code' })
   language: string;
 }
 

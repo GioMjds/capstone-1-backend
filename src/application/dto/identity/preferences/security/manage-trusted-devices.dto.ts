@@ -1,19 +1,25 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsEnum, IsUUID } from 'class-validator';
+
+export enum TrustedDeviceAction {
+  ADD = 'add',
+  REMOVE = 'remove',
+  VERIFY = 'verify',
+}
 
 export class ManageTrustedDevicesDto {
   @IsString()
   @IsOptional()
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'device-uuid-123' })
   deviceId?: string;
 
-  @IsString()
-  @ApiProperty()
-  action: 'add' | 'remove' | 'verify';
+  @IsEnum(TrustedDeviceAction)
+  @ApiProperty({ enum: TrustedDeviceAction, example: TrustedDeviceAction.ADD })
+  action: TrustedDeviceAction;
 
   @IsString()
   @IsOptional()
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'My iPhone' })
   deviceName?: string;
 }
 

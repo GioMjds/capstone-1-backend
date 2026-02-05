@@ -10,7 +10,8 @@ import { RegisterUserDto } from '@/application/dto/identity/auth';
 import { generateUserId, OtpService } from '@/shared/utils';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { UserResponseDto } from '@/application/dto/responses';
-import { Roles } from '@prisma/client';
+import { Roles } from '@/domain/interfaces';
+import { UserCreatedEvent } from '@/application/events/identity';
 
 @Injectable()
 export class RegisterUserUseCase {
@@ -79,10 +80,22 @@ export class RegisterUserUseCase {
   private async processPostRegistration(user: UserEntity): Promise<void> {
     const otp = this.otpService.generate();
     await this.otpService.store(user.email.getValue(), otp);
+
     this.eventEmitter.emit('email.sendOtp', {
       to: user.email.getValue(),
       name: user.getFullName(),
       otp,
     });
+
+    this.eventEmitter.emit(
+      'user.created',
+      new UserCreatedEvent(
+        user.id,
+        user.email.getValue(),
+        user.firstName,
+        user.lastName,
+        user.createdAt,
+      ),
+    );
   }
 }

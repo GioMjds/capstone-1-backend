@@ -1,4 +1,4 @@
-import { Theme } from "../interfaces";
+import { Theme } from "@/domain/interfaces";
 import { UserPreferencesValueObject } from "@/domain/value-objects/identity";
 
 export class UserPreferencesEntity {

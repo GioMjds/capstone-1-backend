@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsString, IsTimeZone } from 'class-validator';
 
 export class SetTimezoneDto {
   @IsString()
+  @IsTimeZone()
   @ApiProperty({ example: 'America/New_York' })
   timezone: string;
 }

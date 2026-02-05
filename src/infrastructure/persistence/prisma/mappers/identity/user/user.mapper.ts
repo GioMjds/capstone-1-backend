@@ -3,8 +3,8 @@ import {
   ArchivedUsers as PrismaArchivedUsers,
   UserPreferences as PrismaUserPreferences,
 } from '@prisma/client';
-import { UserEntity } from '@/domain/entities/user.entity';
-import { UserPreferencesEntity } from '@/domain/entities/user-preferences.entity';
+import { UserEntity } from '@/domain/entities/identity/user';
+import { UserPreferencesEntity } from '@/domain/entities/identity/preferences/user-preferences.entity';
 import {
   EmailValueObject,
   PasswordValueObject,
@@ -36,7 +36,7 @@ export class UserMapper {
       ? (() => {
           const up = prismaUser.userPreferences[0];
           const ui: any = up.uiPreferences ?? {};
-          const ns: any = up.notificationSettings ?? {};
+          const ns: any = (up as any).notificationSettings ?? ui.notificationSettings ?? {};
 
           return UserPreferencesEntity.reconstitute({
             id: up.id,

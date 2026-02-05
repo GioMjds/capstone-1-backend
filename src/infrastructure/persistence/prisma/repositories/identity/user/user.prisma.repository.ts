@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/infrastructure/persistence';
 import { IUserRepository } from '@/domain/repositories';
-import { UserEntity } from '@/domain/entities/user.entity';
+import { UserEntity } from '@/domain/entities/identity/user';
 import { EmailValueObject } from '@/domain/value-objects/identity';
-import { UserMapper } from '@/infrastructure/persistence/prisma/mappers/user.mapper';
+import { UserMapper } from '@/infrastructure/persistence/prisma/mappers/identity/user/user.mapper';
 import { randomUUID } from 'crypto';
 
 const uuidv4 = (): string => randomUUID();
@@ -114,16 +114,20 @@ export class PrismaUserRepository implements IUserRepository {
       await this.prisma.userPreferences.upsert({
         where: { userId: user.id },
         update: {
-          theme: userPreference.getTheme(),
-          language: userPreference.getLanguage(),
-          notifications: userPreference.isNotificationsEnabled(),
+          uiPreferences: {
+            theme: userPreference.getTheme(),
+            language: userPreference.getLanguage(),
+            notifications: userPreference.isNotificationsEnabled(),
+          },
         },
         create: {
           id: uuidv4().slice(0, 12),
           userId: user.id,
-          theme: userPreference.getTheme(),
-          language: userPreference.getLanguage(),
-          notifications: userPreference.isNotificationsEnabled(),
+          uiPreferences: {
+            theme: userPreference.getTheme(),
+            language: userPreference.getLanguage(),
+            notifications: userPreference.isNotificationsEnabled(),
+          },
         },
       });
     } else {

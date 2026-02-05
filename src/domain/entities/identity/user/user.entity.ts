@@ -1,10 +1,10 @@
+import { Roles } from '@/domain/interfaces';
 import {
   EmailValueObject,
   PasswordValueObject,
   PhoneValueObject,
 } from '@/domain/value-objects/identity';
-import { Roles } from '../interfaces';
-import { UserPreferencesEntity } from './user-preferences.entity';
+import { UserPreferencesEntity } from '../preferences';
 
 export class UserEntity {
   constructor(

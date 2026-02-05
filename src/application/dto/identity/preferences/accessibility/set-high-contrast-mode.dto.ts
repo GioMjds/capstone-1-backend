@@ -3,7 +3,7 @@ import { IsBoolean } from 'class-validator';
 
 export class SetHighContrastModeDto {
   @IsBoolean()
-  @ApiProperty()
+  @ApiProperty({ example: true })
   enabled: boolean;
 }
 

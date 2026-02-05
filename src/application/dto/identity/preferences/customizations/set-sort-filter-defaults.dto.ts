@@ -9,8 +9,10 @@ export class SetSortFilterDefaultsDto {
       sortOrder: 'desc',
       filters: ['active'],
     },
+    type: 'object',
+    additionalProperties: true,
   })
-  defaults: Record<string, any>;
+  defaults: Record<string, unknown>;
 }
 
 export class SetSortFilterDefaultsResponseDto {
@@ -18,6 +20,7 @@ export class SetSortFilterDefaultsResponseDto {
   id: string;
 
   @ApiProperty()
+  @IsObject()
   defaults: Record<string, any>;
 
   @ApiProperty()

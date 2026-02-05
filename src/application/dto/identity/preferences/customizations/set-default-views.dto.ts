@@ -9,6 +9,8 @@ export class SetDefaultViewsDto {
       projects: 'list',
       calendar: 'month',
     },
+    type: 'object',
+    additionalProperties: { type: 'string' },
   })
   views: Record<string, string>;
 }

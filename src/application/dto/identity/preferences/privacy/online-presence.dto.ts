@@ -1,19 +1,19 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsBoolean, IsOptional } from 'class-validator';
 
 export class UpdateOnlinePresenceSettingsDto {
   @IsBoolean()
-  @ApiProperty()
+  @ApiProperty({ example: true })
   showOnlineStatus: boolean;
 
   @IsBoolean()
   @IsOptional()
-  @ApiProperty()
+  @ApiPropertyOptional({ example: true })
   showLastSeen?: boolean;
 
   @IsBoolean()
   @IsOptional()
-  @ApiProperty()
+  @ApiPropertyOptional({ example: false })
   hideFromFriendsList?: boolean;
 }
 

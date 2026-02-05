@@ -13,8 +13,11 @@ import {
   JwtTokenService,
 } from '@/infrastructure/persistence';
 import { PrismaUserRepository } from '@/infrastructure/persistence/prisma/repositories';
+import { PrismaUserPreferencesRepository } from '@/infrastructure/persistence/prisma/repositories/identity/preferences';
+import { PreferencesMapper } from '@/infrastructure/persistence/prisma/mappers/identity/preferences';
 import { AUTH_USE_CASES } from '@/application/use-cases/identity/auth';
 import { UserMapper } from '@/infrastructure/persistence/prisma/mappers';
+import { UserCreatedListener } from './listeners';
 
 @Module({
   imports: [
@@ -36,6 +39,8 @@ import { UserMapper } from '@/infrastructure/persistence/prisma/mappers';
     OtpService,
     Token,
     EmailListener,
+    UserCreatedListener,
+    PreferencesMapper,
     {
       provide: 'IUserRepository',
       useClass: PrismaUserRepository,
@@ -43,6 +48,10 @@ import { UserMapper } from '@/infrastructure/persistence/prisma/mappers';
     {
       provide: 'ITokenService',
       useClass: JwtTokenService,
+    },
+    {
+      provide: 'IUserPreferencesRepository',
+      useClass: PrismaUserPreferencesRepository,
     },
     UserMapper,
   ],

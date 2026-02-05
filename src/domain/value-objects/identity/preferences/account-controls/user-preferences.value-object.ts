@@ -1,4 +1,4 @@
-import { Theme, UserPreferencesProps } from "../../../interfaces";
+import { Theme, UserPreferencesProps } from "@/domain/interfaces";
 
 export class UserPreferencesValueObject {
   constructor(

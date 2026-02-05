@@ -18,6 +18,7 @@ export class ManageFeatureTogglesResponseDto {
   id: string;
 
   @ApiProperty()
+  @IsObject()
   toggles: Record<string, boolean>;
 
   @ApiProperty()

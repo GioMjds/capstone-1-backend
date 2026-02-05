@@ -9,11 +9,11 @@ export class ManageRecoveryOptionsDto {
 
   @IsString()
   @IsOptional()
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'recovery@example.com' })
   value?: string;
 
   @IsString()
-  @ApiProperty()
+  @ApiProperty({ enum: ['add', 'remove', 'verify'], example: 'add' })
   action: 'add' | 'remove' | 'verify';
 }
 

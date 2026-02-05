@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import {
   ManageFeatureTogglesDto,
-  FeatureTogglesResponseDto,
+  ManageFeatureTogglesResponseDto,
 } from '@/application/dto/identity/preferences';
 
 @Injectable()
 export class ManageFeatureTogglesUseCase {
   constructor() {}
 
-  async execute(dto: ManageFeatureTogglesDto): Promise<FeatureTogglesResponseDto> {
+  async execute(dto: ManageFeatureTogglesDto): Promise<ManageFeatureTogglesResponseDto> {
     return {
-      features: dto.features,
+      id: 'user-id-placeholder',
+      toggles: dto.toggles,
       updatedAt: new Date(),
     };
   }

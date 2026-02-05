@@ -9,3 +9,4 @@ export * from './configure-suspicious-activity-alerts.use-case';
 export * from './set-password-rotation-reminder.use-case';
 export * from './set-session-expiration.use-case';
 export * from './configure-ip-restrictions.use-case';
+export * from './update-security-settings.use-case';

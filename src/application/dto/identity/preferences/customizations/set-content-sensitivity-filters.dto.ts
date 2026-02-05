@@ -1,17 +1,34 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsArray, IsOptional } from 'class-validator';
+import { IsArray, IsOptional, IsEnum, ArrayMinSize } from 'class-validator';
+
+export enum ContentSensitivityFilter {
+  VIOLENCE = 'violence',
+  ADULT_CONTENT = 'adult_content',
+  SPOILERS = 'spoilers',
+  GRAPHIC_CONTENT = 'graphic_content',
+}
+
+export enum StrictnessLevel {
+  STRICT = 'strict',
+  MODERATE = 'moderate',
+  PERMISSIVE = 'permissive',
+}
 
 export class SetContentSensitivityFiltersDto {
   @IsArray()
+  @ArrayMinSize(0)
+  @IsEnum(ContentSensitivityFilter, { each: true })
   @ApiProperty({
-    example: ['violence', 'adult_content', 'spoilers'],
+    enum: ContentSensitivityFilter,
+    example: ['violence', 'adult_content'],
+    isArray: true,
   })
-  filters: string[];
+  filters: ContentSensitivityFilter[];
 
-  @IsArray()
+  @IsEnum(StrictnessLevel)
   @IsOptional()
-  @ApiPropertyOptional()
-  strictness?: string;
+  @ApiPropertyOptional({ enum: StrictnessLevel, example: StrictnessLevel.MODERATE })
+  strictness?: StrictnessLevel;
 }
 
 export class SetContentSensitivityFiltersResponseDto {

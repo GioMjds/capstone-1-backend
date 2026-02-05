@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import {
   ExportAuditLogsDto,
   ExportAuditLogsResponseDto,
-  AuditLogFormat,
 } from '@/application/dto/identity/preferences';
+import { AuditLogFormat } from '@/domain/interfaces';
 
 @Injectable()
 export class ExportAuditLogsUseCase {

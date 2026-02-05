@@ -1,10 +1,16 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional, IsObject } from 'class-validator';
+import { IsEnum, IsObject, IsOptional } from 'class-validator';
+
+export enum ThemeOption {
+  LIGHT = 'light',
+  DARK = 'dark',
+  SYSTEM = 'system',
+}
 
 export class SetThemeDto {
-  @IsString()
-  @ApiProperty({ example: 'dark' })
-  theme: string;
+  @IsEnum(ThemeOption)
+  @ApiProperty({ enum: ThemeOption, example: ThemeOption.DARK })
+  theme: ThemeOption;
 
   @IsObject()
   @IsOptional()

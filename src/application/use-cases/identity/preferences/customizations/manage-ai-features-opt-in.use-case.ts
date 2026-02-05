@@ -1,17 +1,21 @@
-import { Injectable } from '@nestjs/common';
 import {
-  ManageAiFeaturesDto,
-  AiFeaturesResponseDto,
-} from '@/application/dto/identity/preferences';
+  ManageAiFeaturesOptInDto,
+  ManageAiFeaturesOptInResponseDto,
+} from '@/application/dto';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class ManageAiFeaturesOptInUseCase {
   constructor() {}
 
-  async execute(dto: ManageAiFeaturesDto): Promise<AiFeaturesResponseDto> {
+  async execute(
+    dto: ManageAiFeaturesOptInDto,
+  ): Promise<ManageAiFeaturesOptInResponseDto> {
     return {
-      aiOptIn: dto.aiOptIn,
-      enabledAiFeatures: dto.enabledAiFeatures,
+      id: 'user-id-placeholder',
+      optedInAiFeatures: dto.optIn,
+      availableFeatures: [],
+      privacyLevel: 'standard',
       updatedAt: new Date(),
     };
   }

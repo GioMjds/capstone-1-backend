@@ -1,23 +1,27 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsString, IsBoolean, IsOptional } from 'class-validator';
 
 export class SetAccessibilityPreferencesDto {
   @IsString()
-  @ApiProperty()
+  @ApiProperty({ example: 'medium' })
   fontSize: string;
 
   @IsString()
-  @ApiProperty()
+  @ApiProperty({ example: '1.5' })
   lineHeight: string;
 
   @IsString()
-  @ApiProperty()
+  @ApiProperty({ example: 'normal' })
   letterSpacing: string;
 
-  @ApiProperty()
+  @IsBoolean()
+  @IsOptional()
+  @ApiPropertyOptional({ example: false })
   reduceMotion?: boolean;
 
-  @ApiProperty()
+  @IsBoolean()
+  @IsOptional()
+  @ApiPropertyOptional({ example: true })
   enableFocusIndicators?: boolean;
 }
 

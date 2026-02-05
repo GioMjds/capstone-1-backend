@@ -1,11 +1,17 @@
-import { ProfileVisibility } from '@/domain/interfaces';
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum } from 'class-validator';
+import { ProfileVisibility, VisibilityLevel } from '@/domain/interfaces';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEnum, IsOptional } from 'class-validator';
 
 export class UpdateProfileVisibilityDto {
-  @IsEnum(ProfileVisibility)
-  @ApiProperty({ enum: ProfileVisibility })
-  visibility: ProfileVisibility;
+  @IsEnum(VisibilityLevel)
+  @ApiProperty({ enum: VisibilityLevel, example: VisibilityLevel.PRIVATE })
+  visibility: VisibilityLevel;
+
+  @IsOptional()
+  @ApiPropertyOptional({
+    description: 'Custom visibility rules (for CUSTOM level)',
+  })
+  customRules?: Record<string, unknown>;
 }
 
 export class GetProfileVisibilityResponseDto {

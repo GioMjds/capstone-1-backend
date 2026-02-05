@@ -1,14 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsObject } from 'class-validator';
+import { IsString, IsEnum, IsObject } from 'class-validator';
+
+export enum FieldVisibility {
+  PUBLIC = 'public',
+  FRIENDS = 'friends',
+  PRIVATE = 'private',
+}
 
 export class UpdateFieldLevelVisibilityDto {
   @IsString()
-  @ApiProperty()
+  @ApiProperty({ example: 'email' })
   fieldName: string;
 
-  @IsString()
-  @ApiProperty()
-  visibility: string;
+  @IsEnum(FieldVisibility)
+  @ApiProperty({ enum: FieldVisibility, example: FieldVisibility.PRIVATE })
+  visibility: FieldVisibility;
 }
 
 export class GetFieldLevelVisibilityResponseDto {

@@ -65,6 +65,7 @@ export class AuthController {
   }
 
   @Post('register')
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
   @AuthDocs.RegisterDocs()
   register(@Body() dto: AuthDto.RegisterUserDto) {

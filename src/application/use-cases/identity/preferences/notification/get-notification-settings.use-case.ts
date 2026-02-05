@@ -1,43 +1,49 @@
-import { Injectable, NotFoundException, Inject } from '@nestjs/common';
-import { NotificationSettingsResponseDto } from '@/application/dto/identity/preferences';
-import { IUserRepository } from '@/domain/repositories';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { NotificationSettingsResponseDto } from '@/application/dto/identity/preferences/notification';
+import { PrismaService } from '@/infrastructure/persistence';
 
 @Injectable()
 export class GetNotificationSettingsUseCase {
-  constructor(
-    @Inject('IUserRepository')
-    private readonly userRepository: IUserRepository,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async execute(userId: string): Promise<NotificationSettingsResponseDto> {
-    const user = await this.userRepository.findById(userId);
+    const userPreferences = await this.prisma.userPreferences.findUnique({
+      where: { userId },
+      include: { notificationSettings: true },
+    });
 
-    if (!user) {
-      throw new NotFoundException(`User with id ${userId} not found`);
+    if (!userPreferences) {
+      throw new NotFoundException(`User preferences not found for user: ${userId}`);
     }
 
-    const preferences = user.getPreferences();
+    const settings = userPreferences.notificationSettings;
 
-    if (!preferences) {
+    if (!settings) {
       return {
+        id: '',
         emailNotifications: true,
-        pushNotifications: true,
+        pushNotifications: false,
         smsNotifications: false,
-        digestFrequency: 'immediate',
-        quietHoursStart: '',
-        quietHoursEnd: '',
+        digestFrequency: 'daily',
+        quietHoursStart: undefined,
+        quietHoursEnd: undefined,
         securityAlerts: true,
+        updatedAt: userPreferences.updatedAt,
       };
     }
 
+    const preferences = (settings.preferences ?? {}) as Record<string, unknown>;
+
     return {
-      emailNotifications: true,
-      pushNotifications: true,
-      smsNotifications: false,
-      digestFrequency: 'immediate',
-      quietHoursStart: '',
-      quietHoursEnd: '',
-      securityAlerts: true,
+      id: settings.id,
+      emailNotifications: settings.emailNotifications,
+      pushNotifications: settings.pushNotifications,
+      smsNotifications: settings.smsNotifications,
+      digestFrequency: (preferences.digestFrequency as string) ?? 'daily',
+      quietHoursStart: preferences.quietHoursStart as string | undefined,
+      quietHoursEnd: preferences.quietHoursEnd as string | undefined,
+      securityAlerts: (preferences.securityAlerts as boolean) ?? true,
+      updatedAt: settings.updatedAt,
     };
   }
 }

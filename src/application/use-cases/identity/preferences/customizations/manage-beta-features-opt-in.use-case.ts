@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {
   ManageBetaFeaturesDto,
   BetaFeaturesResponseDto,
-} from '@/application/dto/identity/preferences';
+} from '@/application/dto/';
 
 @Injectable()
 export class ManageBetaFeaturesOptInUseCase {

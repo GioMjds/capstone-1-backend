@@ -1,15 +1,22 @@
-import { MfaMethod } from '@/domain/interfaces';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsString, IsOptional } from 'class-validator';
+import { IsEnum, IsString, IsOptional, IsMobilePhone } from 'class-validator';
+
+export enum MfaMethod {
+  AUTHENTICATOR = 'authenticator',
+  SMS = 'sms',
+  EMAIL = 'email',
+  PASSKEY = 'passkey',
+}
 
 export class SelectMfaMethodDto {
   @IsEnum(MfaMethod)
-  @ApiProperty({ enum: MfaMethod })
+  @ApiProperty({ enum: MfaMethod, example: MfaMethod.AUTHENTICATOR })
   method: MfaMethod;
 
   @IsString()
+  @IsMobilePhone()
   @IsOptional()
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '+15551234567' })
   phoneNumber?: string;
 }
 

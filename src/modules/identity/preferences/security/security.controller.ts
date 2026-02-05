@@ -10,65 +10,40 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import {
-  GetSecuritySettingsUseCase,
-  UpdateSecuritySettingsUseCase,
-  MultiFactorAuthUseCase,
-  SelectMfaMethodUseCase,
-  RegenerateBackupCodesUseCase,
-  ManageTrustedDevicesUseCase,
-  ConfigureLoginAlertsUseCase,
-  ConfigureSuspiciousActivityAlertsUseCase,
-  SetPasswordRotationReminderUseCase,
-  SetSessionExpirationUseCase,
-  ConfigureIpRestrictionsUseCase,
-} from '@/application/use-cases/identity/preferences';
-import {
-  SelectMfaMethodDto,
-  SelectMfaMethodResponseDto,
-  RegenerateBackupCodesResponseDto,
-  AddTrustedDeviceDto,
-  ManageTrustedDevicesResponseDto,
-  ConfigureLoginAlertsDto,
-  ConfigureLoginAlertsResponseDto,
-  ConfigureSuspiciousActivityAlertsDto,
-  ConfigureSuspiciousActivityAlertsResponseDto,
-  SetPasswordRotationReminderDto,
-  SetPasswordRotationReminderResponseDto,
-  SetSessionExpirationDto,
-  SetSessionExpirationResponseDto,
-  ConfigureIpRestrictionsDto,
-  ConfigureIpRestrictionsResponseDto,
-} from '@/application/dto/identity/preferences';
+import * as SecurityUseCase from '@/application/use-cases/identity/preferences/security';
+import * as SecurityDto from '@/application/dto/identity/preferences/security';
+import { CurrentUser, JwtPayload } from '@/shared/decorators';
 
 @ApiTags('Preferences - Security')
 @ApiBearerAuth()
 @Controller('preferences/security')
 export class SecurityController {
   constructor(
-    private readonly getSecuritySettingsUseCase: GetSecuritySettingsUseCase,
-    private readonly updateSecuritySettingsUseCase: UpdateSecuritySettingsUseCase,
-    private readonly multiFactorAuthUseCase: MultiFactorAuthUseCase,
-    private readonly selectMfaMethodUseCase: SelectMfaMethodUseCase,
-    private readonly regenerateBackupCodesUseCase: RegenerateBackupCodesUseCase,
-    private readonly manageTrustedDevicesUseCase: ManageTrustedDevicesUseCase,
-    private readonly configureLoginAlertsUseCase: ConfigureLoginAlertsUseCase,
-    private readonly configureSuspiciousActivityAlertsUseCase: ConfigureSuspiciousActivityAlertsUseCase,
-    private readonly setPasswordRotationReminderUseCase: SetPasswordRotationReminderUseCase,
-    private readonly setSessionExpirationUseCase: SetSessionExpirationUseCase,
-    private readonly configureIpRestrictionsUseCase: ConfigureIpRestrictionsUseCase,
+    private readonly getSecuritySettingsUseCase: SecurityUseCase.GetSecuritySettingsUseCase,
+    private readonly updateSecuritySettingsUseCase: SecurityUseCase.UpdateSecuritySettingsUseCase,
+    private readonly multiFactorAuthUseCase: SecurityUseCase.MultiFactorAuthUseCase,
+    private readonly selectMfaMethodUseCase: SecurityUseCase.SelectMfaMethodUseCase,
+    private readonly regenerateBackupCodesUseCase: SecurityUseCase.RegenerateBackupCodesUseCase,
+    private readonly manageTrustedDevicesUseCase: SecurityUseCase.ManageTrustedDevicesUseCase,
+    private readonly configureLoginAlertsUseCase: SecurityUseCase.ConfigureLoginAlertsUseCase,
+    private readonly configureSuspiciousActivityAlertsUseCase: SecurityUseCase.ConfigureSuspiciousActivityAlertsUseCase,
+    private readonly setPasswordRotationReminderUseCase: SecurityUseCase.SetPasswordRotationReminderUseCase,
+    private readonly setSessionExpirationUseCase: SecurityUseCase.SetSessionExpirationUseCase,
+    private readonly configureIpRestrictionsUseCase: SecurityUseCase.ConfigureIpRestrictionsUseCase,
   ) {}
 
   @Get()
   @ApiOperation({ summary: 'Get security settings' })
-  async getSecuritySettings() {
-    return this.getSecuritySettingsUseCase.execute();
+  async getSecuritySettings(
+    @CurrentUser() userId: JwtPayload
+  ) {
+    return this.getSecuritySettingsUseCase.execute(userId.sub);
   }
 
   @Put()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update security settings' })
-  async updateSecuritySettings(@Body() dto: any) {
+  async updateSecuritySettings(@Body() dto: SecurityDto.UpdateSecuritySettingsDto) {
     return this.updateSecuritySettingsUseCase.execute(dto);
   }
 
@@ -82,21 +57,21 @@ export class SecurityController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Select MFA method' })
   async selectMfaMethod(
-    @Body() dto: SelectMfaMethodDto,
-  ): Promise<SelectMfaMethodResponseDto> {
+    @Body() dto: SecurityDto.SelectMfaMethodDto,
+  ): Promise<SecurityDto.SelectMfaMethodResponseDto> {
     return this.selectMfaMethodUseCase.execute(dto);
   }
 
   @Post('mfa/backup-codes/regenerate')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Regenerate backup codes' })
-  async regenerateBackupCodes(): Promise<RegenerateBackupCodesResponseDto> {
+  async regenerateBackupCodes(): Promise<SecurityDto.RegenerateBackupCodesResponseDto> {
     return this.regenerateBackupCodesUseCase.execute();
   }
 
   @Get('trusted-devices')
   @ApiOperation({ summary: 'Get trusted devices' })
-  async getTrustedDevices(): Promise<ManageTrustedDevicesResponseDto> {
+  async getTrustedDevices(): Promise<SecurityDto.ManageTrustedDevicesResponseDto> {
     return this.manageTrustedDevicesUseCase.getAll();
   }
 
@@ -104,15 +79,17 @@ export class SecurityController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Add trusted device' })
   async addTrustedDevice(
-    @Body() dto: AddTrustedDeviceDto,
-  ): Promise<ManageTrustedDevicesResponseDto> {
+    @Body() dto: SecurityDto.AddTrustedDeviceDto,
+  ): Promise<SecurityDto.ManageTrustedDevicesResponseDto> {
     return this.manageTrustedDevicesUseCase.add(dto);
   }
 
   @Delete('trusted-devices/:deviceId')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Remove trusted device' })
-  async removeTrustedDevice(@Param('deviceId') deviceId: string): Promise<void> {
+  async removeTrustedDevice(
+    @Param('deviceId') deviceId: string,
+  ): Promise<void> {
     return this.manageTrustedDevicesUseCase.remove(deviceId);
   }
 
@@ -120,8 +97,8 @@ export class SecurityController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Configure login alerts' })
   async configureLoginAlerts(
-    @Body() dto: ConfigureLoginAlertsDto,
-  ): Promise<ConfigureLoginAlertsResponseDto> {
+    @Body() dto: SecurityDto.ConfigureLoginAlertsDto,
+  ): Promise<SecurityDto.ConfigureLoginAlertsResponseDto> {
     return this.configureLoginAlertsUseCase.execute(dto);
   }
 
@@ -129,8 +106,8 @@ export class SecurityController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Configure suspicious activity alerts' })
   async configureSuspiciousActivityAlerts(
-    @Body() dto: ConfigureSuspiciousActivityAlertsDto,
-  ): Promise<ConfigureSuspiciousActivityAlertsResponseDto> {
+    @Body() dto: SecurityDto.ConfigureSuspiciousActivityAlertsDto,
+  ): Promise<SecurityDto.ConfigureSuspiciousActivityAlertsResponseDto> {
     return this.configureSuspiciousActivityAlertsUseCase.execute(dto);
   }
 
@@ -138,8 +115,8 @@ export class SecurityController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Set password rotation reminder' })
   async setPasswordRotationReminder(
-    @Body() dto: SetPasswordRotationReminderDto,
-  ): Promise<SetPasswordRotationReminderResponseDto> {
+    @Body() dto: SecurityDto.SetPasswordRotationReminderDto,
+  ): Promise<SecurityDto.SetPasswordRotationReminderResponseDto> {
     return this.setPasswordRotationReminderUseCase.execute(dto);
   }
 
@@ -147,8 +124,8 @@ export class SecurityController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Set session expiration' })
   async setSessionExpiration(
-    @Body() dto: SetSessionExpirationDto,
-  ): Promise<SetSessionExpirationResponseDto> {
+    @Body() dto: SecurityDto.SetSessionExpirationDto,
+  ): Promise<SecurityDto.SetSessionExpirationResponseDto> {
     return this.setSessionExpirationUseCase.execute(dto);
   }
 
@@ -156,8 +133,8 @@ export class SecurityController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Configure IP restrictions' })
   async configureIpRestrictions(
-    @Body() dto: ConfigureIpRestrictionsDto,
-  ): Promise<ConfigureIpRestrictionsResponseDto> {
+    @Body() dto: SecurityDto.ConfigureIpRestrictionsDto,
+  ): Promise<SecurityDto.ConfigureIpRestrictionsResponseDto> {
     return this.configureIpRestrictionsUseCase.execute(dto);
   }
 }

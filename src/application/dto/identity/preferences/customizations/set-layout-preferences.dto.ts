@@ -1,20 +1,25 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsObject, IsOptional } from 'class-validator';
+import { IsString, IsBoolean, IsOptional } from 'class-validator';
 
 export class SetLayoutPreferencesDto {
   @IsString()
-  @ApiProperty()
-  layout: string;
+  @ApiProperty({ example: 'default' })
+  sidebarPosition: string;
+
+  @IsBoolean()
+  @IsOptional()
+  @ApiPropertyOptional({ example: false })
+  sidebarCollapsed?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  @ApiPropertyOptional({ example: false })
+  compactMode?: boolean;
 
   @IsString()
   @IsOptional()
-  @ApiPropertyOptional()
-  sidebarPosition?: string;
-
-  @IsObject()
-  @IsOptional()
-  @ApiPropertyOptional()
-  compactMode?: boolean;
+  @ApiPropertyOptional({ example: 'auto' })
+  contentWidth?: string;
 }
 
 export class SetLayoutPreferencesResponseDto {

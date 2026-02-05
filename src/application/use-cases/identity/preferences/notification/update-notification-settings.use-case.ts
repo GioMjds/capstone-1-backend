@@ -1,8 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { UpdateNotificationSettingsDto } from '@/application/dto/identity/preferences';
-import { NotificationSettingsValueObject } from '@/domain/value-objects/identity';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@/infrastructure/persistence';
-import { randomUUID } from 'crypto';
+import type { Prisma } from '@prisma/client';
+import {
+  UpdateNotificationSettingsDto,
+  NotificationSettingsResponseDto,
+} from '@/application/dto/identity/preferences/notification';
+import { generateUserId } from '@/shared/utils';
 
 @Injectable()
 export class UpdateNotificationSettingsUseCase {
@@ -11,67 +14,58 @@ export class UpdateNotificationSettingsUseCase {
   async execute(
     userId: string,
     dto: UpdateNotificationSettingsDto,
-  ): Promise<NotificationSettingsValueObject> {
+  ): Promise<NotificationSettingsResponseDto> {
     const userPreferences = await this.prisma.userPreferences.findUnique({
       where: { userId },
+      include: { notificationSettings: true },
     });
 
     if (!userPreferences) {
-      const newPreferences = await this.prisma.userPreferences.create({
-        data: {
-          id: randomUUID().replace(/-/g, '').substring(0, 12),
-          userId,
-          notificationSettings: {
-            emailNotifications: dto.emailNotifications ?? true,
-            pushNotifications: dto.pushNotifications ?? true,
-            smsNotifications: dto.smsNotifications ?? false,
-            digestFrequency: dto.digestFrequency ?? 'daily',
-            quietHoursStart: dto.quietHoursStart,
-            quietHoursEnd: dto.quietHoursEnd,
-            securityAlerts: dto.securityAlerts ?? true,
-          },
-        },
-      });
-
-      return NotificationSettingsValueObject.fromPersistence(
-        (newPreferences.notificationSettings ?? {}) as Record<string, any>,
-      );
+      throw new NotFoundException(`User preferences not found for user: ${userId}`);
     }
 
-    const currentNotificationSettings = userPreferences.notificationSettings as Record<
-      string,
-      any
-    >;
-    const updatedNotificationSettings = {
-      ...currentNotificationSettings,
-      ...(dto.emailNotifications !== undefined && {
-        emailNotifications: dto.emailNotifications,
-      }),
-      ...(dto.pushNotifications !== undefined && {
-        pushNotifications: dto.pushNotifications,
-      }),
-      ...(dto.smsNotifications !== undefined && {
-        smsNotifications: dto.smsNotifications,
-      }),
-      ...(dto.digestFrequency && { digestFrequency: dto.digestFrequency }),
-      ...(dto.quietHoursStart && { quietHoursStart: dto.quietHoursStart }),
-      ...(dto.quietHoursEnd && { quietHoursEnd: dto.quietHoursEnd }),
-      ...(dto.securityAlerts !== undefined && {
-        securityAlerts: dto.securityAlerts,
-      }),
+    const existingSettings = userPreferences.notificationSettings;
+    const existingPreferences = (existingSettings?.preferences ?? {}) as Prisma.InputJsonObject;
+
+    const updatedPreferences: Prisma.InputJsonObject = {
+      digestFrequency: (dto.digestFrequency ?? (existingPreferences.digestFrequency as string) ?? 'daily') as Prisma.InputJsonValue,
+      quietHoursStart: (dto.quietHoursStart ?? (existingPreferences.quietHoursStart as string | null) ?? null) as Prisma.InputJsonValue,
+      quietHoursEnd: (dto.quietHoursEnd ?? (existingPreferences.quietHoursEnd as string | null) ?? null) as Prisma.InputJsonValue,
+      securityAlerts: (dto.securityAlerts ?? (existingPreferences.securityAlerts as boolean) ?? true) as Prisma.InputJsonValue,
     };
 
-    await this.prisma.userPreferences.update({
-      where: { userId },
-      data: {
-        notificationSettings: updatedNotificationSettings,
+    const updatedSettings = await this.prisma.userNotificationSettings.upsert({
+      where: { userPreferencesId: userPreferences.id },
+      update: {
+        emailNotifications: dto.emailNotifications ?? existingSettings?.emailNotifications ?? true,
+        pushNotifications: dto.pushNotifications ?? existingSettings?.pushNotifications ?? false,
+        smsNotifications: dto.smsNotifications ?? existingSettings?.smsNotifications ?? false,
+        preferences: updatedPreferences as Prisma.InputJsonValue,
         updatedAt: new Date(),
+      },
+      create: {
+        id: generateUserId(),
+        userPreferencesId: userPreferences.id,
+        emailNotifications: dto.emailNotifications ?? true,
+        pushNotifications: dto.pushNotifications ?? false,
+        smsNotifications: dto.smsNotifications ?? false,
+        preferences: updatedPreferences as Prisma.InputJsonValue,
       },
     });
 
-    return NotificationSettingsValueObject.fromPersistence(
-      updatedNotificationSettings,
-    );
+    const preferences = updatedSettings.preferences as Record<string, unknown>;
+
+    return {
+      id: updatedSettings.id,
+      emailNotifications: updatedSettings.emailNotifications,
+      pushNotifications: updatedSettings.pushNotifications,
+      smsNotifications: updatedSettings.smsNotifications,
+      digestFrequency: (preferences.digestFrequency as string) ?? 'daily',
+      quietHoursStart: preferences.quietHoursStart as string | undefined,
+      quietHoursEnd: preferences.quietHoursEnd as string | undefined,
+      securityAlerts: (preferences.securityAlerts as boolean) ?? true,
+      updatedAt: updatedSettings.updatedAt,
+    };
   }
 
   validateTimeFormat(time: string): boolean {

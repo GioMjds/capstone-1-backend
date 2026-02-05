@@ -1,58 +1,57 @@
-import { Controller, Get, Put, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Put,
+  Body,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import {
-  GetNotificationSettingsUseCase,
-  UpdateNotificationSettingsUseCase,
-  SetQuietHoursUseCase,
-  ManageMarketingOptInUseCase,
-  ConfigureEmailNotificationsByCategoryUseCase,
-  ConfigurePushNotificationsByCategoryUseCase,
-  ConfigureSmsAlertsUseCase,
-} from '@/application/use-cases/identity/preferences';
-import {
-  SetQuietHoursDto,
-  SetQuietHoursResponseDto,
-  ManageMarketingOptInDto,
-  ManageMarketingOptInResponseDto,
-  ConfigureEmailNotificationsByCategoryDto,
-  ConfigureEmailNotificationsByCategoryResponseDto,
-  ConfigurePushNotificationsByCategoryDto,
-  ConfigurePushNotificationsByCategoryResponseDto,
-  ConfigureSmsAlertsDto,
-  ConfigureSmsAlertsResponseDto,
-} from '@/application/dto/identity/preferences';
+import * as NotificationUseCase from '@/application/use-cases/identity/preferences/notification';
+import * as NotificationDto from '@/application/dto/identity/preferences/notification';
+import { JwtAuthGuard } from '@/shared/guards';
+import { CurrentUser } from '@/shared/decorators';
 
 @ApiTags('Preferences - Notifications')
 @ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('preferences/notifications')
 export class NotificationController {
   constructor(
-    private readonly getNotificationSettingsUseCase: GetNotificationSettingsUseCase,
-    private readonly updateNotificationSettingsUseCase: UpdateNotificationSettingsUseCase,
-    private readonly setQuietHoursUseCase: SetQuietHoursUseCase,
-    private readonly manageMarketingOptInUseCase: ManageMarketingOptInUseCase,
-    private readonly configureEmailNotificationsByCategoryUseCase: ConfigureEmailNotificationsByCategoryUseCase,
-    private readonly configurePushNotificationsByCategoryUseCase: ConfigurePushNotificationsByCategoryUseCase,
-    private readonly configureSmsAlertsUseCase: ConfigureSmsAlertsUseCase,
+    private readonly getNotificationSettingsUseCase: NotificationUseCase.GetNotificationSettingsUseCase,
+    private readonly updateNotificationSettingsUseCase: NotificationUseCase.UpdateNotificationSettingsUseCase,
+    private readonly setQuietHoursUseCase: NotificationUseCase.SetQuietHoursUseCase,
+    private readonly manageMarketingOptInUseCase: NotificationUseCase.ManageMarketingOptInUseCase,
+    private readonly configureEmailNotificationsByCategoryUseCase: NotificationUseCase.ConfigureEmailNotificationsByCategoryUseCase,
+    private readonly configurePushNotificationsByCategoryUseCase: NotificationUseCase.ConfigurePushNotificationsByCategoryUseCase,
+    private readonly configureSmsAlertsUseCase: NotificationUseCase.ConfigureSmsAlertsUseCase,
   ) {}
 
   @Get()
   @ApiOperation({ summary: 'Get notification settings' })
-  async getNotificationSettings() {
-    return this.getNotificationSettingsUseCase.execute();
+  async getNotificationSettings(
+    @CurrentUser('sub') userId: string,
+  ): Promise<NotificationDto.NotificationSettingsResponseDto> {
+    return this.getNotificationSettingsUseCase.execute(userId);
   }
 
   @Put()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update notification settings' })
-  async updateNotificationSettings(@Body() dto: any) {
-    return this.updateNotificationSettingsUseCase.execute(dto);
+  async updateNotificationSettings(
+    @CurrentUser('sub') userId: string,
+    @Body() dto: NotificationDto.UpdateNotificationSettingsDto,
+  ): Promise<NotificationDto.NotificationSettingsResponseDto> {
+    return this.updateNotificationSettingsUseCase.execute(userId, dto);
   }
 
   @Put('quiet-hours')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Set quiet hours' })
-  async setQuietHours(@Body() dto: SetQuietHoursDto): Promise<SetQuietHoursResponseDto> {
+  async setQuietHours(
+    @Body() dto: NotificationDto.SetQuietHoursDto,
+  ): Promise<NotificationDto.SetQuietHoursResponseDto> {
     return this.setQuietHoursUseCase.execute(dto);
   }
 
@@ -60,8 +59,8 @@ export class NotificationController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Manage marketing opt-in preferences' })
   async manageMarketingOptIn(
-    @Body() dto: ManageMarketingOptInDto,
-  ): Promise<ManageMarketingOptInResponseDto> {
+    @Body() dto: NotificationDto.ManageMarketingOptInDto,
+  ): Promise<NotificationDto.ManageMarketingOptInResponseDto> {
     return this.manageMarketingOptInUseCase.execute(dto);
   }
 
@@ -69,8 +68,8 @@ export class NotificationController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Configure email notifications by category' })
   async configureEmailNotificationsByCategory(
-    @Body() dto: ConfigureEmailNotificationsByCategoryDto,
-  ): Promise<ConfigureEmailNotificationsByCategoryResponseDto> {
+    @Body() dto: NotificationDto.ConfigureEmailNotificationsByCategoryDto,
+  ): Promise<NotificationDto.ConfigureEmailNotificationsByCategoryResponseDto> {
     return this.configureEmailNotificationsByCategoryUseCase.execute(dto);
   }
 
@@ -78,8 +77,8 @@ export class NotificationController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Configure push notifications by category' })
   async configurePushNotificationsByCategory(
-    @Body() dto: ConfigurePushNotificationsByCategoryDto,
-  ): Promise<ConfigurePushNotificationsByCategoryResponseDto> {
+    @Body() dto: NotificationDto.ConfigurePushNotificationsByCategoryDto,
+  ): Promise<NotificationDto.ConfigurePushNotificationsByCategoryResponseDto> {
     return this.configurePushNotificationsByCategoryUseCase.execute(dto);
   }
 
@@ -87,8 +86,8 @@ export class NotificationController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Configure SMS alerts' })
   async configureSmsAlerts(
-    @Body() dto: ConfigureSmsAlertsDto,
-  ): Promise<ConfigureSmsAlertsResponseDto> {
+    @Body() dto: NotificationDto.ConfigureSmsAlertsDto,
+  ): Promise<NotificationDto.ConfigureSmsAlertsResponseDto> {
     return this.configureSmsAlertsUseCase.execute(dto);
   }
 }

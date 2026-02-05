@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean } from 'class-validator';
+import { IsBoolean, IsString } from 'class-validator';
 
 export class ManageAiFeaturesOptInDto {
   @IsBoolean()
-  @ApiProperty()
+  @ApiProperty({ example: true })
   optIn: boolean;
 }
 
@@ -12,12 +12,15 @@ export class ManageAiFeaturesOptInResponseDto {
   id: string;
 
   @ApiProperty()
+  @IsBoolean()
   optedInAiFeatures: boolean;
 
   @ApiProperty()
+  @IsString({ each: true })
   availableFeatures: string[];
 
   @ApiProperty()
+  @IsString()
   privacyLevel: string;
 
   @ApiProperty()
