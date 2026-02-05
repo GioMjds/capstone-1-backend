@@ -19,17 +19,12 @@ export class UserCreatedListener {
 
   @OnEvent('user.created')
   async handleUserCreated(event: UserCreatedEvent): Promise<void> {
-    this.logger.log(`Provisioning default preferences for user: ${event.userId}`);
-
     try {
       const existingPreferences = await this.preferencesRepository.findByUserId(
         event.userId,
       );
 
-      if (existingPreferences) {
-        this.logger.warn(`Preferences already exist for user: ${event.userId}`);
-        return;
-      }
+      if (existingPreferences) return;
 
       const defaultPreferences = new UserPreferencesEntity(
         generateUserId(),
@@ -54,8 +49,6 @@ export class UserCreatedListener {
           },
         },
       });
-
-      this.logger.log(`Default preferences and notification settings created for user: ${event.userId}`);
     } catch (error) {
       this.logger.error(
         `Failed to create default preferences for user: ${event.userId}`,

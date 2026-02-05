@@ -49,10 +49,13 @@ model UserPreferences {
   securitySettings     UserSecuritySettings?
   complianceSettings   UserComplianceSettings?
   preferenceAuditLogs  PreferenceAuditLog[]
-
-  accountControl AccountControlSettings?
-  activeSessions ActiveSession[]
-  trustedDevices TrustedDevice[]
+  accountControl       AccountControlSettings?
+  activeSessions       ActiveSession[]
+  trustedDevices       TrustedDevice[]
+  activityLogs         ActivityLog[]
+  loginHistory         LoginHistory[]
+  dataOwnership        DataOwnershipSettings?
+  privacySettings      PrivacySettings?
 }
 
 model UserNotificationSettings {
@@ -62,6 +65,13 @@ model UserNotificationSettings {
   pushNotifications  Boolean         @default(false)
   smsNotifications   Boolean         @default(false)
   preferences        Json            @default("{}")
+  emailByCategory    Json            @default("{}")
+  pushByCategory     Json            @default("{}")
+  smsAlerts          Json            @default("{}")
+  quietHoursStart    String?
+  quietHoursEnd      String?
+  marketingOptIn     Boolean         @default(false)
+  digestFrequency    String          @default("daily")
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
   userPreferences    UserPreferences @relation(fields: [userPreferencesId], references: [id], onDelete: Cascade)
@@ -115,6 +125,12 @@ model UserSecuritySettings {
   activeSessions    Json               @default("[]")
   trustedDevices    Json               @default("[]")
   passkeysEnabled   Boolean            @default(false)
+  ipRestrictions    Json               @default("[]")
+  loginAlerts       Json               @default("{}")
+  suspiciousActivityAlerts Json         @default("{}")
+  backupCodes       Json               @default("[]")
+  sessionExpiration Int                @default(3600)
+  passwordRotationReminder Int          @default(90)
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   userPreferences   UserPreferences    @relation(fields: [userPreferencesId], references: [id], onDelete: Cascade)
@@ -162,6 +178,67 @@ model SecurityAuditLog {
 
   @@index([securitySettingsId])
   @@index([createdAt])
+}
+
+model ActivityLog {
+  id                String          @id @db.VarChar(12)
+  userPreferencesId String
+  activityType      String
+  action            String
+  details           Json
+  ipAddress         String?
+  userAgent         String?
+  timestamp         DateTime        @default(now())
+  userPreferences   UserPreferences @relation(fields: [userPreferencesId], references: [id], onDelete: Cascade)
+
+  @@index([userPreferencesId])
+  @@index([timestamp])
+}
+
+model LoginHistory {
+  id                String          @id @db.VarChar(12)
+  userPreferencesId String
+  ipAddress         String?
+  userAgent         String?
+  deviceName        String?
+  loginMethod       String?
+  loginAt           DateTime        @default(now())
+  logoutAt          DateTime?
+  duration          Int?
+  userPreferences   UserPreferences @relation(fields: [userPreferencesId], references: [id], onDelete: Cascade)
+
+  @@index([userPreferencesId])
+  @@index([loginAt])
+}
+
+model DataOwnershipSettings {
+  id                   String          @id @db.VarChar(12)
+  userPreferencesId    String          @unique
+  exportFormat         String          @default("json")
+  dataRetentionDays    Int             @default(365)
+  allowAutoDelete      Boolean         @default(false)
+  allowDataAnonymization Boolean       @default(false)
+  dataExportRequests   Json            @default("[]")
+  dataDeletionRequests Json            @default("[]")
+  dataCorrections      Json            @default("[]")
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  userPreferences      UserPreferences @relation(fields: [userPreferencesId], references: [id], onDelete: Cascade)
+}
+
+model PrivacySettings {
+  id                     String          @id @db.VarChar(12)
+  userPreferencesId      String          @unique
+  profileVisibility      String          @default("private")
+  activityVisibility     Json            @default("{}")
+  fieldLevelVisibility   Json            @default("{}")
+  onlinePresence         String          @default("hidden")
+  allowPublicProfile     Boolean         @default(false)
+  allowSearchEngineIndex Boolean         @default(false)
+  allowThirdPartySharing Boolean         @default(false)
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+  userPreferences        UserPreferences @relation(fields: [userPreferencesId], references: [id], onDelete: Cascade)
 }
 
 model ComplianceAuditLog {

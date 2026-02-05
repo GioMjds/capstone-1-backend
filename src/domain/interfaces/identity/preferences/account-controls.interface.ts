@@ -30,3 +30,15 @@ export enum RecoveryOptionType {
   BACKUP_CODES = 'backup_codes',
   SECURITY_QUESTIONS = 'security_questions',
 }
+
+export interface IAccountControlSettings {
+  id: string;
+  userPreferencesId: string;
+  deactivated: boolean;
+  deactivatedAt: Date | null;
+  deletionRequested: boolean;
+  deletionRequestedAt: Date | null;
+  recoveryToken: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}

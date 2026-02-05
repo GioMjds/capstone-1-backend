@@ -99,7 +99,13 @@ import {
   SetExportFormatUseCase,
 } from './data-ownership';
 
+import { InitializeUserPreferencesUseCase } from './initialize-user-preferences.use-case';
+
+export { InitializeUserPreferencesUseCase };
+
 export const USER_PREFERENCES_USE_CASES = [
+  InitializeUserPreferencesUseCase,
+
   AccountDeactivationUseCase,
   AccountDeletionUseCase,
   AccountRecoveryUseCase,

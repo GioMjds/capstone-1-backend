@@ -1,5 +1,6 @@
 import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import type { IUserRepository } from '@/domain/repositories';
+import type { IUserPreferencesRepository } from '@/domain/repositories/identity/preferences';
 import { UserEntity } from '@/domain/entities';
 import {
   EmailValueObject,
@@ -18,6 +19,8 @@ export class RegisterUserUseCase {
   constructor(
     @Inject('IUserRepository')
     private readonly userRepository: IUserRepository,
+    @Inject('IUserPreferencesRepository')
+    private readonly userPreferencesRepository: IUserPreferencesRepository,
     private readonly otpService: OtpService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
@@ -78,6 +81,8 @@ export class RegisterUserUseCase {
   }
 
   private async processPostRegistration(user: UserEntity): Promise<void> {
+    await this.userPreferencesRepository.createDefaultPreferences(user.id);
+
     const otp = this.otpService.generate();
     await this.otpService.store(user.email.getValue(), otp);
 
