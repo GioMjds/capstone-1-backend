@@ -11,8 +11,8 @@ import {
   SecurityEventValueObject,
 } from '@/domain/value-objects/identity/preferences/activity';
 import { ActivityMapper } from '@/infrastructure/persistence/prisma/mappers/identity/preferences';
-import { v4 as uuidv4 } from 'uuid';
 import { AuditLogCategory } from '@/domain/interfaces';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class PrismaActivityRepository implements IActivityRepository {
@@ -51,8 +51,10 @@ export class PrismaActivityRepository implements IActivityRepository {
 
     if (options?.startDate || options?.endDate) {
       where.createdAt = {};
-      if (options.startDate) (where.createdAt as Record<string, Date>).gte = options.startDate;
-      if (options.endDate) (where.createdAt as Record<string, Date>).lte = options.endDate;
+      if (options.startDate)
+        (where.createdAt as Record<string, Date>).gte = options.startDate;
+      if (options.endDate)
+        (where.createdAt as Record<string, Date>).lte = options.endDate;
     }
 
     const [logs, total] = await Promise.all([
@@ -71,8 +73,12 @@ export class PrismaActivityRepository implements IActivityRepository {
         userAgent: log.userAgent ?? '',
         loginTimestamp: log.createdAt.toISOString(),
         status: (log.details as Record<string, unknown>)?.status ?? 'success',
-        location: (log.details as Record<string, unknown>)?.location as string | undefined,
-        device: (log.details as Record<string, unknown>)?.device as string | undefined,
+        location: (log.details as Record<string, unknown>)?.location as
+          | string
+          | undefined,
+        device: (log.details as Record<string, unknown>)?.device as
+          | string
+          | undefined,
       }),
     );
 
@@ -110,8 +116,10 @@ export class PrismaActivityRepository implements IActivityRepository {
     if (options?.category) where.category = options.category;
     if (options?.startDate || options?.endDate) {
       where.createdAt = {};
-      if (options.startDate) (where.createdAt as Record<string, Date>).gte = options.startDate;
-      if (options.endDate) (where.createdAt as Record<string, Date>).lte = options.endDate;
+      if (options.startDate)
+        (where.createdAt as Record<string, Date>).gte = options.startDate;
+      if (options.endDate)
+        (where.createdAt as Record<string, Date>).lte = options.endDate;
     }
 
     const [logs, total] = await Promise.all([
@@ -159,8 +167,10 @@ export class PrismaActivityRepository implements IActivityRepository {
     if (options?.eventType) where.event = options.eventType;
     if (options?.startDate || options?.endDate) {
       where.createdAt = {};
-      if (options.startDate) (where.createdAt as Record<string, Date>).gte = options.startDate;
-      if (options.endDate) (where.createdAt as Record<string, Date>).lte = options.endDate;
+      if (options.startDate)
+        (where.createdAt as Record<string, Date>).gte = options.startDate;
+      if (options.endDate)
+        (where.createdAt as Record<string, Date>).lte = options.endDate;
     }
 
     const [logs, total] = await Promise.all([
@@ -186,7 +196,10 @@ export class PrismaActivityRepository implements IActivityRepository {
     const securitySettingsId = await this.getSecuritySettingsId(userId);
     if (!securitySettingsId) return;
 
-    const data = this.mapper.toSecurityEventPersistence(securitySettingsId, event);
+    const data = this.mapper.toSecurityEventPersistence(
+      securitySettingsId,
+      event,
+    );
 
     await this.prisma.securityAuditLog.create({
       data: {

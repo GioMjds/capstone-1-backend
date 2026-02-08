@@ -7,12 +7,14 @@ datasource db {
 }
 
 enum PreferenceCategory {
-  UI
+  ACCESSIBILITY
+  CUSTOMIZATION
   NOTIFICATION
   SECURITY
-  COMPLIANCE
+  PRIVACY
   ACCOUNT
   ACTIVITY
+  DATA_OWNERSHIP
 }
 
 model User {
@@ -39,23 +41,23 @@ model ArchivedUsers {
 }
 
 model UserPreferences {
-  id                   String                    @id @db.VarChar(12)
-  userId               String                    @unique
-  uiPreferences        Json                      @default("{}")
-  notificationSettings UserNotificationSettings?
-  createdAt            DateTime                  @default(now())
-  updatedAt            DateTime                  @updatedAt
-  user                 User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  securitySettings     UserSecuritySettings?
-  complianceSettings   UserComplianceSettings?
-  preferenceAuditLogs  PreferenceAuditLog[]
-  accountControl       AccountControlSettings?
-  activeSessions       ActiveSession[]
-  trustedDevices       TrustedDevice[]
-  activityLogs         ActivityLog[]
-  loginHistory         LoginHistory[]
-  dataOwnership        DataOwnershipSettings?
-  privacySettings      PrivacySettings?
+  id                     String                    @id @db.VarChar(12)
+  userId                 String                    @unique
+  createdAt              DateTime                  @default(now())
+  updatedAt              DateTime                  @updatedAt
+  user                   User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessibilitySettings  AccessibilitySettings?
+  customizationSettings  CustomizationSettings?
+  notificationSettings   UserNotificationSettings?
+  securitySettings       UserSecuritySettings?
+  privacySettings        PrivacySettings?
+  accountControl         AccountControlSettings?
+  dataOwnership          DataOwnershipSettings?
+  activeSessions         ActiveSession[]
+  trustedDevices         TrustedDevice[]
+  activityLogs           ActivityLog[]
+  loginHistory           LoginHistory[]
+  preferenceAuditLogs    PreferenceAuditLog[]
 }
 
 model UserNotificationSettings {
@@ -75,6 +77,45 @@ model UserNotificationSettings {
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
   userPreferences    UserPreferences @relation(fields: [userPreferencesId], references: [id], onDelete: Cascade)
+}
+
+model AccessibilitySettings {
+  id                       String          @id @db.VarChar(12)
+  userPreferencesId        String          @unique
+  language                 String          @default("en")
+  timezone                 String          @default("UTC")
+  dateFormat               String          @default("MM/DD/YYYY")
+  numberFormat             String          @default("1,000.00")
+  currency                 String          @default("USD")
+  timeFormat               String          @default("12h")
+  highContrastMode         Boolean         @default(false)
+  reducedMotion            Boolean         @default(false)
+  screenReaderOptimized    Boolean         @default(false)
+  fontSize                 String          @default("medium")
+  keyboardNavigation       Boolean         @default(false)
+  colorBlindMode           String?
+  createdAt                DateTime        @default(now())
+  updatedAt                DateTime        @updatedAt
+  userPreferences          UserPreferences @relation(fields: [userPreferencesId], references: [id], onDelete: Cascade)
+}
+
+model CustomizationSettings {
+  id                       String          @id @db.VarChar(12)
+  userPreferencesId        String          @unique
+  theme                    String          @default("system")
+  layoutPreferences        Json            @default("{}")
+  defaultViews             Json            @default("{}")
+  sortFilterDefaults       Json            @default("{}")
+  paginationSize           Int             @default(10)
+  featureToggles           Json            @default("{}")
+  betaFeaturesOptIn        Boolean         @default(false)
+  aiFeaturesOptIn          Boolean         @default(false)
+  contentSensitivityFilters Json           @default("{}")
+  sidebarCollapsed         Boolean         @default(false)
+  compactMode              Boolean         @default(false)
+  createdAt                DateTime        @default(now())
+  updatedAt                DateTime        @updatedAt
+  userPreferences          UserPreferences @relation(fields: [userPreferencesId], references: [id], onDelete: Cascade)
 }
 
 model AccountControlSettings {
@@ -135,19 +176,6 @@ model UserSecuritySettings {
   updatedAt         DateTime           @updatedAt
   userPreferences   UserPreferences    @relation(fields: [userPreferencesId], references: [id], onDelete: Cascade)
   securityAuditLogs SecurityAuditLog[]
-}
-
-model UserComplianceSettings {
-  id                   String               @id @db.VarChar(12)
-  userPreferencesId    String               @unique
-  dataShareConsent     Boolean              @default(false)
-  dataRetentionMonths  Int                  @default(12)
-  allowAccountDeletion Boolean              @default(true)
-  auditLogPreference   String               @default("full")
-  createdAt            DateTime             @default(now())
-  updatedAt            DateTime             @updatedAt
-  userPreferences      UserPreferences      @relation(fields: [userPreferencesId], references: [id], onDelete: Cascade)
-  complianceAuditLogs  ComplianceAuditLog[]
 }
 
 model PreferenceAuditLog {
@@ -236,22 +264,12 @@ model PrivacySettings {
   allowPublicProfile     Boolean         @default(false)
   allowSearchEngineIndex Boolean         @default(false)
   allowThirdPartySharing Boolean         @default(false)
+  dataShareConsent       Boolean         @default(false)
+  dataRetentionMonths    Int             @default(12)
+  auditLogPreference     String          @default("full")
   createdAt              DateTime        @default(now())
   updatedAt              DateTime        @updatedAt
   userPreferences        UserPreferences @relation(fields: [userPreferencesId], references: [id], onDelete: Cascade)
-}
-
-model ComplianceAuditLog {
-  id                   String                 @id @db.VarChar(12)
-  complianceSettingsId String
-  event                String
-  action               String
-  details              Json
-  createdAt            DateTime               @default(now())
-  complianceSettings   UserComplianceSettings @relation(fields: [complianceSettingsId], references: [id], onDelete: Cascade)
-
-  @@index([complianceSettingsId])
-  @@index([createdAt])
 }
 
 enum Roles {

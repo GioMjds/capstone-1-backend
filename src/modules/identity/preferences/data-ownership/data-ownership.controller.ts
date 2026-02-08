@@ -1,50 +1,39 @@
-import { Controller, Get, Post, Put, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Body,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import {
-  ExportPersonalDataUseCase,
-  ExportActivityHistoryUseCase,
-  DownloadAccountArchiveUseCase,
-  RequestDataDeletionUseCase,
-  RequestDataCorrectionUseCase,
-  AnonymizeDataUseCase,
-  SetExportFormatUseCase,
-} from '@/application/use-cases/identity/preferences';
-import {
-  ExportPersonalDataDto,
-  ExportPersonalDataResponseDto,
-  ExportActivityHistoryDto,
-  ExportActivityHistoryResponseDto,
-  DownloadAccountArchiveResponseDto,
-  RequestDataDeletionDto,
-  RequestDataDeletionResponseDto,
-  RequestDataCorrectionDto,
-  RequestDataCorrectionResponseDto,
-  AnonymizeDataDto,
-  AnonymizeDataResponseDto,
-  SetExportFormatDto,
-  SetExportFormatResponseDto,
-} from '@/application/dto/identity/preferences';
+import * as DataOwnershipUseCase from '@/application/use-cases/identity/preferences/data-ownership';
+import * as DataOwnershipDto from '@/application/dto/identity/preferences/data-ownership';
+import { JwtAuthGuard } from '@/shared/guards';
 
 @ApiTags('Preferences - Data Ownership')
 @ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('preferences/data-ownership')
 export class DataOwnershipController {
   constructor(
-    private readonly exportPersonalDataUseCase: ExportPersonalDataUseCase,
-    private readonly exportActivityHistoryUseCase: ExportActivityHistoryUseCase,
-    private readonly downloadAccountArchiveUseCase: DownloadAccountArchiveUseCase,
-    private readonly requestDataDeletionUseCase: RequestDataDeletionUseCase,
-    private readonly requestDataCorrectionUseCase: RequestDataCorrectionUseCase,
-    private readonly anonymizeDataUseCase: AnonymizeDataUseCase,
-    private readonly setExportFormatUseCase: SetExportFormatUseCase,
+    private readonly exportPersonalDataUseCase: DataOwnershipUseCase.ExportPersonalDataUseCase,
+    private readonly exportActivityHistoryUseCase: DataOwnershipUseCase.ExportActivityHistoryUseCase,
+    private readonly downloadAccountArchiveUseCase: DataOwnershipUseCase.DownloadAccountArchiveUseCase,
+    private readonly requestDataDeletionUseCase: DataOwnershipUseCase.RequestDataDeletionUseCase,
+    private readonly requestDataCorrectionUseCase: DataOwnershipUseCase.RequestDataCorrectionUseCase,
+    private readonly anonymizeDataUseCase: DataOwnershipUseCase.AnonymizeDataUseCase,
+    private readonly setExportFormatUseCase: DataOwnershipUseCase.SetExportFormatUseCase,
   ) {}
 
   @Post('export-personal-data')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Export personal data' })
   async exportPersonalData(
-    @Body() dto: ExportPersonalDataDto,
-  ): Promise<ExportPersonalDataResponseDto> {
+    @Body() dto: DataOwnershipDto.ExportPersonalDataDto,
+  ): Promise<DataOwnershipDto.DataExportResponseDto> {
     return this.exportPersonalDataUseCase.execute(dto);
   }
 
@@ -52,23 +41,25 @@ export class DataOwnershipController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Export activity history' })
   async exportActivityHistory(
-    @Body() dto: ExportActivityHistoryDto,
-  ): Promise<ExportActivityHistoryResponseDto> {
+    @Body() dto: DataOwnershipDto.ExportActivityHistoryDto,
+  ): Promise<DataOwnershipDto.DataExportResponseDto> {
     return this.exportActivityHistoryUseCase.execute(dto);
   }
 
   @Get('download-archive')
   @ApiOperation({ summary: 'Download account archive' })
-  async downloadAccountArchive(): Promise<DownloadAccountArchiveResponseDto> {
-    return this.downloadAccountArchiveUseCase.execute();
+  async downloadAccountArchive(
+    @Body() dto: DataOwnershipDto.DownloadAccountArchiveDto,
+  ): Promise<DataOwnershipDto.AccountArchiveResponseDto> {
+    return this.downloadAccountArchiveUseCase.execute(dto);
   }
 
   @Post('request-deletion')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request data deletion (GDPR)' })
   async requestDataDeletion(
-    @Body() dto: RequestDataDeletionDto,
-  ): Promise<RequestDataDeletionResponseDto> {
+    @Body() dto: DataOwnershipDto.RequestDataDeletionDto,
+  ): Promise<DataOwnershipDto.DataDeletionResponseDto> {
     return this.requestDataDeletionUseCase.execute(dto);
   }
 
@@ -76,15 +67,17 @@ export class DataOwnershipController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request data correction' })
   async requestDataCorrection(
-    @Body() dto: RequestDataCorrectionDto,
-  ): Promise<RequestDataCorrectionResponseDto> {
+    @Body() dto: DataOwnershipDto.RequestDataCorrectionDto,
+  ): Promise<DataOwnershipDto.DataCorrectionResponseDto> {
     return this.requestDataCorrectionUseCase.execute(dto);
   }
 
   @Post('anonymize')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Anonymize data' })
-  async anonymizeData(@Body() dto: AnonymizeDataDto): Promise<AnonymizeDataResponseDto> {
+  async anonymizeData(
+    @Body() dto: DataOwnershipDto.AnonymizeDataDto,
+  ): Promise<DataOwnershipDto.AnonymizationResponseDto> {
     return this.anonymizeDataUseCase.execute(dto);
   }
 
@@ -92,8 +85,8 @@ export class DataOwnershipController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Set preferred export format' })
   async setExportFormat(
-    @Body() dto: SetExportFormatDto,
-  ): Promise<SetExportFormatResponseDto> {
+    @Body() dto: DataOwnershipDto.SetExportFormatDto,
+  ): Promise<DataOwnershipDto.ExportFormatResponseDto> {
     return this.setExportFormatUseCase.execute(dto);
   }
 }

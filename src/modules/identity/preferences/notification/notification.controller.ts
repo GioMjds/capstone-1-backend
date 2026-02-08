@@ -50,44 +50,49 @@ export class NotificationController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Set quiet hours' })
   async setQuietHours(
+    @CurrentUser('sub') userId: string,
     @Body() dto: NotificationDto.SetQuietHoursDto,
-  ): Promise<NotificationDto.SetQuietHoursResponseDto> {
-    return this.setQuietHoursUseCase.execute(dto);
+  ): Promise<NotificationDto.QuietHoursResponseDto> {
+    return this.setQuietHoursUseCase.execute(userId, dto);
   }
 
   @Put('marketing-opt-in')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Manage marketing opt-in preferences' })
   async manageMarketingOptIn(
+    @CurrentUser('sub') userId: string,
     @Body() dto: NotificationDto.ManageMarketingOptInDto,
-  ): Promise<NotificationDto.ManageMarketingOptInResponseDto> {
-    return this.manageMarketingOptInUseCase.execute(dto);
+  ): Promise<NotificationDto.MarketingOptInResponseDto> {
+    return this.manageMarketingOptInUseCase.execute(userId, dto);
   }
 
   @Put('email-by-category')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Configure email notifications by category' })
   async configureEmailNotificationsByCategory(
-    @Body() dto: NotificationDto.ConfigureEmailNotificationsByCategoryDto,
-  ): Promise<NotificationDto.ConfigureEmailNotificationsByCategoryResponseDto> {
-    return this.configureEmailNotificationsByCategoryUseCase.execute(dto);
+    @CurrentUser('sub') userId: string,
+    @Body() dto: NotificationDto.ConfigureEmailNotificationsDto,
+  ): Promise<NotificationDto.EmailNotificationCategoriesResponseDto> {
+    return this.configureEmailNotificationsByCategoryUseCase.execute(userId, dto);
   }
 
   @Put('push-by-category')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Configure push notifications by category' })
   async configurePushNotificationsByCategory(
-    @Body() dto: NotificationDto.ConfigurePushNotificationsByCategoryDto,
-  ): Promise<NotificationDto.ConfigurePushNotificationsByCategoryResponseDto> {
-    return this.configurePushNotificationsByCategoryUseCase.execute(dto);
+    @CurrentUser('sub') userId: string,
+    @Body() dto: NotificationDto.ConfigurePushNotificationsDto,
+  ): Promise<NotificationDto.PushNotificationCategoriesResponseDto> {
+    return this.configurePushNotificationsByCategoryUseCase.execute(userId, dto);
   }
 
   @Put('sms-alerts')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Configure SMS alerts' })
   async configureSmsAlerts(
+    @CurrentUser('sub') userId: string,
     @Body() dto: NotificationDto.ConfigureSmsAlertsDto,
-  ): Promise<NotificationDto.ConfigureSmsAlertsResponseDto> {
-    return this.configureSmsAlertsUseCase.execute(dto);
+  ): Promise<NotificationDto.SmsAlertsResponseDto> {
+    return this.configureSmsAlertsUseCase.execute(userId, dto);
   }
 }

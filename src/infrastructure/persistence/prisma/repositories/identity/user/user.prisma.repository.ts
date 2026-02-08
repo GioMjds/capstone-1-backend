@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@/infrastructure/persistence';
 import { IUserRepository } from '@/domain/repositories';
 import { UserEntity } from '@/domain/entities/identity/user';
@@ -83,7 +83,7 @@ export class PrismaUserRepository implements IUserRepository {
       include: { isArchived: true, userPreferences: true },
     });
 
-    if (!prismaUser) throw new Error('User not found after creation');
+    if (!prismaUser) throw new NotFoundException('User not found after creation');
 
     return UserMapper.toDomain(this.normalizePrismaUser(prismaUser));
   }
@@ -111,23 +111,13 @@ export class PrismaUserRepository implements IUserRepository {
 
     const userPreference = user.userPreferences;
     if (userPreference) {
+      const preferencesId = uuidv4().slice(0, 12);
       await this.prisma.userPreferences.upsert({
         where: { userId: user.id },
-        update: {
-          uiPreferences: {
-            theme: userPreference.getTheme(),
-            language: userPreference.getLanguage(),
-            notifications: userPreference.isNotificationsEnabled(),
-          },
-        },
+        update: {},
         create: {
-          id: uuidv4().slice(0, 12),
+          id: preferencesId,
           userId: user.id,
-          uiPreferences: {
-            theme: userPreference.getTheme(),
-            language: userPreference.getLanguage(),
-            notifications: userPreference.isNotificationsEnabled(),
-          },
         },
       });
     } else {
@@ -141,7 +131,7 @@ export class PrismaUserRepository implements IUserRepository {
       include: { isArchived: true, userPreferences: true },
     });
 
-    if (!prismaUser) throw new Error('User not found after update');
+    if (!prismaUser) throw new NotFoundException('User not found after update');
 
     return UserMapper.toDomain(this.normalizePrismaUser(prismaUser));
   }
@@ -188,7 +178,7 @@ export class PrismaUserRepository implements IUserRepository {
       include: { isArchived: true, userPreferences: true },
     });
 
-    if (!prismaUser) throw new Error('User not found');
+    if (!prismaUser) throw new NotFoundException('User not found');
 
     const at = archivedAt ?? new Date();
 
@@ -203,7 +193,7 @@ export class PrismaUserRepository implements IUserRepository {
       include: { isArchived: true, userPreferences: true },
     });
 
-    if (!refreshed) throw new Error('User not found after archiving');
+    if (!refreshed) throw new NotFoundException('User not found after archiving');
 
     return UserMapper.toDomain(this.normalizePrismaUser(refreshed));
   }
@@ -214,7 +204,7 @@ export class PrismaUserRepository implements IUserRepository {
       include: { isArchived: true, userPreferences: true },
     });
 
-    if (!prismaUser) throw new Error('User not found');
+    if (!prismaUser) throw new NotFoundException('User not found');
 
     await this.prisma.archivedUsers.deleteMany({
       where: { userId: id },
@@ -230,7 +220,7 @@ export class PrismaUserRepository implements IUserRepository {
       include: { isArchived: true, userPreferences: true },
     });
 
-    if (!refreshed) throw new Error('User not found after unarchiving');
+    if (!refreshed) throw new NotFoundException('User not found after unarchiving');
 
     return UserMapper.toDomain(this.normalizePrismaUser(refreshed));
   }

@@ -3,6 +3,7 @@ import {
   ChangeUsernameDto,
   ChangeUsernameResponseDto,
 } from '@/application/dto/identity/preferences';
+import { uuidv4 } from '@/shared/utils';
 
 @Injectable()
 export class ChangeUsernameUseCase {
@@ -10,7 +11,7 @@ export class ChangeUsernameUseCase {
 
   async execute(dto: ChangeUsernameDto): Promise<ChangeUsernameResponseDto> {
     return {
-      id: 'stub-id',
+      id: uuidv4().slice(0, 12),
       username: dto.newUsername,
       updatedAt: new Date(),
     };

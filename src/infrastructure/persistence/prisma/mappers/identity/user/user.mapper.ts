@@ -35,15 +35,16 @@ export class UserMapper {
     const preferences = prismaUser.userPreferences && prismaUser.userPreferences.length
       ? (() => {
           const up = prismaUser.userPreferences[0];
-          const ui: any = up.uiPreferences ?? {};
-          const ns: any = (up as any).notificationSettings ?? ui.notificationSettings ?? {};
+          const customization: Record<string, unknown> = (up as Record<string, unknown>).customizationSettings as Record<string, unknown> ?? {};
+          const accessibility: Record<string, unknown> = (up as Record<string, unknown>).accessibilitySettings as Record<string, unknown> ?? {};
+          const notification: Record<string, unknown> = (up as Record<string, unknown>).notificationSettings as Record<string, unknown> ?? {};
 
           return UserPreferencesEntity.reconstitute({
             id: up.id,
             userId: up.userId,
-            theme: ui.theme ?? ns.theme ?? 'LIGHT',
-            language: ui.language ?? ns.language ?? 'en',
-            notifications: typeof ns.notifications === 'boolean' ? ns.notifications : (ui.notifications ?? true),
+            theme: (customization.theme as string) ?? 'system',
+            language: (accessibility.language as string) ?? 'en',
+            notifications: typeof notification.emailNotifications === 'boolean' ? notification.emailNotifications : true,
           });
         })()
       : null;

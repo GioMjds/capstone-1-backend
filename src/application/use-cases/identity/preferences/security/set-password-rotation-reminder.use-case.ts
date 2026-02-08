@@ -1,17 +1,29 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import {
   SetPasswordRotationReminderDto,
   SetPasswordRotationReminderResponseDto,
 } from '@/application/dto/identity/preferences';
+import { ISecurityRepository } from '@/domain/repositories/identity/preferences';
 
 @Injectable()
 export class SetPasswordRotationReminderUseCase {
-  constructor() {}
+  constructor(
+    @Inject('ISecurityRepository')
+    private readonly securityRepository: ISecurityRepository,
+  ) {}
 
-  async execute(dto: SetPasswordRotationReminderDto): Promise<SetPasswordRotationReminderResponseDto> {
+  async execute(userId: string, dto: SetPasswordRotationReminderDto): Promise<SetPasswordRotationReminderResponseDto> {
     const expirationDays = dto.passwordExpirationDays ?? 90;
+
+    await this.securityRepository.updateSecuritySettings(userId, {
+      passwordRotationReminder: {
+        reminderDaysBeforeExpiry: dto.reminderDaysBeforeExpiry ?? 14,
+        passwordExpirationDays: expirationDays,
+      },
+    });
+
     return {
-      id: 'password-rotation-123',
+      id: userId,
       reminderDaysBeforeExpiry: dto.reminderDaysBeforeExpiry ?? 14,
       passwordExpirationDays: expirationDays,
       lastChangedAt: new Date(),

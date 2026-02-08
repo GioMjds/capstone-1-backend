@@ -8,11 +8,25 @@ import {
   PrismaUserPreferencesRepository,
   PrismaSessionRepository,
   PrismaActivityRepository,
+  PrismaAccessibilityRepository,
+  PrismaAccountControlsRepository,
+  PrismaCustomizationsRepository,
+  PrismaDataOwnershipRepository,
+  PrismaNotificationRepository,
+  PrismaPrivacyRepository,
+  PrismaSecurityRepository,
 } from '@/infrastructure/persistence/prisma/repositories';
 import {
   PreferencesMapper,
   SessionMapper,
   ActivityMapper,
+  AccessibilityMapper,
+  AccountControlsMapper,
+  CustomizationsMapper,
+  DataOwnershipMapper,
+  NotificationMapper,
+  PrivacyMapper,
+  SecurityMapper,
 } from '@/infrastructure/persistence/prisma/mappers';
 import { USER_PREFERENCES_USE_CASES } from '@/application/use-cases/identity/preferences';
 import { AccessibilityController } from './accessibility/accessibility.controller';
@@ -43,6 +57,13 @@ import { SecurityController } from './security/security.controller';
     PreferencesMapper,
     SessionMapper,
     ActivityMapper,
+    AccessibilityMapper,
+    AccountControlsMapper,
+    CustomizationsMapper,
+    DataOwnershipMapper,
+    NotificationMapper,
+    PrivacyMapper,
+    SecurityMapper,
     ...USER_PREFERENCES_USE_CASES,
     {
       provide: 'IUserRepository',
@@ -60,15 +81,51 @@ import { SecurityController } from './security/security.controller';
       provide: 'IActivityRepository',
       useClass: PrismaActivityRepository,
     },
+    {
+      provide: 'IAccessibilityRepository',
+      useClass: PrismaAccessibilityRepository,
+    },
+    {
+      provide: 'IAccountControlsRepository',
+      useClass: PrismaAccountControlsRepository,
+    },
+    {
+      provide: 'ICustomizationsRepository',
+      useClass: PrismaCustomizationsRepository,
+    },
+    {
+      provide: 'IDataOwnershipRepository',
+      useClass: PrismaDataOwnershipRepository,
+    },
+    {
+      provide: 'INotificationRepository',
+      useClass: PrismaNotificationRepository,
+    },
+    {
+      provide: 'IPrivacyRepository',
+      useClass: PrismaPrivacyRepository,
+    },
+    {
+      provide: 'ISecurityRepository',
+      useClass: PrismaSecurityRepository,
+    },
   ],
   exports: [
     JwtService,
     UserMapper,
     PrismaService,
     ...USER_PREFERENCES_USE_CASES,
+    'IUserRepository',
     'IUserPreferencesRepository',
     'ISessionRepository',
     'IActivityRepository',
+    'IAccessibilityRepository',
+    'IAccountControlsRepository',
+    'ICustomizationsRepository',
+    'IDataOwnershipRepository',
+    'INotificationRepository',
+    'IPrivacyRepository',
+    'ISecurityRepository',
   ],
 })
 export class PreferencesModule {}

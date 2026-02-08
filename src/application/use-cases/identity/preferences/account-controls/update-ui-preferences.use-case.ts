@@ -12,49 +12,83 @@ export class UpdateUiPreferencesUseCase {
     userId: string,
     dto: UpdateUiPreferencesDto,
   ): Promise<UIPreferencesValueObject> {
-    const userPreferences = await this.prisma.userPreferences.findUnique({
+    let userPreferences = await this.prisma.userPreferences.findUnique({
       where: { userId },
-    });
-
-    if (!userPreferences) {
-      const newPreferences = await this.prisma.userPreferences.create({
-        data: {
-          id: randomUUID().replace(/-/g, '').substring(0, 12),
-          userId,
-          uiPreferences: {
-            theme: dto.theme ?? 'light',
-            language: dto.language ?? 'en',
-            timezone: dto.timezone,
-            locale: dto.locale,
-          },
-        },
-      });
-
-      return UIPreferencesValueObject.fromPersistence(
-        (newPreferences.uiPreferences ?? {}) as Record<string, string>,
-      );
-    }
-
-    const currentUiPreferences = userPreferences.uiPreferences as Record<
-      string,
-      any
-    >;
-    const updatedUiPreferences = {
-      ...currentUiPreferences,
-      ...(dto.theme && { theme: dto.theme }),
-      ...(dto.language && { language: dto.language }),
-      ...(dto.timezone && { timezone: dto.timezone }),
-      ...(dto.locale && { locale: dto.locale }),
-    };
-
-    await this.prisma.userPreferences.update({
-      where: { userId },
-      data: {
-        uiPreferences: updatedUiPreferences,
-        updatedAt: new Date(),
+      include: {
+        accessibilitySettings: true,
+        customizationSettings: true,
       },
     });
 
-    return UIPreferencesValueObject.fromPersistence(updatedUiPreferences);
+    const generateId = () => randomUUID().replace(/-/g, '').substring(0, 12);
+
+    if (!userPreferences) {
+      userPreferences = await this.prisma.userPreferences.create({
+        data: {
+          id: generateId(),
+          userId,
+          accessibilitySettings: {
+            create: {
+              id: generateId(),
+              language: dto.language ?? 'en',
+              timezone: dto.timezone ?? 'UTC',
+            },
+          },
+          customizationSettings: {
+            create: {
+              id: generateId(),
+              theme: dto.theme ?? 'system',
+            },
+          },
+        },
+        include: {
+          accessibilitySettings: true,
+          customizationSettings: true,
+        },
+      });
+    } else {
+      if (dto.theme) {
+        await this.prisma.customizationSettings.upsert({
+          where: { userPreferencesId: userPreferences.id },
+          update: { theme: dto.theme },
+          create: {
+            id: generateId(),
+            userPreferencesId: userPreferences.id,
+            theme: dto.theme,
+          },
+        });
+      }
+
+      if (dto.language || dto.timezone) {
+        await this.prisma.accessibilitySettings.upsert({
+          where: { userPreferencesId: userPreferences.id },
+          update: {
+            ...(dto.language && { language: dto.language }),
+            ...(dto.timezone && { timezone: dto.timezone }),
+          },
+          create: {
+            id: generateId(),
+            userPreferencesId: userPreferences.id,
+            language: dto.language ?? 'en',
+            timezone: dto.timezone ?? 'UTC',
+          },
+        });
+      }
+
+      userPreferences = await this.prisma.userPreferences.findUnique({
+        where: { userId },
+        include: {
+          accessibilitySettings: true,
+          customizationSettings: true,
+        },
+      });
+    }
+
+    return UIPreferencesValueObject.fromPersistence({
+      theme: userPreferences?.customizationSettings?.theme ?? 'system',
+      language: userPreferences?.accessibilitySettings?.language ?? 'en',
+      timezone: userPreferences?.accessibilitySettings?.timezone,
+      locale: dto.locale,
+    });
   }
 }

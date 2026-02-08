@@ -1,12 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
   PreferenceAuditLogDto,
   AuditLogsResponseDto,
 } from '@/application/dto/identity/preferences';
+import { IUserRepository } from '@/domain/repositories';
 
 @Injectable()
 export class GetPreferenceAuditLogsUseCase {
-  constructor() {}
+  constructor(
+    @Inject('IUserRepository')
+    private readonly userRepository: IUserRepository,
+  ) {}
 
   async execute(
     userId: string,
@@ -14,6 +18,9 @@ export class GetPreferenceAuditLogsUseCase {
     limit: number = 20,
     category?: string
   ): Promise<AuditLogsResponseDto> {
+    const user = await this.userRepository.findById(userId);
+    if (!user) throw new NotFoundException('User not found');
+
     return {
       logs: [],
       total: 0,

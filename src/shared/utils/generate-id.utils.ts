@@ -1,3 +1,7 @@
+import { randomUUID } from "crypto";
+
+export const uuidv4 = (): string => randomUUID();
+
 export function generateUserId(): string {
   const alphabet: string =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

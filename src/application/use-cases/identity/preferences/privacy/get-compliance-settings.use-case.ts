@@ -1,27 +1,21 @@
-import { Injectable, NotFoundException, Inject } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import {
   ComplianceSettingsResponseDto,
   AuditLogPreference,
 } from '@/application/dto/identity/preferences';
-import { IUserRepository } from '@/domain/repositories';
+import { IPrivacyRepository } from '@/domain/repositories/identity/preferences';
 
 @Injectable()
 export class GetComplianceSettingsUseCase {
   constructor(
-    @Inject('IUserRepository')
-    private readonly userRepository: IUserRepository,
+    @Inject('IPrivacyRepository')
+    private readonly privacyRepository: IPrivacyRepository,
   ) {}
 
   async execute(userId: string): Promise<ComplianceSettingsResponseDto> {
-    const user = await this.userRepository.findById(userId);
+    const settings = await this.privacyRepository.getPrivacySettings(userId);
 
-    if (!user) {
-      throw new NotFoundException(`User with id ${userId} not found`);
-    }
-
-    const preferences = user.getPreferences();
-
-    if (!preferences) {
+    if (!settings) {
       return {
         dataShareConsent: false,
         dataRetentionMonths: 12,
@@ -33,12 +27,12 @@ export class GetComplianceSettingsUseCase {
     }
 
     return {
-      dataShareConsent: false,
+      dataShareConsent: settings.allowThirdPartySharing ?? false,
       dataRetentionMonths: 12,
       allowAccountDeletion: true,
       auditLogPreference: AuditLogPreference.MINIMAL,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: settings.createdAt,
+      updatedAt: settings.updatedAt,
     };
   }
 }

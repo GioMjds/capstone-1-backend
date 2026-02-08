@@ -1,22 +1,18 @@
-import { Injectable, NotFoundException, Inject } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { SecuritySettingsResponseDto } from '@/application/dto/identity/preferences';
-import { IUserRepository } from '@/domain/repositories';
+import { ISecurityRepository } from '@/domain/repositories/identity/preferences';
 
 @Injectable()
 export class GetSecuritySettingsUseCase {
   constructor(
-    @Inject('IUserRepository')
-    private readonly userRepository: IUserRepository,
+    @Inject('ISecurityRepository')
+    private readonly securityRepository: ISecurityRepository,
   ) {}
 
   async execute(userId: string): Promise<SecuritySettingsResponseDto> {
-    const user = await this.userRepository.findById(userId);
+    const settings = await this.securityRepository.getSecuritySettings(userId);
 
-    if (!user) throw new NotFoundException(`User with id ${userId} not found`);
-
-    const preferences = user.getPreferences();
-
-    if (!preferences) {
+    if (!settings) {
       return {
         twoFactorEnabled: false,
         twoFactorMethod: '',
@@ -28,10 +24,10 @@ export class GetSecuritySettingsUseCase {
     }
 
     return {
-      twoFactorEnabled: false,
-      twoFactorMethod: '',
-      passkeysEnabled: false,
-      passwordChangedAt: new Date(),
+      twoFactorEnabled: settings.twoFactorEnabled,
+      twoFactorMethod: settings.twoFactorMethod ?? '',
+      passkeysEnabled: settings.passkeysEnabled,
+      passwordChangedAt: settings.passwordChangedAt ?? new Date(),
       activeSessions: [],
       trustedDevices: [],
     };

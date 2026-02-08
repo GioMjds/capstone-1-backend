@@ -1,17 +1,31 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
   ManageFeatureTogglesDto,
   ManageFeatureTogglesResponseDto,
 } from '@/application/dto/identity/preferences';
+import { ICustomizationsRepository } from '@/domain/repositories/identity/preferences';
 
 @Injectable()
 export class ManageFeatureTogglesUseCase {
-  constructor() {}
+  constructor(
+    @Inject('ICustomizationsRepository')
+    private readonly customizationsRepository: ICustomizationsRepository,
+  ) {}
 
-  async execute(dto: ManageFeatureTogglesDto): Promise<ManageFeatureTogglesResponseDto> {
+  async execute(userId: string, dto: ManageFeatureTogglesDto): Promise<ManageFeatureTogglesResponseDto> {
+    await this.customizationsRepository.updateCustomizationSettings(userId, {
+      featureToggles: dto.toggles,
+    });
+
+    const settings = await this.customizationsRepository.getCustomizationSettings(userId);
+
+    if (!settings) {
+      throw new NotFoundException('Customization settings not found');
+    }
+
     return {
-      id: 'user-id-placeholder',
-      toggles: dto.toggles,
+      id: settings.id,
+      toggles: settings.featureToggles as Record<string, boolean>,
       updatedAt: new Date(),
     };
   }

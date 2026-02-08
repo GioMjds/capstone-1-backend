@@ -1,18 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import {
   ManageTrustedDevicesDto,
   TrustedDevicesResponseDto,
 } from '@/application/dto/identity/preferences';
+import { ISecurityRepository } from '@/domain/repositories/identity/preferences';
 
 @Injectable()
 export class ManageTrustedDevicesUseCase {
-  constructor() {}
+  constructor(
+    @Inject('ISecurityRepository')
+    private readonly securityRepository: ISecurityRepository,
+  ) {}
 
-  async execute(dto: ManageTrustedDevicesDto): Promise<TrustedDevicesResponseDto> {
+  async execute(userId: string, dto: ManageTrustedDevicesDto): Promise<TrustedDevicesResponseDto> {
+    const settings = await this.securityRepository.getSecuritySettings(userId);
+
     return {
       devices: [],
       maxDevices: dto.maxDevices,
-      updatedAt: new Date(),
+      updatedAt: settings?.updatedAt ?? new Date(),
     };
   }
 }

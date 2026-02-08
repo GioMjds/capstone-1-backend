@@ -1,129 +1,121 @@
-import { Controller, Put, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Put,
+  Body,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import {
-  SetThemeUseCase,
-  SetLayoutPreferencesUseCase,
-  SetDefaultViewsUseCase,
-  SetSortFilterDefaultsUseCase,
-  SetPaginationSizeUseCase,
-  ManageFeatureTogglesUseCase,
-  ManageBetaFeaturesOptInUseCase,
-  ManageAiFeaturesOptInUseCase,
-  SetContentSensitivityFiltersUseCase,
-} from '@/application/use-cases/identity/preferences';
-import {
-  SetThemeDto,
-  SetThemeResponseDto,
-  SetLayoutPreferencesDto,
-  SetLayoutPreferencesResponseDto,
-  SetDefaultViewsDto,
-  SetDefaultViewsResponseDto,
-  SetSortFilterDefaultsDto,
-  SetSortFilterDefaultsResponseDto,
-  SetPaginationSizeDto,
-  SetPaginationSizeResponseDto,
-  ManageFeatureTogglesDto,
-  ManageFeatureTogglesResponseDto,
-  ManageBetaFeaturesOptInDto,
-  ManageBetaFeaturesOptInResponseDto,
-  ManageAiFeaturesOptInDto,
-  ManageAiFeaturesOptInResponseDto,
-  SetContentSensitivityFiltersDto,
-  SetContentSensitivityFiltersResponseDto,
-} from '@/application/dto/identity/preferences';
+import * as CustomizationsUseCase from '@/application/use-cases/identity/preferences/customizations';
+import * as CustomizationsDto from '@/application/dto/identity/preferences/customizations';
+import { JwtAuthGuard } from '@/shared/guards';
+import { CurrentUser } from '@/shared/decorators';
 
 @ApiTags('Preferences - Customizations')
 @ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('preferences/customizations')
 export class CustomizationsController {
   constructor(
-    private readonly setThemeUseCase: SetThemeUseCase,
-    private readonly setLayoutPreferencesUseCase: SetLayoutPreferencesUseCase,
-    private readonly setDefaultViewsUseCase: SetDefaultViewsUseCase,
-    private readonly setSortFilterDefaultsUseCase: SetSortFilterDefaultsUseCase,
-    private readonly setPaginationSizeUseCase: SetPaginationSizeUseCase,
-    private readonly manageFeatureTogglesUseCase: ManageFeatureTogglesUseCase,
-    private readonly manageBetaFeaturesOptInUseCase: ManageBetaFeaturesOptInUseCase,
-    private readonly manageAiFeaturesOptInUseCase: ManageAiFeaturesOptInUseCase,
-    private readonly setContentSensitivityFiltersUseCase: SetContentSensitivityFiltersUseCase,
+    private readonly setThemeUseCase: CustomizationsUseCase.SetThemeUseCase,
+    private readonly setLayoutPreferencesUseCase: CustomizationsUseCase.SetLayoutPreferencesUseCase,
+    private readonly setDefaultViewsUseCase: CustomizationsUseCase.SetDefaultViewsUseCase,
+    private readonly setSortFilterDefaultsUseCase: CustomizationsUseCase.SetSortFilterDefaultsUseCase,
+    private readonly setPaginationSizeUseCase: CustomizationsUseCase.SetPaginationSizeUseCase,
+    private readonly manageFeatureTogglesUseCase: CustomizationsUseCase.ManageFeatureTogglesUseCase,
+    private readonly manageBetaFeaturesOptInUseCase: CustomizationsUseCase.ManageBetaFeaturesOptInUseCase,
+    private readonly manageAiFeaturesOptInUseCase: CustomizationsUseCase.ManageAiFeaturesOptInUseCase,
+    private readonly setContentSensitivityFiltersUseCase: CustomizationsUseCase.SetContentSensitivityFiltersUseCase,
   ) {}
 
   @Put('theme')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Set theme preference' })
-  async setTheme(@Body() dto: SetThemeDto): Promise<SetThemeResponseDto> {
-    return this.setThemeUseCase.execute(dto);
+  async setTheme(
+    @CurrentUser('sub') userId: string,
+    @Body() dto: CustomizationsDto.SetThemeDto,
+  ): Promise<CustomizationsDto.ThemeResponseDto> {
+    return this.setThemeUseCase.execute(userId, dto);
   }
 
   @Put('layout')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Set layout preferences' })
   async setLayoutPreferences(
-    @Body() dto: SetLayoutPreferencesDto,
-  ): Promise<SetLayoutPreferencesResponseDto> {
-    return this.setLayoutPreferencesUseCase.execute(dto);
+    @CurrentUser('sub') userId: string,
+    @Body() dto: CustomizationsDto.SetLayoutPreferencesDto,
+  ): Promise<CustomizationsDto.LayoutPreferencesResponseDto> {
+    return this.setLayoutPreferencesUseCase.execute(userId, dto);
   }
 
   @Put('default-views')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Set default views' })
   async setDefaultViews(
-    @Body() dto: SetDefaultViewsDto,
-  ): Promise<SetDefaultViewsResponseDto> {
-    return this.setDefaultViewsUseCase.execute(dto);
+    @CurrentUser('sub') userId: string,
+    @Body() dto: CustomizationsDto.SetDefaultViewsDto,
+  ): Promise<CustomizationsDto.DefaultViewsResponseDto> {
+    return this.setDefaultViewsUseCase.execute(userId, dto);
   }
 
   @Put('sort-filter-defaults')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Set sort and filter defaults' })
   async setSortFilterDefaults(
-    @Body() dto: SetSortFilterDefaultsDto,
-  ): Promise<SetSortFilterDefaultsResponseDto> {
-    return this.setSortFilterDefaultsUseCase.execute(dto);
+    @CurrentUser('sub') userId: string,
+    @Body() dto: CustomizationsDto.SetSortFilterDefaultsDto,
+  ): Promise<CustomizationsDto.SortFilterDefaultsResponseDto> {
+    return this.setSortFilterDefaultsUseCase.execute(userId, dto);
   }
 
   @Put('pagination-size')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Set pagination size' })
   async setPaginationSize(
-    @Body() dto: SetPaginationSizeDto,
-  ): Promise<SetPaginationSizeResponseDto> {
-    return this.setPaginationSizeUseCase.execute(dto);
+    @CurrentUser('sub') userId: string,
+    @Body() dto: CustomizationsDto.SetPaginationSizeDto,
+  ): Promise<CustomizationsDto.PaginationSizeResponseDto> {
+    return this.setPaginationSizeUseCase.execute(userId, dto);
   }
 
   @Put('feature-toggles')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Manage feature toggles' })
   async manageFeatureToggles(
-    @Body() dto: ManageFeatureTogglesDto,
-  ): Promise<ManageFeatureTogglesResponseDto> {
-    return this.manageFeatureTogglesUseCase.execute(dto);
+    @CurrentUser('sub') userId: string,
+    @Body() dto: CustomizationsDto.ManageFeatureTogglesDto,
+  ): Promise<CustomizationsDto.ManageFeatureTogglesResponseDto> {
+    return this.manageFeatureTogglesUseCase.execute(userId, dto);
   }
 
   @Put('beta-features')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Opt in/out of beta features' })
   async manageBetaFeaturesOptIn(
-    @Body() dto: ManageBetaFeaturesOptInDto,
-  ): Promise<ManageBetaFeaturesOptInResponseDto> {
-    return this.manageBetaFeaturesOptInUseCase.execute(dto);
+    @CurrentUser('sub') userId: string,
+    @Body() dto: CustomizationsDto.ManageBetaFeaturesDto,
+  ): Promise<CustomizationsDto.BetaFeaturesResponseDto> {
+    return this.manageBetaFeaturesOptInUseCase.execute(userId, dto);
   }
 
   @Put('ai-features')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Opt in/out of AI features' })
   async manageAiFeaturesOptIn(
-    @Body() dto: ManageAiFeaturesOptInDto,
-  ): Promise<ManageAiFeaturesOptInResponseDto> {
-    return this.manageAiFeaturesOptInUseCase.execute(dto);
+    @CurrentUser('sub') userId: string,
+    @Body() dto: CustomizationsDto.ManageAiFeaturesOptInDto,
+  ): Promise<CustomizationsDto.ManageAiFeaturesOptInResponseDto> {
+    return this.manageAiFeaturesOptInUseCase.execute(userId, dto);
   }
 
   @Put('content-sensitivity-filters')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Set content sensitivity filters' })
   async setContentSensitivityFilters(
-    @Body() dto: SetContentSensitivityFiltersDto,
-  ): Promise<SetContentSensitivityFiltersResponseDto> {
-    return this.setContentSensitivityFiltersUseCase.execute(dto);
+    @CurrentUser('sub') userId: string,
+    @Body() dto: CustomizationsDto.SetContentSensitivityFiltersDto,
+  ): Promise<CustomizationsDto.ContentSensitivityFiltersResponseDto> {
+    return this.setContentSensitivityFiltersUseCase.execute(userId, dto);
   }
 }

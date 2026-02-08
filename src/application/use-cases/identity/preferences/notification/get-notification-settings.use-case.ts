@@ -1,22 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { NotificationSettingsResponseDto } from '@/application/dto/identity/preferences/notification';
-import { PrismaService } from '@/infrastructure/persistence';
+import { INotificationRepository } from '@/domain/repositories/identity/preferences';
 
 @Injectable()
 export class GetNotificationSettingsUseCase {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject('INotificationRepository')
+    private readonly notificationRepository: INotificationRepository,
+  ) {}
 
   async execute(userId: string): Promise<NotificationSettingsResponseDto> {
-    const userPreferences = await this.prisma.userPreferences.findUnique({
-      where: { userId },
-      include: { notificationSettings: true },
-    });
-
-    if (!userPreferences) {
-      throw new NotFoundException(`User preferences not found for user: ${userId}`);
-    }
-
-    const settings = userPreferences.notificationSettings;
+    const settings = await this.notificationRepository.getNotificationSettings(userId);
 
     if (!settings) {
       return {
@@ -28,7 +22,7 @@ export class GetNotificationSettingsUseCase {
         quietHoursStart: undefined,
         quietHoursEnd: undefined,
         securityAlerts: true,
-        updatedAt: userPreferences.updatedAt,
+        updatedAt: new Date(),
       };
     }
 
@@ -39,11 +33,11 @@ export class GetNotificationSettingsUseCase {
       emailNotifications: settings.emailNotifications,
       pushNotifications: settings.pushNotifications,
       smsNotifications: settings.smsNotifications,
-      digestFrequency: (preferences.digestFrequency as string) ?? 'daily',
-      quietHoursStart: preferences.quietHoursStart as string | undefined,
-      quietHoursEnd: preferences.quietHoursEnd as string | undefined,
+      digestFrequency: (settings.digestFrequency as string) ?? 'daily',
+      quietHoursStart: settings.quietHoursStart ?? undefined,
+      quietHoursEnd: settings.quietHoursEnd ?? undefined,
       securityAlerts: (preferences.securityAlerts as boolean) ?? true,
-      updatedAt: settings.updatedAt,
+      updatedAt: new Date(),
     };
   }
 }

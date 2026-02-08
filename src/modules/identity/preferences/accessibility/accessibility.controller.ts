@@ -1,97 +1,99 @@
-import { Controller, Get, Put, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Put,
+  Body,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import {
-  SetLanguageUseCase,
-  SetTimezoneUseCase,
-  SetDateNumberFormatsUseCase,
-  SetCurrencyUseCase,
-  SetTimeFormatUseCase,
-  SetAccessibilityPreferencesUseCase,
-  SetHighContrastModeUseCase,
-} from '@/application/use-cases/identity/preferences';
-import {
-  SetLanguageDto,
-  SetLanguageResponseDto,
-  SetTimezoneDto,
-  SetTimezoneResponseDto,
-  SetDateNumberFormatsDto,
-  SetDateNumberFormatsResponseDto,
-  SetCurrencyDto,
-  SetCurrencyResponseDto,
-  SetTimeFormatDto,
-  SetTimeFormatResponseDto,
-  SetAccessibilityPreferencesDto,
-  SetAccessibilityPreferencesResponseDto,
-  SetHighContrastModeDto,
-  SetHighContrastModeResponseDto,
-} from '@/application/dto/identity/preferences';
+import * as AccessibilityUseCase from '@/application/use-cases/identity/preferences/accessibility';
+import * as AccessibilityDto from '@/application/dto/identity/preferences/accessibility';
+import { JwtAuthGuard } from '@/shared/guards';
+import { CurrentUser } from '@/shared/decorators';
 
 @ApiTags('Preferences - Accessibility')
 @ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('preferences/accessibility')
 export class AccessibilityController {
   constructor(
-    private readonly setLanguageUseCase: SetLanguageUseCase,
-    private readonly setTimezoneUseCase: SetTimezoneUseCase,
-    private readonly setDateNumberFormatsUseCase: SetDateNumberFormatsUseCase,
-    private readonly setCurrencyUseCase: SetCurrencyUseCase,
-    private readonly setTimeFormatUseCase: SetTimeFormatUseCase,
-    private readonly setAccessibilityPreferencesUseCase: SetAccessibilityPreferencesUseCase,
-    private readonly setHighContrastModeUseCase: SetHighContrastModeUseCase,
+    private readonly setLanguageUseCase: AccessibilityUseCase.SetLanguageUseCase,
+    private readonly setTimezoneUseCase: AccessibilityUseCase.SetTimezoneUseCase,
+    private readonly setDateNumberFormatsUseCase: AccessibilityUseCase.SetDateNumberFormatsUseCase,
+    private readonly setCurrencyUseCase: AccessibilityUseCase.SetCurrencyUseCase,
+    private readonly setTimeFormatUseCase: AccessibilityUseCase.SetTimeFormatUseCase,
+    private readonly setAccessibilityPreferencesUseCase: AccessibilityUseCase.SetAccessibilityPreferencesUseCase,
+    private readonly setHighContrastModeUseCase: AccessibilityUseCase.SetHighContrastModeUseCase,
   ) {}
 
   @Put('language')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Set preferred language' })
-  async setLanguage(@Body() dto: SetLanguageDto): Promise<SetLanguageResponseDto> {
-    return this.setLanguageUseCase.execute(dto);
+  async setLanguage(
+    @CurrentUser('sub') userId: string,
+    @Body() dto: AccessibilityDto.SetLanguageDto,
+  ): Promise<AccessibilityDto.SetLanguageResponseDto> {
+    return this.setLanguageUseCase.execute(userId, dto);
   }
 
   @Put('timezone')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Set timezone' })
-  async setTimezone(@Body() dto: SetTimezoneDto): Promise<SetTimezoneResponseDto> {
-    return this.setTimezoneUseCase.execute(dto);
+  async setTimezone(
+    @CurrentUser('sub') userId: string,
+    @Body() dto: AccessibilityDto.SetTimezoneDto,
+  ): Promise<AccessibilityDto.SetTimezoneResponseDto> {
+    return this.setTimezoneUseCase.execute(userId, dto);
   }
 
   @Put('date-number-formats')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Set date and number format preferences' })
   async setDateNumberFormats(
-    @Body() dto: SetDateNumberFormatsDto,
-  ): Promise<SetDateNumberFormatsResponseDto> {
-    return this.setDateNumberFormatsUseCase.execute(dto);
+    @CurrentUser('sub') userId: string,
+    @Body() dto: AccessibilityDto.SetDateNumberFormatsDto,
+  ): Promise<AccessibilityDto.SetDateNumberFormatsResponseDto> {
+    return this.setDateNumberFormatsUseCase.execute(userId, dto);
   }
 
   @Put('currency')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Set preferred currency' })
-  async setCurrency(@Body() dto: SetCurrencyDto): Promise<SetCurrencyResponseDto> {
-    return this.setCurrencyUseCase.execute(dto);
+  async setCurrency(
+    @CurrentUser('sub') userId: string,
+    @Body() dto: AccessibilityDto.SetCurrencyDto,
+  ): Promise<AccessibilityDto.SetCurrencyResponseDto> {
+    return this.setCurrencyUseCase.execute(userId, dto);
   }
 
   @Put('time-format')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Set time format (12h/24h)' })
-  async setTimeFormat(@Body() dto: SetTimeFormatDto): Promise<SetTimeFormatResponseDto> {
-    return this.setTimeFormatUseCase.execute(dto);
+  async setTimeFormat(
+    @CurrentUser('sub') userId: string,
+    @Body() dto: AccessibilityDto.SetTimeFormatDto,
+  ): Promise<AccessibilityDto.SetTimeFormatResponseDto> {
+    return this.setTimeFormatUseCase.execute(userId, dto);
   }
 
   @Put('preferences')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Set accessibility preferences' })
   async setAccessibilityPreferences(
-    @Body() dto: SetAccessibilityPreferencesDto,
-  ): Promise<SetAccessibilityPreferencesResponseDto> {
-    return this.setAccessibilityPreferencesUseCase.execute(dto);
+    @CurrentUser('sub') userId: string,
+    @Body() dto: AccessibilityDto.SetAccessibilityPreferencesDto,
+  ): Promise<AccessibilityDto.SetAccessibilityPreferencesResponseDto> {
+    return this.setAccessibilityPreferencesUseCase.execute(userId, dto);
   }
 
   @Put('high-contrast')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Toggle high contrast mode' })
   async setHighContrastMode(
-    @Body() dto: SetHighContrastModeDto,
-  ): Promise<SetHighContrastModeResponseDto> {
-    return this.setHighContrastModeUseCase.execute(dto);
+    @CurrentUser('sub') userId: string,
+    @Body() dto: AccessibilityDto.SetHighContrastModeDto,
+  ): Promise<AccessibilityDto.SetHighContrastModeResponseDto> {
+    return this.setHighContrastModeUseCase.execute(userId, dto);
   }
 }

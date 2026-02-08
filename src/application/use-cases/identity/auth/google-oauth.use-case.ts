@@ -3,6 +3,7 @@ import type { IUserRepository } from '@/domain/repositories';
 import type { ITokenService } from '@/application/ports';
 import { generateUserId, OAuth } from '@/shared/utils';
 import { UserEntity } from '@/domain/entities';
+import { Roles } from '@/domain/interfaces';
 import { EmailValueObject, PasswordValueObject } from '@/domain/value-objects/identity';
 import { GoogleLoginOAuthDto } from '@/application/dto/identity/auth';
 import { AuthResponseDto } from '@/application/dto/responses';
@@ -34,6 +35,7 @@ export class GoogleOAuthUseCase {
         null,
         true,
         true,
+        Roles.USER,
       );
 
       user = await this.userRepository.save(newUser);
@@ -54,6 +56,8 @@ export class GoogleOAuthUseCase {
         phone: user.phone?.getValue() || null,
         isActive: user.isActive,
         isEmailVerified: user.isEmailVerified,
+        role: user.role,
+        archivedAt: user.archivedAt,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },

@@ -10,15 +10,23 @@ import {
   ComplianceSettingsValueObject,
 } from '@/domain/value-objects/identity/preferences';
 import { PreferencesMapper } from '@/infrastructure/persistence/prisma/mappers/identity/preferences';
-import { v4 as uuidv4 } from 'uuid';
 import { generateUserId } from '@/shared/utils';
 import {
-  Theme,
   IDataOwnershipSettings,
   IPrivacySettings,
   IAccountControlSettings,
   VisibilityLevel,
 } from '@/domain/interfaces';
+
+const FULL_PREFERENCES_INCLUDE = {
+  accessibilitySettings: true,
+  customizationSettings: true,
+  securitySettings: true,
+  notificationSettings: true,
+  privacySettings: true,
+  accountControl: true,
+  dataOwnership: true,
+} as const;
 
 @Injectable()
 export class PrismaUserPreferencesRepository implements IUserPreferencesRepository {
@@ -30,14 +38,7 @@ export class PrismaUserPreferencesRepository implements IUserPreferencesReposito
   async findByUserId(userId: string): Promise<UserPreferencesEntity | null> {
     const preferences = await this.prisma.userPreferences.findUnique({
       where: { userId },
-      include: {
-        securitySettings: true,
-        complianceSettings: true,
-        notificationSettings: true,
-        accountControl: true,
-        dataOwnership: true,
-        privacySettings: true,
-      },
+      include: FULL_PREFERENCES_INCLUDE,
     });
 
     return preferences ? this.mapper.toDomain(preferences) : null;
@@ -46,28 +47,6 @@ export class PrismaUserPreferencesRepository implements IUserPreferencesReposito
   async createDefaultPreferences(
     userId: string,
   ): Promise<UserPreferencesEntity> {
-    const preferencesId = generateUserId();
-    const notificationSettingsId = generateUserId();
-    const securitySettingsId = generateUserId();
-    const complianceSettingsId = generateUserId();
-    const accountControlId = generateUserId();
-    const dataOwnershipId = generateUserId();
-    const privacySettingsId = generateUserId();
-
-    const defaultUiPreferences = {
-      theme: Theme.SYSTEM,
-      language: 'en',
-      timezone: 'UTC',
-      dateFormat: 'MM/DD/YYYY',
-      timeFormat: '12h',
-      currency: 'USD',
-      paginationSize: 10,
-      defaultView: 'grid',
-      highContrastMode: false,
-      reducedMotion: false,
-      fontSize: 'medium',
-    } as Prisma.InputJsonValue;
-
     const defaultNotificationPreferences = {
       digestFrequency: 'daily',
       quietHoursStart: null,
@@ -92,12 +71,44 @@ export class PrismaUserPreferencesRepository implements IUserPreferencesReposito
 
     const created = await this.prisma.userPreferences.create({
       data: {
-        id: preferencesId,
+        id: generateUserId(),
         userId,
-        uiPreferences: defaultUiPreferences,
+        accessibilitySettings: {
+          create: {
+            id: generateUserId(),
+            language: 'en',
+            timezone: 'UTC',
+            dateFormat: 'MM/DD/YYYY',
+            numberFormat: '1,000.00',
+            currency: 'USD',
+            timeFormat: '12h',
+            highContrastMode: false,
+            reducedMotion: false,
+            screenReaderOptimized: false,
+            fontSize: 'medium',
+            keyboardNavigation: false,
+            colorBlindMode: null,
+          },
+        },
+        customizationSettings: {
+          create: {
+            id: generateUserId(),
+            theme: 'system',
+            layoutPreferences: {} as Prisma.InputJsonValue,
+            defaultViews: {} as Prisma.InputJsonValue,
+            sortFilterDefaults: {} as Prisma.InputJsonValue,
+            paginationSize: 10,
+            featureToggles: {} as Prisma.InputJsonValue,
+            betaFeaturesOptIn: false,
+            aiFeaturesOptIn: false,
+            contentSensitivityFilters: {} as Prisma.InputJsonValue,
+            sidebarCollapsed: false,
+            compactMode: false,
+          },
+        },
         notificationSettings: {
           create: {
-            id: notificationSettingsId,
+            id: generateUserId(),
             emailNotifications: true,
             pushNotifications: true,
             smsNotifications: false,
@@ -113,7 +124,7 @@ export class PrismaUserPreferencesRepository implements IUserPreferencesReposito
         },
         securitySettings: {
           create: {
-            id: securitySettingsId,
+            id: generateUserId(),
             twoFactorEnabled: false,
             twoFactorMethod: null,
             passkeysEnabled: false,
@@ -128,18 +139,9 @@ export class PrismaUserPreferencesRepository implements IUserPreferencesReposito
             passwordRotationReminder: 90,
           },
         },
-        complianceSettings: {
-          create: {
-            id: complianceSettingsId,
-            dataShareConsent: false,
-            dataRetentionMonths: 24,
-            allowAccountDeletion: true,
-            auditLogPreference: 'standard',
-          },
-        },
         accountControl: {
           create: {
-            id: accountControlId,
+            id: generateUserId(),
             deactivated: false,
             deactivatedAt: null,
             deletionRequested: false,
@@ -149,7 +151,7 @@ export class PrismaUserPreferencesRepository implements IUserPreferencesReposito
         },
         dataOwnership: {
           create: {
-            id: dataOwnershipId,
+            id: generateUserId(),
             exportFormat: 'json',
             dataRetentionDays: 365,
             allowAutoDelete: false,
@@ -161,7 +163,7 @@ export class PrismaUserPreferencesRepository implements IUserPreferencesReposito
         },
         privacySettings: {
           create: {
-            id: privacySettingsId,
+            id: generateUserId(),
             profileVisibility: 'private',
             activityVisibility: defaultActivityVisibility,
             fieldLevelVisibility: defaultFieldLevelVisibility,
@@ -169,17 +171,13 @@ export class PrismaUserPreferencesRepository implements IUserPreferencesReposito
             allowPublicProfile: false,
             allowSearchEngineIndex: false,
             allowThirdPartySharing: false,
+            dataShareConsent: false,
+            dataRetentionMonths: 12,
+            auditLogPreference: 'full',
           },
         },
       },
-      include: {
-        securitySettings: true,
-        complianceSettings: true,
-        notificationSettings: true,
-        accountControl: true,
-        dataOwnership: true,
-        privacySettings: true,
-      },
+      include: FULL_PREFERENCES_INCLUDE,
     });
 
     return this.mapper.toDomain(created);
@@ -192,16 +190,20 @@ export class PrismaUserPreferencesRepository implements IUserPreferencesReposito
       data: {
         id: preferences.id,
         userId: preferences.userId,
-        uiPreferences: {
-          theme: preferences.getTheme(),
-          language: preferences.getLanguage(),
-        } as Prisma.InputJsonValue,
+        accessibilitySettings: {
+          create: {
+            id: generateUserId(),
+            language: preferences.getLanguage(),
+          },
+        },
+        customizationSettings: {
+          create: {
+            id: generateUserId(),
+            theme: preferences.getTheme(),
+          },
+        },
       },
-      include: {
-        securitySettings: true,
-        complianceSettings: true,
-        notificationSettings: true,
-      },
+      include: FULL_PREFERENCES_INCLUDE,
     });
 
     return this.mapper.toDomain(saved);
@@ -210,22 +212,41 @@ export class PrismaUserPreferencesRepository implements IUserPreferencesReposito
   async update(
     preferences: UserPreferencesEntity,
   ): Promise<UserPreferencesEntity> {
-    const updated = await this.prisma.userPreferences.update({
+    const existing = await this.prisma.userPreferences.findUnique({
       where: { userId: preferences.userId },
-      data: {
-        uiPreferences: {
-          theme: preferences.getTheme(),
-          language: preferences.getLanguage(),
-        } as Prisma.InputJsonValue,
-      },
-      include: {
-        securitySettings: true,
-        complianceSettings: true,
-        notificationSettings: true,
+      select: { id: true },
+    });
+
+    if (!existing) {
+      return this.save(preferences);
+    }
+
+    await this.prisma.accessibilitySettings.upsert({
+      where: { userPreferencesId: existing.id },
+      update: { language: preferences.getLanguage() },
+      create: {
+        id: generateUserId(),
+        userPreferencesId: existing.id,
+        language: preferences.getLanguage(),
       },
     });
 
-    return this.mapper.toDomain(updated);
+    await this.prisma.customizationSettings.upsert({
+      where: { userPreferencesId: existing.id },
+      update: { theme: preferences.getTheme() },
+      create: {
+        id: generateUserId(),
+        userPreferencesId: existing.id,
+        theme: preferences.getTheme(),
+      },
+    });
+
+    const updated = await this.prisma.userPreferences.findUnique({
+      where: { userId: preferences.userId },
+      include: FULL_PREFERENCES_INCLUDE,
+    });
+
+    return this.mapper.toDomain(updated!);
   }
 
   async delete(userId: string): Promise<void> {
@@ -238,10 +259,33 @@ export class PrismaUserPreferencesRepository implements IUserPreferencesReposito
     userId: string,
     uiPreferences: UIPreferencesValueObject,
   ): Promise<void> {
-    await this.prisma.userPreferences.update({
+    const preferences = await this.prisma.userPreferences.findUnique({
       where: { userId },
-      data: {
-        uiPreferences: this.mapper.toUiPreferencesPersistence(uiPreferences),
+      select: { id: true },
+    });
+
+    if (!preferences) return;
+
+    const { accessibilityData, customizationData } =
+      this.mapper.toUiPreferencesPersistence(uiPreferences);
+
+    await this.prisma.accessibilitySettings.upsert({
+      where: { userPreferencesId: preferences.id },
+      update: accessibilityData,
+      create: {
+        id: generateUserId(),
+        userPreferencesId: preferences.id,
+        ...accessibilityData,
+      },
+    });
+
+    await this.prisma.customizationSettings.upsert({
+      where: { userPreferencesId: preferences.id },
+      update: customizationData,
+      create: {
+        id: generateUserId(),
+        userPreferencesId: preferences.id,
+        ...customizationData,
       },
     });
   }
@@ -252,6 +296,7 @@ export class PrismaUserPreferencesRepository implements IUserPreferencesReposito
   ): Promise<void> {
     const preferences = await this.prisma.userPreferences.findUnique({
       where: { userId },
+      select: { id: true },
     });
 
     if (!preferences) return;
@@ -268,7 +313,7 @@ export class PrismaUserPreferencesRepository implements IUserPreferencesReposito
         preferences: data.preferences,
       },
       create: {
-        id: uuidv4().slice(0, 12),
+        id: generateUserId(),
         userPreferencesId: preferences.id,
         emailNotifications: data.emailNotifications,
         pushNotifications: data.pushNotifications,
@@ -284,6 +329,7 @@ export class PrismaUserPreferencesRepository implements IUserPreferencesReposito
   ): Promise<void> {
     const preferences = await this.prisma.userPreferences.findUnique({
       where: { userId },
+      select: { id: true },
     });
 
     if (!preferences) return;
@@ -301,7 +347,7 @@ export class PrismaUserPreferencesRepository implements IUserPreferencesReposito
         trustedDevices: data.trustedDevices,
       },
       create: {
-        id: uuidv4().slice(0, 12),
+        id: generateUserId(),
         userPreferencesId: preferences.id,
         twoFactorEnabled: data.twoFactorEnabled,
         twoFactorMethod: data.twoFactorMethod,
@@ -319,6 +365,7 @@ export class PrismaUserPreferencesRepository implements IUserPreferencesReposito
   ): Promise<void> {
     const preferences = await this.prisma.userPreferences.findUnique({
       where: { userId },
+      select: { id: true },
     });
 
     if (!preferences) return;
@@ -326,13 +373,19 @@ export class PrismaUserPreferencesRepository implements IUserPreferencesReposito
     const data =
       this.mapper.toComplianceSettingsPersistence(complianceSettings);
 
-    await this.prisma.userComplianceSettings.upsert({
+    await this.prisma.privacySettings.upsert({
       where: { userPreferencesId: preferences.id },
-      update: data,
+      update: {
+        dataShareConsent: data.dataShareConsent,
+        dataRetentionMonths: data.dataRetentionMonths,
+        auditLogPreference: data.auditLogPreference,
+      },
       create: {
-        id: uuidv4().slice(0, 12),
+        id: generateUserId(),
         userPreferencesId: preferences.id,
-        ...data,
+        dataShareConsent: data.dataShareConsent,
+        dataRetentionMonths: data.dataRetentionMonths,
+        auditLogPreference: data.auditLogPreference,
       },
     });
   }

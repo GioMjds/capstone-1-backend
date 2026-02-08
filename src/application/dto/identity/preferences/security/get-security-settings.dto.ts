@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class ActiveSessionDto {
+export class SecurityActiveSessionDto {
   @ApiProperty()
   id: string;
 
@@ -47,8 +47,8 @@ export class SecuritySettingsResponseDto {
   @ApiProperty()
   passwordChangedAt: Date;
 
-  @ApiProperty({ type: [ActiveSessionDto] })
-  activeSessions: ActiveSessionDto[];
+  @ApiProperty({ type: [SecurityActiveSessionDto] })
+  activeSessions: SecurityActiveSessionDto[];
 
   @ApiProperty({ type: [TrustedDeviceInfoDto] })
   trustedDevices: TrustedDeviceInfoDto[];

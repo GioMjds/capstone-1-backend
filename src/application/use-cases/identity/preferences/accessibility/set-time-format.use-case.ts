@@ -1,19 +1,39 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
   SetTimeFormatDto,
   SetTimeFormatResponseDto,
 } from '@/application/dto/identity/preferences';
 import { TimeFormat } from '@/domain/interfaces';
+import { IAccessibilityRepository } from '@/domain/repositories/identity/preferences';
 
 @Injectable()
 export class SetTimeFormatUseCase {
-  constructor() {}
+  constructor(
+    @Inject('IAccessibilityRepository')
+    private readonly accessibilityRepository: IAccessibilityRepository,
+  ) {}
 
-  async execute(dto: SetTimeFormatDto): Promise<SetTimeFormatResponseDto> {
+  async execute(
+    userId: string,
+    dto: SetTimeFormatDto,
+  ): Promise<SetTimeFormatResponseDto> {
+    await this.accessibilityRepository.updateAccessibilitySettings(userId, {
+      timeFormat: dto.format,
+    });
+
+    const settings =
+      await this.accessibilityRepository.getAccessibilitySettings(userId);
+
+    if (!settings) {
+      throw new NotFoundException('Accessibility settings not found');
+    }
+
+    const format = settings.timeFormat as TimeFormat;
+
     return {
-      id: 'time-format-123',
-      format: dto.format,
-      example: dto.format === TimeFormat.TWELVE_HOUR ? '12:30 PM' : '12:30',
+      id: settings.id,
+      format,
+      example: format === TimeFormat.TWELVE_HOUR ? '12:30 PM' : '12:30',
       updatedAt: new Date(),
     };
   }

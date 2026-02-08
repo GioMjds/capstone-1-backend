@@ -2,8 +2,12 @@ import { Injectable } from '@nestjs/common';
 import {
   UserPreferences as PrismaUserPreferences,
   UserSecuritySettings as PrismaUserSecuritySettings,
-  UserComplianceSettings as PrismaUserComplianceSettings,
   UserNotificationSettings as PrismaUserNotificationSettings,
+  AccessibilitySettings as PrismaAccessibilitySettings,
+  CustomizationSettings as PrismaCustomizationSettings,
+  PrivacySettings as PrismaPrivacySettings,
+  AccountControlSettings as PrismaAccountControlSettings,
+  DataOwnershipSettings as PrismaDataOwnershipSettings,
   Prisma,
 } from '@prisma/client';
 import { UserPreferencesEntity } from '@/domain/entities/identity/preferences';
@@ -15,9 +19,13 @@ import {
 } from '@/domain/value-objects/identity/preferences';
 
 type PrismaUserPreferencesWithRelations = PrismaUserPreferences & {
+  accessibilitySettings?: PrismaAccessibilitySettings | null;
+  customizationSettings?: PrismaCustomizationSettings | null;
   securitySettings?: PrismaUserSecuritySettings | null;
-  complianceSettings?: PrismaUserComplianceSettings | null;
   notificationSettings?: PrismaUserNotificationSettings | null;
+  privacySettings?: PrismaPrivacySettings | null;
+  accountControl?: PrismaAccountControlSettings | null;
+  dataOwnership?: PrismaDataOwnershipSettings | null;
 };
 
 @Injectable()
@@ -25,42 +33,38 @@ export class PreferencesMapper {
   toDomain(
     prismaPreferences: PrismaUserPreferencesWithRelations,
   ): UserPreferencesEntity {
-    const uiPreferences = UIPreferencesValueObject.fromPersistence(
-      prismaPreferences.uiPreferences as Record<string, unknown>,
-    );
-
-    const notificationSettings = prismaPreferences.notificationSettings
-      ? NotificationSettingsValueObject.fromPersistence({
-          emailNotifications:
-            prismaPreferences.notificationSettings.emailNotifications,
-          pushNotifications:
-            prismaPreferences.notificationSettings.pushNotifications,
-          smsNotifications:
-            prismaPreferences.notificationSettings.smsNotifications,
-          ...(prismaPreferences.notificationSettings.preferences as Record<
-            string,
-            unknown
-          >),
-        })
-      : NotificationSettingsValueObject.create({});
-
-    void notificationSettings;
+    const theme =
+      prismaPreferences.customizationSettings?.theme ?? 'system';
+    const language =
+      prismaPreferences.accessibilitySettings?.language ?? 'en';
+    const notifications =
+      prismaPreferences.notificationSettings?.emailNotifications ?? true;
 
     return UserPreferencesEntity.reconstitute({
       id: prismaPreferences.id,
       userId: prismaPreferences.userId,
-      theme:
-        (uiPreferences.getTheme() as 'light' | 'dark' | 'system') ?? 'LIGHT',
-      language: uiPreferences.getLanguage(),
-      notifications:
-        prismaPreferences.notificationSettings?.emailNotifications ?? true,
+      theme,
+      language,
+      notifications,
     });
   }
 
   toUiPreferencesPersistence(
     uiPreferences: UIPreferencesValueObject,
-  ): Prisma.InputJsonValue {
-    return uiPreferences.toPersistence() as Prisma.InputJsonValue;
+  ): {
+    accessibilityData: Record<string, unknown>;
+    customizationData: Record<string, unknown>;
+  } {
+    const data = uiPreferences.toPersistence();
+    return {
+      accessibilityData: {
+        language: data.language,
+        timezone: data.timezone,
+      },
+      customizationData: {
+        theme: data.theme,
+      },
+    };
   }
 
   toNotificationSettingsPersistence(
@@ -106,13 +110,11 @@ export class PreferencesMapper {
   toComplianceSettingsPersistence(settings: ComplianceSettingsValueObject): {
     dataShareConsent: boolean;
     dataRetentionMonths: number;
-    allowAccountDeletion: boolean;
     auditLogPreference: string;
   } {
     return {
       dataShareConsent: settings.isDataShareConsentGiven(),
       dataRetentionMonths: settings.getDataRetentionMonths(),
-      allowAccountDeletion: settings.isAccountDeletionAllowed(),
       auditLogPreference: settings.getAuditLogPreference(),
     };
   }

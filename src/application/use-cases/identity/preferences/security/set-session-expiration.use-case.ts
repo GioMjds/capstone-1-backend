@@ -1,16 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import {
   SetSessionExpirationDto,
   SetSessionExpirationResponseDto,
 } from '@/application/dto/identity/preferences';
+import { ISecurityRepository } from '@/domain/repositories/identity/preferences';
 
 @Injectable()
 export class SetSessionExpirationUseCase {
-  constructor() {}
+  constructor(
+    @Inject('ISecurityRepository')
+    private readonly securityRepository: ISecurityRepository,
+  ) {}
 
-  async execute(dto: SetSessionExpirationDto): Promise<SetSessionExpirationResponseDto> {
+  async execute(userId: string, dto: SetSessionExpirationDto): Promise<SetSessionExpirationResponseDto> {
+    await this.securityRepository.updateSecuritySettings(userId, {
+      sessionExpiration: dto.expirationMinutes,
+    });
+
     return {
-      id: 'session-expiration-123',
+      id: userId,
       expirationMinutes: dto.expirationMinutes,
       warningMinutes: dto.warningMinutes ?? 5,
       appliesImmediately: true,
